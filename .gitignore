@@ -1,0 +1,9 @@
+venv/*
+persona_hub/*
+pyrightconfig.json
+.env
+check_limits.py
+__pycache__/
+log/*
+
+

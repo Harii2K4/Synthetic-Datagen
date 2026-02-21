@@ -1,0 +1,184 @@
+input persona,question
+An indigenous of Dharug tribe who's always appreciated his tribe's culture.,"The Dharug tribe has a unique way of representing numbers using a base-7 number system. In this system, the number 49 is represented as 100. 
+
+1. Convert the base-7 number 4563 to a base-10 number.
+2. Convert the base-10 number 2021 to a base-7 number."
+A passionate OFI Crete F.C. fan who is hopeful and expectant for a great season.,"The passionate OFI Crete F.C. fan is very interested in the team's performance and wants to predict the team's total points for the season. He has collected data from the past 5 seasons and noticed that the team's total points (P) can be modeled by a quadratic function of the number of games won (W), given by P = aW^2 + bW + c. 
+
+In the past 5 seasons, the team won 10, 12, 15, 17, and 20 games respectively, and the corresponding total points were 45, 51, 60, 68, and 81. 
+
+1. Find the quadratic function P = aW^2 + bW + c that best fits the data. 
+2. Predict the team's total points for the next season if they win 22 games."
+A skilled craftsman who can translate the luxury brand manager's vision into tangible and exquisite materials,"Consider a luxury brand manager who wants to create a new product. The product is a cube with a side length of 'a' units. The craftsman is tasked with creating this cube out of a material that is sold in spherical shapes with a radius of 'r' units. 
+
+The craftsman needs to determine how many spheres of material he needs to purchase to create the cube. 
+
+1. Express the volume of the cube in terms of 'a'.
+2. Express the volume of a sphere in terms of 'r'.
+3. Set up an equation that represents the number of spheres needed to create the cube. Solve this equation for 'n', the number of spheres, in terms of 'a' and 'r'.
+
+Note: Use the formulas for the volume of a cube (V_cube = a^3) and the volume of a sphere (V_sphere = 4/3πr^3). Assume that the material from the spheres can be perfectly reshaped without any waste."
+"a casual viewer of Doctor Who, not very knowledgeable or involved in the fandom.","As a casual viewer of Doctor Who, you are intrigued by the concept of time travel and decide to explore it in a mathematical context. You come across the concept of ""wormholes"" in the space-time continuum, which are often used in science fiction as a method of time travel. 
+
+In mathematics, a wormhole can be represented as a tunnel with two ends, each at separate points in space-time. For simplicity, let's consider a wormhole as a straight line in a 2D plane. 
+
+Suppose you have a wormhole whose one end is at point A(0,0) and the other end is at point B(10,10). You are at point C(0,5) and you want to reach point D(10,5). You can either go straight from C to D, or you can first go to A, enter the wormhole, come out at B and then go to D.
+
+Given that the speed of travel is the same in all cases, which route would take less time? 
+
+Note: You can use the Pythagorean theorem to calculate the distance between two points in a 2D plane. The Pythagorean theorem states that in a right-angled triangle, the square of the length of the hypotenuse (the side opposite the right angle) is equal to the sum of the squares of the lengths of the other two sides. This can be written as: a² + b² = c²"
+A documentary filmmaker highlighting the stories of individuals fighting for equality,"A documentary filmmaker is working on a project that highlights the stories of individuals fighting for equality. She has interviewed 20 individuals so far. She wants to present these stories in a unique way, so she decides to use a mathematical approach.
+
+She wants to create a sequence of interviews, where each interview is connected to the next one based on a common theme. She realizes that this can be represented as a graph, where each individual is a node and each common theme is an edge connecting two nodes.
+
+The filmmaker wants to find a way to traverse this graph such that she visits each node exactly once and returns to the starting node, a problem known as the Hamiltonian cycle problem. However, she also wants to minimize the number of common themes (edges) she repeats, a problem known as the Travelling Salesman Problem (TSP).
+
+Given that she has 20 individuals (nodes) and each individual shares a common theme with at least one other individual (i.e., the graph is connected), can you help her find a way to present these interviews? What is the minimum number of common themes (edges) she would have to repeat if she wants to visit each individual (node) exactly once and return to the starting individual?
+
+Note: This problem assumes that it is possible to find a Hamiltonian cycle in the graph."
+A civil rights attorney who defended clients unfairly targeted due to their race or socio-economic status,"Let $P(x)$ be a polynomial of degree $5$ that represents the number of civil rights cases a certain attorney takes on per year, where $x$ is the year number starting from the year the attorney began their practice. Assume that $P(x)$ has real coefficients. The attorney noticed that the number of cases they took on each year alternated between increasing and decreasing. In the first year, they took on $10$ cases, and in the second year, they took on $12$ cases. In the fifth year, they took on $11$ cases. 
+
+Given that $P(1)=10$, $P(2)=12$, and $P(5)=11$, and knowing that $P(x)$ has alternating roots, find the polynomial $P(x)$."
+A cousin who runs a sustainable living blog and promotes eco-friendly furniture options,"Your cousin runs a sustainable living blog and promotes eco-friendly furniture options. She decides to invest in a furniture company that shares her values. The company's stock price follows a martingale and she invests $100 initially. Let $S_n$ be the stock price after n days. 
+
+Given that $S_0 = 100$, $S_1 = 110$, and $E[S_{n+1}|S_n] = S_n$ for all n ≥ 0, find the expected value of the stock price at the end of 100 days, $E[S_{100}]$."
+A software developer who creates a customized app to streamline the booking and tracking process,"A software developer is working on a customized app to streamline the booking and tracking process for a delivery company. The company charges different rates based on the weight of the package and the distance to be traveled. The rates are as follows:
+
+1. For packages weighing up to 10 kg, the company charges $10 per km plus a flat rate of $20.
+2. For packages weighing more than 10 kg, the company charges $15 per km plus a flat rate of $30.
+
+The developer wants to create an algorithm that will calculate the cost for any given weight and distance. To test the algorithm, he creates two equations using the given rates:
+
+1. 10d + 20 = C, for packages up to 10 kg
+2. 15d + 30 = C, for packages more than 10 kg
+
+Where 'd' is the distance in km, and 'C' is the cost in dollars.
+
+The developer then uses these equations to create two inequalities, which represent the minimum and maximum costs for a given distance. He wants to find the range of distances for which the cost will be between $200 and $500.
+
+1. 200 ≤ 10d + 20 ≤ 500
+2. 200 ≤ 15d + 30 ≤ 500
+
+Solve these inequalities to find the range of distances that meet the developer’s requirements."
+An elderly man with a vast collection of vintage audio equipment and a wealth of stories about the music industry,"An elderly man has a vast collection of vintage audio equipment. He arranges his collection in a square grid format to display it in his music room. The number of items in each row and column is a square number. One day, he adds 169 new pieces of equipment to his collection. Now, the total number of items in his collection is also a square number. If the number of items in his collection before the addition was between 1000 and 2000, find the original number of items in his collection."
+a high school science teacher in Poland,"As a high school science teacher in Poland, you are planning a science experiment for your students. The experiment involves the use of a spherical balloon. The balloon is initially empty and you start filling it with air at a constant rate of 5 cubic centimeters per second.
+
+You want to know when the balloon will reach a certain size. Specifically, you want to know the time it will take for the balloon to have a radius of 10 centimeters.
+
+Given that the volume V of a sphere is given by the formula V = 4/3πr³, where r is the radius of the sphere, calculate the time it will take for the balloon to reach the desired size."
+A computer science student who’s learning about the OpenGL Shading Language (GLSL),"As a computer science student learning about the OpenGL Shading Language (GLSL), you are working on a project that involves 3D graphics. You are given a 3D point P(x, y, z) in a Cartesian coordinate system and you need to convert it into spherical coordinates (r, θ, φ).
+
+The conversion from Cartesian coordinates to spherical coordinates is given by the following equations:
+
+r = √(x² + y² + z²)
+θ = arctan(y / x)
+φ = arccos(z / r)
+
+Given the point P(2, 2, 1), calculate the spherical coordinates (r, θ, φ) of this point. 
+
+Note: 
+1. The arctan function returns a value in the range (-π/2, π/2), so you may need to adjust the value of θ depending on the quadrant of the point in the xy-plane.
+2. The arccos function returns a value in the range [0, π], so φ will be between 0 and π."
+A rival factory manager who believes that outsourcing is the key to success in the industry,"Consider a sequence of real numbers $(a_n)_{n\geq0}$, with $a_0 = 1$ and $a_1 = 2$. The rival factory manager believes in an outsourcing strategy that is represented by the recurrence relation
+\[a_{n+2} = a_{n+1} + 2a_n,\]
+for all $n\geq0$. The manager also believes that the quantity $a_{2022}$ will represent the ultimate success of his factory.
+
+1. Prove by induction that for all $n\geq0$, the sequence $(a_n)_{n\geq0}$ can be expressed as $a_n = 2^n + n2^{n-1}$.
+2. Calculate $a_{2022}$."
+A music producer who regularly collaborates with the idol on their albums,"A music producer is working on a new album with an idol. The producer is using a cylindrical rod in one of the musical instruments which is subjected to a torque of 50 Nm. The rod has a length of 2 meters and a diameter of 0.05 meters. The producer wants to ensure that the rod does not deform during the performance, so he needs to calculate the maximum shear stress in the rod. 
+
+Given that the modulus of rigidity of the material of the rod is 80 GPa, can you help the producer to find out the maximum shear stress in the rod? Also, calculate the angle of twist in degrees at the end of the rod if it is fixed at one end.
+
+Use the following formulas:
+- Maximum shear stress (τ_max) = Torque (T) * Radius (r) / Moment of Inertia (I)
+- Angle of twist (θ) = Torque (T) * Length (L) / (Modulus of rigidity (G) * Moment of Inertia (I))
+
+Where:
+- The radius (r) is half of the diameter of the rod.
+- The moment of inertia (I) for a circular cross-section is πr^4 / 2."
+An art historian and critic renowned for their expertise in analyzing and interpreting priceless artworks,"The art historian is organizing an exhibit of priceless cubist paintings in a special hall. The hall is a rectangular prism with dimensions 10m by 12m by 5m. The paintings are to be displayed on special triangular prism stands. Each stand has a base area of 1m^2 and a height of 2m. 
+
+The art historian has a rule: to prevent damage, each stand must be at least 1m away from any wall and 2m away from any other stand. 
+
+Given these conditions, what is the maximum number of stands that can be placed in the hall without breaking the art historian's rules? 
+
+Assume that the stands can be placed in any orientation and that the 2m distance between stands is measured from their closest points."
+A diligent fact-checker committed to ensuring the accuracy of scientific information in fictional works,"Consider a fictional company named ""TechX"". The company has issued 1 million shares and is currently trading at $50 per share. The company's current year earnings are $5 million and it is expected to grow at a rate of 10% per year for the next five years. After five years, the growth rate is expected to decrease to 5% per year indefinitely. 
+
+If the required rate of return for TechX's shareholders is 12%, calculate the intrinsic value of TechX's share using the two-stage dividend discount model. Assume that all of TechX's earnings are paid out as dividends and that the first dividend payment will be made one year from now."
+A beverage distributor who relies on persuasive marketing campaigns to increase sales of various alcoholic beverages,"A beverage distributor has been running a marketing campaign to increase the sales of their alcoholic beverages. They have three types of beverages: Beer, Wine, and Whiskey. The sales of these beverages are represented by the variables B, W, and Y respectively.
+
+The distributor has noticed that the sales of these beverages are related and can be represented by the following equations:
+
+1. B = 2W + 3Y
+2. W = 4B - Y
+3. Y = 3W - 2B
+
+The distributor wants to increase the sales of all three beverages. They have decided to increase the sales of Beer by 20%, Wine by 15%, and Whiskey by 10%. 
+
+What will be the new sales equations after the increase?"
+A young entrepreneur who recently lost their job and is seeking guidance on managing their finances during a difficult time,"A young entrepreneur is planning to launch a satellite into a circular orbit around the Earth. The satellite will be at an altitude of 2000 km above the Earth's surface. The entrepreneur is interested in knowing how long it will take for the satellite to complete one full orbit around the Earth. 
+
+For this problem, consider the following:
+
+- The radius of the Earth is approximately 6371 km.
+- The gravitational constant (G) is approximately 6.674 × 10^-11 m^3 kg^-1 s^-2.
+- The mass of the Earth (M) is approximately 5.972 × 10^24 kg.
+
+The formula for the period of a satellite in a circular orbit around the Earth is given by T = 2π√(r^3/GM), where r is the distance from the center of the Earth to the satellite.
+
+Calculate the period of the satellite's orbit in hours."
+A Barcelona-based Catalan nationalist,"Consider a Catalan number sequence, which is a sequence of natural numbers that occur in various counting problems, often involving recursively defined objects. The first few Catalan numbers for n = 0, 1, 2, 3, ... are 1, 1, 2, 5, 14, 42, 132, ...
+
+The Catalan numbers are given by the formula:
+
+C(n) = (2n choose n) / (n + 1) = (2n)! / [(n + 1)!n!]
+
+where ""choose"" denotes a binomial coefficient, and ""!"" denotes factorial.
+
+Given that the Catalan number C(n) is divisible by the prime number p, prove that p ≤ 2n. 
+
+Hint: Use the properties of binomial coefficients and factorials, and consider the prime factorization of the numerator and denominator of the formula for C(n)."
+A motivated and ambitious researcher studying the impact of electoral systems on political representation,"Consider a voting system with n candidates. Each voter ranks the candidates in order of preference. The Borda count method is used to determine the winner, where a candidate gets n points for a first place vote, n-1 for a second place vote, and so on down to 1 point for a last place vote.
+
+Let's denote the total number of voters as m. Suppose that the votes are distributed among the candidates such that the candidate A receives a_i first place votes, b_i second place votes, ..., n_i nth place votes, where i ranges from 1 to n. 
+
+The total score for candidate A is then given by S_A = n*a_1 + (n-1)*b_1 + ... + 1*n_1.
+
+Given that the total score for each candidate is a non-negative integer and the total number of voters m is fixed, find the number of different possible score distributions for candidate A. 
+
+Note: The order of the scores matters, meaning that the score distribution (3, 2, 1) is considered different from (2, 3, 1)."
+A neurology student who frequently debates the ethical dilemmas of modern medicine with their classmates,"Consider a neural network model that the neurology student is studying. This model is a directed, weighted graph consisting of neurons (vertices) and synapses (edges). The weight of each synapse represents the strength of the connection between two neurons.
+
+Let's denote the number of neurons as n and the number of synapses as m. The weight of the synapse connecting neuron i and neuron j is denoted as w_ij.
+
+The student is interested in a particular neuron, neuron 1, and wants to find out the maximum total weight of synapses that can be activated by neuron 1. A synapse is activated if and only if there is a directed path from neuron 1 to both neurons connected by the synapse.
+
+Formulate this problem as an integer linear programming problem. What are the decision variables, the objective function, and the constraints?"
+A fellow teacher who admires the creativity and effectiveness of the sports-themed lessons and incorporates them into their own teaching,"Let's consider a mathematical model of a sports-themed lesson. Suppose that the teacher is teaching a lesson on the concept of series and sequences. The teacher uses the example of a basketball player's scoring pattern. The player scores 2 points in the first minute, 4 points in the second minute, 8 points in the third minute, and so on, doubling his score every minute.
+
+1. Find the general term of the sequence that represents the player's scoring pattern.
+2. Find the sum of the first n terms of the sequence.
+3. Now, suppose the player continues this scoring pattern indefinitely. What is the sum of the infinite geometric series that represents this scoring pattern?"
+A former dance instructor who now runs a successful online vintage clothing store,"As an enthusiastic former dance instructor, Lauren has a keen interest in patterns and sequences. One day, she notices a unique pattern in her online vintage clothing store's monthly sales. The pattern can be described by a recursive sequence ${a_n}$, where $a_1 = 1$ and $a_{n+1} = 2a_n + 1$ for $n \geq 1$.
+
+Lauren also loves linear algebra and realizes that the sequence can be represented by a matrix. Let $A$ be a $2 \times 2$ matrix that represents the recursive sequence, where the first column of $A$ is $\begin{bmatrix} a_{n+1} \\ a_n \end{bmatrix}$ and the second column is $\begin{bmatrix} a_n \\ a_{n-1} \end{bmatrix}$.
+
+Lauren wants to find the trace and determinant of the matrix $A$ for the first 10 terms of the sequence and then determine the eigenvalues. 
+
+Find the trace, determinant, and eigenvalues of the matrix $A$ for the first 10 terms of the sequence."
+A renowned celebrity photographer who has an eye for capturing opulence and glamour,"A renowned celebrity photographer is commissioned to take photos at a grand event. The event is held in a rectangular hall that is 60 meters long and 40 meters wide. The photographer wants to capture the entire hall in a single shot from a corner of the hall. 
+
+To do this, he needs to calculate the distance from the corner of the hall to the opposite corner. This will help him determine the right lens to use for the shot. 
+
+Given that the photographer is standing at one corner of the rectangular hall, what is the distance to the opposite corner? Use the Pythagorean theorem to solve this problem."
+"A genderqueer software engineer from the same country, advocating for inclusivity in the tech industry","A software engineer is working on a space exploration game where players can travel from one celestial body to another. The engineer is programming a realistic escape velocity for each celestial body. For a particular planet in the game, the mass is 1.2 times the mass of Earth, and the radius is 0.8 times the radius of Earth. The escape velocity from Earth is approximately 11.2 km/s. What is the escape velocity from this planet in the game?
+
+Note: The formula for escape velocity is √(2GM/r), where G is the gravitational constant, M is the mass of the celestial body, and r is the radius of the celestial body. For the purposes of this problem, the engineer can approximate the gravitational constant as a ratio of the escape velocities and the square root of the ratio of the masses and radii."
+An investigative journalist who constantly needs his articles to be translated into multiple languages for international reach,"Let's consider a set of languages L = {l1, l2, ..., ln} that the journalist's articles need to be translated into. Suppose that the journalist writes an article in language l0. We can represent the process of translating an article from one language to another as a directed graph G = (V, E), where the vertices V are the languages and there is an edge from vertex u to vertex v if and only if there is a translator who can translate an article from language u to language v.
+
+1. Prove that if G is strongly connected, then for any two languages li and lj in L, there exists a sequence of translations that can translate an article from li to lj.
+
+2. Suppose that each translation from one language to another incurs a certain cost. The cost of translating an article from language u to language v is represented by a weight function w: E → R. Prove that if G is a complete graph and the weight function w satisfies the triangle inequality, then for any language li in L, there exists a sequence of translations that translates an article from l0 to li with the minimum total cost.
+
+3. Suppose that the journalist wants to translate his article into all languages in L. The cost of translating an article from one language to another is still represented by the weight function w. Prove that if G is a complete graph and the weight function w satisfies the triangle inequality, then there exists a sequence of translations that translates an article from l0 to all languages in L with the minimum total cost."
