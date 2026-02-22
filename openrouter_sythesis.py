@@ -1,4 +1,5 @@
 from langchain_core.messages import AIMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_openrouter import ChatOpenRouter
 from langchain_core.prompts import ChatPromptTemplate
 from prompts.teacher_template import teacher_prompt
@@ -38,55 +39,49 @@ def getDomainTemplate(
         return npcTemplate
 
 def generateQuestions(
-        persona:str|List[str],
-        model:str="qwen/qwen3-235b-a22b-thinking-2507",
+        personas:List[str],
+        model:str="upstage/solar-pro-3:free",
         domain:Literal["math","instruction","knowledge","reasoning","tool","npc"]="math",
-                    )->str|List[str]:
-    #TODO : get the template for each domain
+        maxConcurrentRequests:int=10
+                    )->List[str]:
+    #gets the domain template per selection
     domainTemplate=getDomainTemplate(domain)
     #set the generator model
     generator_model = ChatOpenRouter(
             model=model,
             temperature=0,
+            # openrouter_provider={"order":["alibaba"]}
         )
-
-    #check is single or mutltiple
-    if type(persona)==str:
-        personaPrompt =domainTemplate.format(persona=persona)
-
-        # log.info(persona_prompt)
-        template = ChatPromptTemplate(
-            [
-                ("system",personaPrompt),
-            ]
+    #get the list of prompts
+    personaPrompts=[{"personaPrompt":domainTemplate.format(persona=p)} for p in personas]
+    #need to invoke in batches
+    template= ChatPromptTemplate.from_messages(
+         [("system","{personaPrompt}")]
         )
-        log.info("querying model")
-        response:AIMessage=generator_model.invoke(input=template.format_prompt())
+    #create a chain
+    generation_chain=template|generator_model
+    log.info(f"Batch querying model with {len(personas)}")
+    #create the config to limit the number of concurrent requests
+    config=RunnableConfig(max_concurrency=maxConcurrentRequests)
 
-        return str(response.content)
+    responses=generation_chain.batch(
+        personaPrompts,
+        return_exceptions=True,
+        config=config
+    )
+    log.info(f"Recieved {len(responses)} questions")
 
-    else:
-        #get the list of prompts
-        personaPrompts=[{"personaPrompts":domainTemplate.format(p)} for p in persona]
-        #need to invoke in batches
-        template= ChatPromptTemplate.from_messages(
-             [("system","{personaPrompt}")]
-            )
-        #create a chain
-        generation_chain=template|generator_model
-        log.info(f"Batch querying model with {len(persona)}")
-        responses=generation_chain.batch(personaPrompts)
+    #convert the responses to strings
+    responses=[str(r.content) for r in responses]
 
-        #convert the responses to strings
-        responses=[str(r.content) for r in responses]
-
-        return responses
+    return responses
 
 
 def generateAnswers(
-        question:str|List[str],
-        model:str="qwen/qwen3-235b-a22b-thinking-2507",
+        questions:List[str],
+        model:str="openai/gpt-oss-120b",
         teacherName:str="default",
+        maxConcurrentRequests:int=10
                     )->str|List[str]:
 
     if teacherName=="default":
@@ -94,47 +89,39 @@ def generateAnswers(
     else:
         #TODO :custom user teacher prompt
         system_prompt=teacher_prompt
-
+    #create the model instance
     generator_model = ChatOpenRouter(
         model=model,
         temperature=0,
+        openrouter_provider={"order":["groq","baseten/fp4"]}
     )
-    if type(question)==str:
+    questions=[q.replace("{","{{").replace("}","}}") for q in questions]
+    questionPrompts=[{"systemPrompt":system_prompt,"question":q} for q in questions]
+    #need to invoke in batches
+    template= ChatPromptTemplate.from_messages(
+        [
+            ("system","{systemPrompt}"),
+            ("user","{question}"),
+        ]
 
-        #escape the {} which langchain considers as variables
-        question=question.replace("{","{{").replace("}","}}")
+    )
+    #create a chain
+    generation_chain=template|generator_model
+    log.info(f"Batch querying model for answers with {len(questions)}")
+    #create the config to limit the number of concurrent requests
+    config=RunnableConfig(max_concurrency=maxConcurrentRequests)
+    #invoke
+    responses=generation_chain.batch(
+        questionPrompts,
+        return_exceptions=True,
+        config=config
+    )
+    log.info(f"recieved {len(responses)} answers")
 
+    #convert the responses to strings
+    responses=[str(r.content) for r in responses]
 
-        template = ChatPromptTemplate(
-            [
-                ("system",system_prompt),
-                ("user",question),
-            ]
-        )
-        log.info("querying model")
-        response:AIMessage=generator_model.invoke(input=template.format_prompt())
-
-        return str(response.content)
-    else:
-        question=[q.replace("{","{{").replace("}","}}") for q in question]
-        questionPrompts=[{"systemPrompt":system_prompt,"user":q} for q in question]
-        #need to invoke in batches
-        template= ChatPromptTemplate.from_messages(
-             [
-                ("system","{systemPrompt}"),
-                ("user","{question}"),
-              ]
-
-            )
-        #create a chain
-        generation_chain=template|generator_model
-        log.info(f"Batch querying model with {len(question)}")
-        responses=generation_chain.batch(questionPrompts)
-
-        #convert the responses to strings
-        responses=[str(r.content) for r in responses]
-
-        return responses
+    return responses
 
 def createPersonaList(
     respository:Literal["math","instruction","knowledge","reasoning","tool","npc","general"]="general",
@@ -171,19 +158,20 @@ def createPersonaList(
 
 if __name__ == "__main__":
 
-    inputPersona=createPersonaList("math",size=1)['input persona'].values[0]
-    print(inputPersona)
+    inputPersona=createPersonaList("math",size=2)['input persona'].tolist()
+    # print(inputPersona)
     question=generateQuestions(inputPersona)
-    print(question)
-    answer=generateAnswers(question,model="stepfun/step-3.5-flash:free")
-    print(answer)
-    # create DataFrame and save to CSV
-    df = pd.DataFrame([{
-        'inputPersona': inputPersona,
-        'question': question,
-        'answer': answer
-    }])
-    df.to_csv(DATASET_FOLDER + 'qa_output_1.csv', index=False)
+    # print(question)
+    answer=generateAnswers(question)
+    # print(answer)
+    log.info("creating the dataset")
+    df = pd.DataFrame(list(zip(inputPersona, question, answer)),
+                          columns=['input persona', 'Question', 'Answer'])
+    # ensure dataset folder exists and save
+    df.to_csv(DATASET_FOLDER+'qa_output_2.csv', index=False)
+    log.info("saved the dataset" )
+
+
 
 
 

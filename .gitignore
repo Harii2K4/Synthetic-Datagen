@@ -6,4 +6,5 @@ check_limits.py
 __pycache__/
 log/*
 
+datasets/test_datasets/*
 
