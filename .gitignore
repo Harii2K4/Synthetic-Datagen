@@ -5,6 +5,6 @@ pyrightconfig.json
 check_limits.py
 __pycache__/
 log/*
-
+openrouter_models_list.json
 datasets/test_datasets/*
 
