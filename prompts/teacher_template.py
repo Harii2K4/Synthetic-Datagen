@@ -9,7 +9,7 @@
 # Final answer only.
 # </answer>
 # """
-teacher_prompt="""Solve the problem step by step.
+defaultPrompt="""Solve the problem step by step.
 
 Keep reasoning concise and mathematical.
 Use equations and short statements.

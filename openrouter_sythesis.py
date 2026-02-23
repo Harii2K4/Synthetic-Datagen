@@ -1,8 +1,9 @@
-from langchain_core.messages import AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_openrouter import ChatOpenRouter
 from langchain_core.prompts import ChatPromptTemplate
-from prompts.teacher_template import teacher_prompt
+from exceptions import TeacherPromptNotFoundError
+from models import personaSplits,Domain
+from prompts.teacher_template import defaultPrompt
 from dotenv import load_dotenv
 import pandas as pd
 from logger import Logger
@@ -17,7 +18,7 @@ DATASET_FOLDER="./datasets/test_datasets/"
 log=Logger(__name__)
 
 def getDomainTemplate(
-        domain:Literal["math","instruction","knowledge","reasoning","tool","npc"]="math",
+        domain:Domain,
  )->str:
     if domain=="math":
         from prompts.domain_templates import mathTemplate
@@ -41,16 +42,16 @@ def getDomainTemplate(
 def generateQuestions(
         personas:List[str],
         model:str="upstage/solar-pro-3:free",
-        domain:Literal["math","instruction","knowledge","reasoning","tool","npc"]="math",
+        domain:Domain="math",
         maxConcurrentRequests:int=10
                     )->List[str]:
-    #gets the domain template per selection
+    #gets the domain template per selectionMethod
     domainTemplate=getDomainTemplate(domain)
     #set the generator model
     generator_model = ChatOpenRouter(
             model=model,
             temperature=0,
-            # openrouter_provider={"order":["alibaba"]}
+            reasoning={"effort":'none'},
         )
     #get the list of prompts
     personaPrompts=[{"personaPrompt":domainTemplate.format(persona=p)} for p in personas]
@@ -85,10 +86,13 @@ def generateAnswers(
                     )->str|List[str]:
 
     if teacherName=="default":
-        system_prompt=teacher_prompt
+        systemPrompt=defaultPrompt
     else:
         #TODO :custom user teacher prompt
-        system_prompt=teacher_prompt
+        try:
+            systemPrompt=getattr(__import__("prompts.teacher_template"),teacherName)
+        except AttributeError as e:
+            raise TeacherPromptNotFoundError(f"User Defined teacher prompt not found: {e}")
     #create the model instance
     generator_model = ChatOpenRouter(
         model=model,
@@ -96,7 +100,7 @@ def generateAnswers(
         openrouter_provider={"order":["groq","baseten/fp4"]}
     )
     questions=[q.replace("{","{{").replace("}","}}") for q in questions]
-    questionPrompts=[{"systemPrompt":system_prompt,"question":q} for q in questions]
+    questionPrompts=[{"systemPrompt":systemPrompt,"question":q} for q in questions]
     #need to invoke in batches
     template= ChatPromptTemplate.from_messages(
         [
@@ -124,52 +128,60 @@ def generateAnswers(
     return responses
 
 def createPersonaList(
-    respository:Literal["math","instruction","knowledge","reasoning","tool","npc","general"]="general",
+    split:personaSplits="general",
     size:int=10,
-    selection:Literal["random","sequence","selected"]="sequence",
+    selectionMethod:Literal["random","sequence","selected"]="sequence",
     selectionList:Optional[List[int]]=None,
     seed:int=42
                   ):
     #create the dataset name
-    fileName=f"persona_{respository}.csv" if respository!="general" else "persona.csv"
+    fileName=f"persona_{split}.csv" if split!="general" else "persona.csv"
     #loading the dataset
     try:
         df=pd.read_csv(PERSONA_FOLDER+fileName)
-    except Exception as e:
-        raise Exception(f"Error loading dataset: {e}")
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        raise ValueError(f"Invalid dataset file '{fileName}': {e}") from e
+    except FileNotFoundError :
+        raise FileNotFoundError(f"Dataset file not found in path: {PERSONA_FOLDER+fileName}") from None
+
     #creating the list of personas
     if size>df.shape[0]:
         warnings.warn("""size is greater than dataset size setting to dataset
-                        size and ignoring persona selection mode """)
+                        size and ignoring persona selectionMethod mode """)
         personaList=df
-    elif selection=="sequence":
+    elif selectionMethod=="sequence":
         personaList=df.loc[:size-1]
-    elif selection=="random":
+    elif selectionMethod=="random":
         personaList=df.sample(n=size,random_state=seed)
-    elif selection=="selected":
-        if selectionList is None:
+    elif selectionMethod=="selected":
+        if selectionList is None or len(selectionList)==0:
             raise ValueError("""In selected mode and requires personas to be selected,
-                             selection list is None""")
+                             selectionMethod list is None or empty""")
         if size!=len(selectionList):
-            warnings.warn("size and selection list size are not equal,using selection list")
+            warnings.warn("size and selectionMethod list size are not equal,using selectionMethod list")
+        if min(selectionList)<0 or max(selectionList)>df.shape[0]:
+            raise ValueError(f'''selectionList list indexes out of range,
+                             Min Index : {min(selectionList)}
+                             Max Index : {max(selectionList)}''')
         personaList=df.iloc[selectionList]
     return personaList
 
 
-if __name__ == "__main__":
-
-    inputPersona=createPersonaList("math",size=2)['input persona'].tolist()
-    # print(inputPersona)
-    question=generateQuestions(inputPersona)
-    # print(question)
-    answer=generateAnswers(question)
-    # print(answer)
-    log.info("creating the dataset")
-    df = pd.DataFrame(list(zip(inputPersona, question, answer)),
-                          columns=['input persona', 'Question', 'Answer'])
-    # ensure dataset folder exists and save
-    df.to_csv(DATASET_FOLDER+'qa_output_2.csv', index=False)
-    log.info("saved the dataset" )
+# if __name__ == "__main__":
+#     #
+#     # inputPersona=createPersonaList("math",size=2)['input persona'].tolist()
+#     # # print(inputPersona)
+#     # question=generateQuestions(inputPersona)
+#     # # print(question)
+#     question=["question 1","question 2"]
+#     answer=generateAnswers(question,teacherName="custom-teacher")
+#     # # print(answer)
+#     # log.info("creating the dataset")
+#     # df = pd.DataFrame(list(zip(inputPersona, question, answer)),
+#     #                       columns=['input persona', 'Question', 'Answer'])
+#     # # ensure dataset folder exists and save
+#     # df.to_csv(DATASET_FOLDER+'qa_output_2.csv', index=False)
+#     # log.info("saved the dataset" )
 
 
 

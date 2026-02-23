@@ -26,25 +26,27 @@ def storeAsCsv(datasetName:str):
             continue
         fileName="persona.csv"
         if datasetName!="persona":
-            df=df['input persona']
+            df.rename(columns={'input persona': 'persona'}, inplace=True)
+            df=df['persona']
+
             fileName=f"persona_{datasetName}.csv"
         df.to_csv(DATASET_FOLDER + fileName,index=False)
 
 def main():
-        #creating the dataset folder if doesnt exist
-        # os.makedirs(DATASET_FOLDER, exist_ok=True)
-        #storing the general persona dataset
-        # storeAsCsv("persona")
-        #
-        # #storing the datasets for each domain
-        # persona_domain_list=["math","instruction","knowledge","reasoning",
-        #                      "tool","npc"]
-        # for domain in persona_domain_list:
-        #     try:
-        #         storeAsCsv(domain)
-        #     except Exception as e:
-        #         print(f"Error loading dataset: {e}")
-        #
+        # creating the dataset folder if doesnt exist
+        os.makedirs(DATASET_FOLDER, exist_ok=True)
+        # storing the general persona dataset
+        storeAsCsv("persona")
+
+        #storing the datasets for each domain
+        persona_domain_list=["math","instruction","knowledge","reasoning",
+                             "tool","npc"]
+        for domain in persona_domain_list:
+            try:
+                storeAsCsv(domain)
+            except Exception as e:
+                print(f"Error loading dataset: {e}")
+
         print("Dataset saved to all domains successfully in persona_hub folder")
        # List all models and their properties (GET /models)
         response = requests.get(
