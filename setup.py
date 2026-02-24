@@ -27,7 +27,9 @@ def storeAsCsv(datasetName:str):
         fileName="persona.csv"
         if datasetName!="persona":
             df.rename(columns={'input persona': 'persona'}, inplace=True)
+            df=df[~df['persona'].str.contains('我')]
             df=df['persona']
+            #remove all the rows with ? in them
 
             fileName=f"persona_{datasetName}.csv"
         df.to_csv(DATASET_FOLDER + fileName,index=False)
