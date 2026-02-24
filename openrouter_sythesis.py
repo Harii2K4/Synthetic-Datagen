@@ -82,7 +82,6 @@ def generateAnswers(
     if teacherName=="default":
         systemPrompt=defaultPrompt
     else:
-        #TODO :custom user teacher prompt
         try:
             systemPrompt=getattr(__import__("prompts.teacher_template"),teacherName)
         except AttributeError as e:

@@ -23,6 +23,15 @@ def generateDataset(
     teacherModel:teacherModelConfig=teacherModelConfig(modelId="upstage/solar-pro-3:free"),
     datasetName:str="default_gen"
                     ):
+    #checking if non default values are of the right type
+    if datasetConfig is None or len(datasetConfig)==0:
+        log.error(f"Invalid datasetConfig:{datasetConfig}")
+        raise ValueError(f"User configurations for each split is empty or null got :{datasetConfig}")
+    if datasetSize is None or datasetSize==0:
+        log.error(f"Invalid datasetSize:{datasetSize}")
+        raise ValueError(f"User configurations for each split is empty or null got :{datasetSize}")
+
+
     # #check will be removed later and done on server
     if generationModel.modelId not in openrouterModelList:
         raise GenerationModelNotFoundError(f"The generation model id :{generationModel.modelId} doesnt exist in {MODEL_LIST_FILE}")
@@ -107,6 +116,6 @@ if __name__=="__main__":
             {"math": personaSplitsChoices(size=2)}
     ]
     try:
-        generateDataset(choices,2,generationModel=generationModelConfig(modelId="Blah"))
+        generateDataset(datasetConfig=choices,datasetSize=2)
     except Exception as e:
         print(e)

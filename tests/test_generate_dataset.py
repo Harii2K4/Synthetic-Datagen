@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import generate
 from exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
-from models import personaSplitsChoices
+from models import generationModelConfig, personaSplitsChoices, teacherModelConfig
 
 #to mimic saving of the df at the end
 def _capture_to_csv(monkeypatch):
@@ -86,7 +86,7 @@ def test_generate_dataset_writes_expected_rows_for_single_config(monkeypatch):
         {"input persona": "persona-2", "Question": "math-q-1", "Answer": "answer-1"},
     ]
 
-
+#testing multiple splits
 def test_generate_dataset_combines_multiple_domain_configs_in_order(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
     generation_model = FakeModelConfig("gen-model", object())
@@ -138,7 +138,7 @@ def test_generate_dataset_combines_multiple_domain_configs_in_order(monkeypatch)
         },
     ]
 
-
+#errora raised due to missing gen model id
 def test_generate_dataset_rejects_unknown_generation_model(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["teacher-model"])
     generation_model = FakeModelConfig("missing-gen-model", object())
@@ -152,7 +152,7 @@ def test_generate_dataset_rejects_unknown_generation_model(monkeypatch):
             teacherModel=teacher_model,
         )
 
-
+#errors raised due to model not being found
 def test_generate_dataset_rejects_unknown_teacher_model(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model"])
     generation_model = FakeModelConfig("gen-model", object())
@@ -166,33 +166,23 @@ def test_generate_dataset_rejects_unknown_teacher_model(monkeypatch):
             teacherModel=teacher_model,
         )
 
-
+#to raise Value Error when no split configs are sent in 
 def test_generate_dataset_writes_empty_dataset_when_no_configs(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
     generation_model = FakeModelConfig("gen-model", object())
     teacher_model = FakeModelConfig("teacher-model", object())
-    monkeypatch.setattr(
-        generate,
-        "createPersonaList",
-        lambda **_kwargs: pytest.fail("createPersonaList should not be called for empty config"),
-    )
-    captured = _capture_to_csv(monkeypatch)
 
-    generate.generateDataset(
-        datasetConfig=[],
-        datasetSize=0,
-        generationModel=generation_model,
-        teacherModel=teacher_model,
-        datasetName="empty",
-    )
-
-    assert generation_model.create_calls == 1
-    assert teacher_model.create_calls == 1
-    assert captured["path"] == generate.DATASET_FOLDER + "empty.csv"
-    assert captured["df"].empty
-    assert captured["df"].columns.tolist() == ["input persona", "Question", "Answer"]
+    with pytest.raises(ValueError):
+        generate.generateDataset(
+            datasetConfig=[],
+            datasetSize=0,
+            generationModel=generation_model,
+            teacherModel=teacher_model,
+            datasetName="empty",
+        )
 
 
+#api errors while calling the models
 def test_generate_dataset_propagates_generation_failures(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
     generation_model = FakeModelConfig("gen-model", object())
@@ -221,7 +211,7 @@ def test_generate_dataset_propagates_generation_failures(monkeypatch):
             teacherModel=teacher_model,
         )
 
-
+#when teacher api calls fail
 def test_generate_dataset_propagates_answer_generation_failures(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
     generation_model = FakeModelConfig("gen-model", object())
@@ -254,3 +244,107 @@ def test_generate_dataset_propagates_answer_generation_failures(monkeypatch):
             generationModel=generation_model,
             teacherModel=teacher_model,
         )
+
+
+@pytest.mark.parametrize(
+    "split_gen_model_id,split_teacher_model_id,expected_gen_model,expected_teacher_model",
+    [
+        (None, None, "global-gen-instance", "global-teacher-instance"),
+        ("split-gen-model", None, "split-gen-instance", "global-teacher-instance"),
+        (None, "split-teacher-model", "global-gen-instance", "split-teacher-instance"),
+        ("split-gen-model", "split-teacher-model", "split-gen-instance", "split-teacher-instance"),
+        ("missing-split-gen-model", None, "global-gen-instance", "global-teacher-instance"),
+        (None, "missing-split-teacher-model", "global-gen-instance", "global-teacher-instance"),
+        (
+            "missing-split-gen-model",
+            "missing-split-teacher-model",
+            "global-gen-instance",
+            "global-teacher-instance",
+        ),
+    ],
+)
+def test_generate_dataset_uses_split_model_overrides_when_available(
+    monkeypatch,
+    split_gen_model_id,
+    split_teacher_model_id,
+    expected_gen_model,
+    expected_teacher_model,
+):
+    monkeypatch.setattr(
+        generate,
+        "openrouterModelList",
+        [
+            "global-gen-model",
+            "global-teacher-model",
+            "split-gen-model",
+            "split-teacher-model",
+        ],
+    )
+
+    # Mock model instance creation to avoid real API clients.
+    def fake_create_generation_model_instance(self):
+        if self.modelId == "global-gen-model":
+            return "global-gen-instance"
+        if self.modelId == "split-gen-model":
+            return "split-gen-instance"
+        return f"unexpected-gen:{self.modelId}"
+
+    def fake_create_teacher_model_instance(self):
+        if self.modelId == "global-teacher-model":
+            return "global-teacher-instance"
+        if self.modelId == "split-teacher-model":
+            return "split-teacher-instance"
+        return f"unexpected-teacher:{self.modelId}"
+
+    monkeypatch.setattr(generationModelConfig, "createModelInstance", fake_create_generation_model_instance)
+    monkeypatch.setattr(teacherModelConfig, "createModelInstance", fake_create_teacher_model_instance)
+    monkeypatch.setattr(
+        generate,
+        "createPersonaList",
+        lambda **_kwargs: pd.DataFrame({"persona": ["persona-1"]}),
+    )
+
+    observed = {}
+
+    def fake_generate_questions(personas, model, domain):
+        observed["questions_model"] = model
+        observed["domain"] = domain
+        return ["q1"]
+
+    def fake_generate_answers(questions, model):
+        observed["answers_model"] = model
+        return ["a1"]
+
+    monkeypatch.setattr(generate, "generateQuestions", fake_generate_questions)
+    monkeypatch.setattr(generate, "generateAnswers", fake_generate_answers)
+    captured = _capture_to_csv(monkeypatch)
+
+    split_generation_model = (
+        generationModelConfig(modelId=split_gen_model_id) if split_gen_model_id is not None else None
+    )
+    split_teacher_model = (
+        teacherModelConfig(modelId=split_teacher_model_id) if split_teacher_model_id is not None else None
+    )
+
+    generate.generateDataset(
+        datasetConfig=[
+            {
+                "math": personaSplitsChoices(
+                    size=1,
+                    generationModel=split_generation_model,
+                    teacherModel=split_teacher_model,
+                )
+            }
+        ],
+        datasetSize=1,
+        generationModel=generationModelConfig(modelId="global-gen-model"),
+        teacherModel=teacherModelConfig(modelId="global-teacher-model"),
+        datasetName="override-check",
+    )
+
+    assert observed["domain"] == "math"
+    assert observed["questions_model"] == expected_gen_model
+    assert observed["answers_model"] == expected_teacher_model
+    assert captured["df"].to_dict("records") == [
+        {"input persona": "persona-1", "Question": "q1", "Answer": "a1"},
+    ]

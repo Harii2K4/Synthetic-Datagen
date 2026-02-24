@@ -9,3 +9,9 @@ class TeacherPromptNotFoundError(TeacherPromptError):
     """Raised when specific teacher template doesn't exist."""
     pass
 
+class GenerationModelNotFoundError(ValueError):
+    """Raised when generation model loading fails."""
+    pass
+class TeacherModelNotFoundError(ValueError):
+    """Raised when generation model loading fails."""
+    pass
