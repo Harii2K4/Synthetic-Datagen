@@ -41,18 +41,12 @@ def getDomainTemplate(
 
 def generateQuestions(
         personas:List[str],
-        model:str="upstage/solar-pro-3:free",
+        model:ChatOpenRouter,
         domain:Domain="math",
         maxConcurrentRequests:int=10
                     )->List[str]:
     #gets the domain template per selectionMethod
     domainTemplate=getDomainTemplate(domain)
-    #set the generator model
-    generator_model = ChatOpenRouter(
-            model=model,
-            temperature=0,
-            reasoning={"effort":'none'},
-        )
     #get the list of prompts
     personaPrompts=[{"personaPrompt":domainTemplate.format(persona=p)} for p in personas]
     #need to invoke in batches
@@ -60,12 +54,12 @@ def generateQuestions(
          [("system","{personaPrompt}")]
         )
     #create a chain
-    generation_chain=template|generator_model
+    generationChain=template|model
     log.info(f"Batch querying model with {len(personas)}")
     #create the config to limit the number of concurrent requests
     config=RunnableConfig(max_concurrency=maxConcurrentRequests)
 
-    responses=generation_chain.batch(
+    responses=generationChain.batch(
         personaPrompts,
         return_exceptions=True,
         config=config
@@ -80,7 +74,7 @@ def generateQuestions(
 
 def generateAnswers(
         questions:List[str],
-        model:str="openai/gpt-oss-120b",
+        model:ChatOpenRouter,
         teacherName:str="default",
         maxConcurrentRequests:int=10
                     )->str|List[str]:
@@ -93,12 +87,6 @@ def generateAnswers(
             systemPrompt=getattr(__import__("prompts.teacher_template"),teacherName)
         except AttributeError as e:
             raise TeacherPromptNotFoundError(f"User Defined teacher prompt not found: {e}")
-    #create the model instance
-    generator_model = ChatOpenRouter(
-        model=model,
-        temperature=0,
-        openrouter_provider={"order":["groq","baseten/fp4"]}
-    )
     questions=[q.replace("{","{{").replace("}","}}") for q in questions]
     questionPrompts=[{"systemPrompt":systemPrompt,"question":q} for q in questions]
     #need to invoke in batches
@@ -110,7 +98,7 @@ def generateAnswers(
 
     )
     #create a chain
-    generation_chain=template|generator_model
+    generation_chain=template|model
     log.info(f"Batch querying model for answers with {len(questions)}")
     #create the config to limit the number of concurrent requests
     config=RunnableConfig(max_concurrency=maxConcurrentRequests)
@@ -123,7 +111,7 @@ def generateAnswers(
     log.info(f"recieved {len(responses)} answers")
 
     #convert the responses to strings
-    responses=[str(r.content) for r in responses]
+    responses=[str(r.content) for r in responses ]
 
     return responses
 
