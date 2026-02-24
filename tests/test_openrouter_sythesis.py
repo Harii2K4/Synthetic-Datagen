@@ -26,17 +26,16 @@ class FakeTemplate:
     def __init__(self, recorder):
         self.recorder = recorder
     #uset to generate the chain in the fly when prompt|model
-    def __or__(self, _model):
+    def __or__(self, model):
         self.recorder["chain_used"] = True
+        self.recorder["model"] = model
         return FakeChain(self.recorder)
 
 
 @pytest.fixture
 def install_fake_model_stack(monkeypatch):
     def _install(responses):
-        recorder = {"responses": responses, "chain_used": False}
-        #patches the ChatOpenRouter to an atale object
-        monkeypatch.setattr(ors, "ChatOpenRouter", lambda *args, **kwargs: object())
+        recorder = {"responses": responses, "chain_used": False, "model": None}
         #patch chat prompt template .from_messages()
         monkeypatch.setattr(
             ors.ChatPromptTemplate,
@@ -52,70 +51,73 @@ def install_fake_model_stack(monkeypatch):
 def persona_df():
     return pd.DataFrame({"persona": ["p0", "p1", "p2", "p3"]})
 
+@pytest.fixture
+def fake_model():
+    return object()
+
 #testing each domian as input
 @pytest.mark.parametrize(
     "domain",
     ["math", "instruction", "knowledge", "reasoning", "tool", "npc"],
 )
 def test_generate_questions_supports_all_domain_inputs(
-    monkeypatch, install_fake_model_stack, domain
+    monkeypatch, install_fake_model_stack, fake_model, domain
 ):
     #monkey patch just lets you alter some code to make it predicatable
     monkeypatch.setattr(ors, "getDomainTemplate", lambda _domain: "Ask: {persona}")
     recorder = install_fake_model_stack([f"question-{domain}"])
 
-    results = ors.generateQuestions(personas=["persona-a"], domain=domain)
+    results = ors.generateQuestions(personas=["persona-a"], model=fake_model, domain=domain)
 
     assert results == [f"question-{domain}"]
     assert recorder["chain_used"] is True
+    assert recorder["model"] is fake_model
     assert len(recorder["prompts"]) == 1
     assert "personaPrompt" in recorder["prompts"][0]
 
 
 #mapping input to output (question to answer),ensure the chain doesnt combine the prompts into one
-def test_generate_answers_returns_one_answer_per_question(install_fake_model_stack):
+def test_generate_answers_returns_one_answer_per_question(install_fake_model_stack, fake_model):
     recorder = install_fake_model_stack(["a1", "a2"])
 
-    results = ors.generateAnswers(questions=["q1", "q2"], teacherName="default")
+    results = ors.generateAnswers(questions=["q1", "q2"], model=fake_model, teacherName="default")
 
     assert results == ["a1", "a2"]
+    assert recorder["model"] is fake_model
     assert len(recorder["prompts"]) == 2
 
 #for usesr defined teacher prompts
-def test_generate_answers_accepts_non_default_teacher_name(monkeypatch):
-    def fail_if_model_called(*args, **kwargs):
-        raise AssertionError("ChatOpenRouter should not be called for invalid teacherName")
-
-    monkeypatch.setattr(ors, "ChatOpenRouter", fail_if_model_called)
-
+def test_generate_answers_accepts_non_default_teacher_name():
     with pytest.raises(
         ors.TeacherPromptNotFoundError,
         match="User Defined teacher prompt not found",
     ):
-        ors.generateAnswers(questions=["q1"], teacherName="custom-teacher")
+        ors.generateAnswers(questions=["q1"], model=object(), teacherName="custom-teacher")
 
 #for using default prompts
 def test_generate_answers_default_teacher_name_does_not_raise_invalid_teacher_prompt_error(
-    install_fake_model_stack,
+    install_fake_model_stack, fake_model
 ):
     install_fake_model_stack(["a1"])
 
-    results = ors.generateAnswers(questions=["q1"], teacherName="default")
+    results = ors.generateAnswers(questions=["q1"], model=fake_model, teacherName="default")
 
     assert results == ["a1"]
 
 #test if the {}->{{}} conversion is done to ensure langchain doesnt mistake variables
 def test_generate_answers_handles_questions_with_curly_braces(
-    install_fake_model_stack,
+    install_fake_model_stack, fake_model
 ):
     recorder=install_fake_model_stack(["a1", "a2"])
 
     results = ors.generateAnswers(
         questions=["What does {x} mean?", "Compare {a} with {b}."],
+        model=fake_model,
         teacherName="default",
     )
 
     assert len(results) == 2
+    assert recorder["model"] is fake_model
     assert recorder["prompts"][0]["question"] == "What does {{x}} mean?"
     assert recorder["prompts"][1]["question"] == "Compare {{a}} with {{b}}."
 

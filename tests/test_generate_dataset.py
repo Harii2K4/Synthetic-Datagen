@@ -8,9 +8,10 @@ import pytest
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import generate
+from exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
 from models import personaSplitsChoices
 
-
+#to mimic saving of the df at the end
 def _capture_to_csv(monkeypatch):
     captured = {}
 
@@ -23,9 +24,25 @@ def _capture_to_csv(monkeypatch):
     return captured
 
 
+class FakeModelConfig:
+    def __init__(self, model_id, instance):
+        self.modelId = model_id
+        self._instance = instance
+        self.create_calls = 0
+
+    def createModelInstance(self):
+        self.create_calls += 1
+        return self._instance
+
+
+#sanity test for output and input schema verification
 def test_generate_dataset_writes_expected_rows_for_single_config(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
     captured_calls = {}
+    generation_instance = object()
+    teacher_instance = object()
+    generation_model = FakeModelConfig("gen-model", generation_instance)
+    teacher_model = FakeModelConfig("teacher-model", teacher_instance)
 
     monkeypatch.setattr(
         generate,
@@ -49,18 +66,20 @@ def test_generate_dataset_writes_expected_rows_for_single_config(monkeypatch):
     generate.generateDataset(
         datasetConfig=[{"math": personaSplitsChoices(size=2)}],
         datasetSize=2,
-        generationModel="gen-model",
-        teacherModel="teacher-model",
+        generationModel=generation_model,
+        teacherModel=teacher_model,
         datasetName="sample",
     )
 
     assert captured["path"] == generate.DATASET_FOLDER + "sample.csv"
     assert captured["index"] is False
     assert captured_calls == {
-        "generation_model": "gen-model",
+        "generation_model": generation_instance,
         "domain": "math",
-        "teacher_model": "teacher-model",
+        "teacher_model": teacher_instance,
     }
+    assert generation_model.create_calls == 1
+    assert teacher_model.create_calls == 1
     assert captured["df"].columns.tolist() == ["input persona", "Question", "Answer"]
     assert captured["df"].to_dict("records") == [
         {"input persona": "persona-1", "Question": "math-q-0", "Answer": "answer-0"},
@@ -70,6 +89,8 @@ def test_generate_dataset_writes_expected_rows_for_single_config(monkeypatch):
 
 def test_generate_dataset_combines_multiple_domain_configs_in_order(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
+    generation_model = FakeModelConfig("gen-model", object())
+    teacher_model = FakeModelConfig("teacher-model", object())
     persona_by_domain = {
         "math": pd.DataFrame({"persona": ["math-persona"]}),
         "tool": pd.DataFrame({"persona": ["tool-persona"]}),
@@ -97,11 +118,13 @@ def test_generate_dataset_combines_multiple_domain_configs_in_order(monkeypatch)
             {"tool": personaSplitsChoices(split="tool", size=1)},
         ],
         datasetSize=2,
-        generationModel="gen-model",
-        teacherModel="teacher-model",
+        generationModel=generation_model,
+        teacherModel=teacher_model,
         datasetName="combined",
     )
 
+    assert generation_model.create_calls == 1
+    assert teacher_model.create_calls == 1
     assert captured["df"].to_dict("records") == [
         {
             "input persona": "math-persona",
@@ -118,30 +141,36 @@ def test_generate_dataset_combines_multiple_domain_configs_in_order(monkeypatch)
 
 def test_generate_dataset_rejects_unknown_generation_model(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["teacher-model"])
+    generation_model = FakeModelConfig("missing-gen-model", object())
+    teacher_model = FakeModelConfig("teacher-model", object())
 
-    with pytest.raises(ValueError, match="generation model id"):
+    with pytest.raises(GenerationModelNotFoundError, match="generation model id"):
         generate.generateDataset(
             datasetConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
-            generationModel="missing-gen-model",
-            teacherModel="teacher-model",
+            generationModel=generation_model,
+            teacherModel=teacher_model,
         )
 
 
 def test_generate_dataset_rejects_unknown_teacher_model(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model"])
+    generation_model = FakeModelConfig("gen-model", object())
+    teacher_model = FakeModelConfig("missing-teacher-model", object())
 
-    with pytest.raises(ValueError, match="teacher model id"):
+    with pytest.raises(TeacherModelNotFoundError, match="teacher model id"):
         generate.generateDataset(
             datasetConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
-            generationModel="gen-model",
-            teacherModel="missing-teacher-model",
+            generationModel=generation_model,
+            teacherModel=teacher_model,
         )
 
 
 def test_generate_dataset_writes_empty_dataset_when_no_configs(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
+    generation_model = FakeModelConfig("gen-model", object())
+    teacher_model = FakeModelConfig("teacher-model", object())
     monkeypatch.setattr(
         generate,
         "createPersonaList",
@@ -152,11 +181,13 @@ def test_generate_dataset_writes_empty_dataset_when_no_configs(monkeypatch):
     generate.generateDataset(
         datasetConfig=[],
         datasetSize=0,
-        generationModel="gen-model",
-        teacherModel="teacher-model",
+        generationModel=generation_model,
+        teacherModel=teacher_model,
         datasetName="empty",
     )
 
+    assert generation_model.create_calls == 1
+    assert teacher_model.create_calls == 1
     assert captured["path"] == generate.DATASET_FOLDER + "empty.csv"
     assert captured["df"].empty
     assert captured["df"].columns.tolist() == ["input persona", "Question", "Answer"]
@@ -164,6 +195,8 @@ def test_generate_dataset_writes_empty_dataset_when_no_configs(monkeypatch):
 
 def test_generate_dataset_propagates_generation_failures(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
+    generation_model = FakeModelConfig("gen-model", object())
+    teacher_model = FakeModelConfig("teacher-model", object())
     monkeypatch.setattr(
         generate,
         "createPersonaList",
@@ -184,13 +217,15 @@ def test_generate_dataset_propagates_generation_failures(monkeypatch):
         generate.generateDataset(
             datasetConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
-            generationModel="gen-model",
-            teacherModel="teacher-model",
+            generationModel=generation_model,
+            teacherModel=teacher_model,
         )
 
 
 def test_generate_dataset_propagates_answer_generation_failures(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model"])
+    generation_model = FakeModelConfig("gen-model", object())
+    teacher_model = FakeModelConfig("teacher-model", object())
     monkeypatch.setattr(
         generate,
         "createPersonaList",
@@ -216,6 +251,6 @@ def test_generate_dataset_propagates_answer_generation_failures(monkeypatch):
         generate.generateDataset(
             datasetConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
-            generationModel="gen-model",
-            teacherModel="teacher-model",
+            generationModel=generation_model,
+            teacherModel=teacher_model,
         )
