@@ -2,18 +2,47 @@
 file:generate.py
 description:Contains the functions to generate the dateset using functions in openrouter_synthesis.py
 """
-
 from exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
 from openrouter_sythesis import *
 from models import generationModelConfig, personaSplitsChoices, teacherModelConfig
 import json
 from logger import Logger
-from typing import Dict
+from typing import Any, Dict
 #create the log
 log=Logger(__name__)
 MODEL_LIST_FILE="./openrouter_models_list.json"
 with open(MODEL_LIST_FILE) as f:
     openrouterModelList=[model.get('id') for model in json.load(f)]
+
+
+def _initGenerationStats(total_splits:int,total_rows_requested:int)->Dict[str,Any]:
+    return {
+        "totalSplits": total_splits,
+        "successfulSplits": 0,
+        "failedSplits": 0,
+        "totalRowsRequested": total_rows_requested,
+        "rowsGenerated": 0,
+        "rowsFailed": 0,
+        "errors": [],
+    }
+
+
+def _recordSplitError(
+    stats:Dict[str,Any],
+    split:personaSplits,
+    stage:str,
+    error:Exception,
+    retryable:bool=False
+)->None:
+    stats["errors"].append(
+        {
+            "split": split,
+            "stage": stage,
+            "errorType": type(error).__name__,
+            "message": str(error),
+            "retryable": retryable,
+        }
+    )
 
 
 def generateDataset(
@@ -34,88 +63,213 @@ def generateDataset(
 
     # #check will be removed later and done on server
     if generationModel.modelId not in openrouterModelList:
+        log.error(f"Invalid generation modelId :{generationModel.modelId}")
         raise GenerationModelNotFoundError(f"The generation model id :{generationModel.modelId} doesnt exist in {MODEL_LIST_FILE}")
     if teacherModel.modelId not in openrouterModelList:
+        log.error(f"Invalid teacher modelId :{generationModel.modelId}")
         raise TeacherModelNotFoundError(f"The teacher model id: {teacherModel.modelId} doesnt exist in {MODEL_LIST_FILE}")
 
     #create the Chatopenrouter Instance for the models
     generationModelInstance=generationModel.createModelInstance()
     teacherModelInstance=teacherModel.createModelInstance()
+    stats=_initGenerationStats(
+        total_splits=len(datasetConfig),
+        total_rows_requested=datasetSize,
+    )
 
     #empty list for storing the rows for the dataset (each list is a column)
     inputPersonas=[]
+    domains=[]
     questions=[]
     answers=[]
+    apiExceptionRaised:bool=False
     log.info(f"generating a dataset of size :{datasetSize}")
+    #starting generation
     for config in datasetConfig:
-        domain,personaSplit=next(iter(config.items()))
+        #initialise local variable
+        currDomain,personaSplit=next(iter(config.items()))
+        currQuestions:List[str]=[]
+        currAnswers:List[str]=[]
+        splitHadError:bool=False if not apiExceptionRaised else True
+        questionErrorLogged:bool=False
+        answerErrorLogged:bool=False
+
         #extract the persona list
         try:
             currInputPersonas=createPersonaList(
                 **personaSplit.returnSplitConfig()
             )['persona'].tolist()
-        except ValueError as e:
-            #TODO:figure out how to handle this
+        except (ValueError, FileNotFoundError, KeyError) as e:
             log.error(f"Error creating persona list: {e}")
+            _recordSplitError(
+                stats=stats,
+                split=personaSplit.split,
+                stage="persona_read",
+                error=e,
+                retryable=False,
+            )
+            stats["failedSplits"] += 1
             continue
 
-        if currInputPersonas is None and len(currInputPersonas)==0:
-            #TODO: add execption or figure out what to do
-            continue
-        if personaSplit.generationModel is not None and personaSplit.generationModel.modelId in openrouterModelList:
-            #will be removed and added in server
-            #generate questions
-            currQuestions=generateQuestions(
-                personas=currInputPersonas,
-                model=personaSplit.generationModel.createModelInstance(),
-                domain=domain
+        #should never happen but just in case
+        if currInputPersonas is None or len(currInputPersonas)==0:
+            _recordSplitError(
+                stats=stats,
+                split=personaSplit.split,
+                stage="persona_read",
+                error=ValueError("Persona list is empty"),
+                retryable=False,
             )
+            stats["failedSplits"] += 1
+            continue
+
+        #question generation block
+        #if prev split has lead to exceptions skip making model calls
+        if apiExceptionRaised:
+            currQuestions=['']*len(currInputPersonas)
         else:
-            #generate questions
-            currQuestions=generateQuestions(
-                personas=currInputPersonas,
-                model=generationModelInstance,
-                domain=domain
-            )
-        if currQuestions is None or len(currQuestions)==0:
-            #TODO: add execption or figure out what to do
-            continue
+            if personaSplit.generationModel is not None and personaSplit.generationModel.modelId in openrouterModelList:
+                #TODO:will be removed and added in server
+                #generate questions
+                questionResponses=generateQuestions(
+                    personas=currInputPersonas,
+                    model=personaSplit.generationModel.createModelInstance(),
+                    domain=currDomain
+                )
+            else:
+                #generate questions
+                questionResponses=generateQuestions(
+                    personas=currInputPersonas,
+                    model=generationModelInstance,
+                    domain=currDomain
+                )
+            #shouldint happen but just in case
+            if questionResponses is None or len(questionResponses)==0:
+                log.error(f"Question list was empty for split:{personaSplit.split}")
+                _recordSplitError(
+                    stats=stats,
+                    split=personaSplit.split,
+                    stage="question_generation",
+                    error=ValueError("Generated question list is empty"),
+                    retryable=False,
+                )
+                stats["failedSplits"] += 1
+                continue
 
-        # print(question)
-        #generate answers
-        if personaSplit.teacherModel is not None and personaSplit.teacherModel.modelId in openrouterModelList:
-            #will be removed and added in server
-            #generate questions
-            currAnswers=generateAnswers(
-               questions=currQuestions,
-               model=personaSplit.teacherModel.createModelInstance(),
-            )
+            #check for errors and exceptions in generations
+            for q in questionResponses:
+                if isinstance(q,Exception):
+                    #set apiExceptionRaised to true to ensure we dont make futher calls
+                    if not apiExceptionRaised:
+                        apiExceptionRaised=True
+                        log.error(f'''Api call to openrouter has returned an exception while generation questions for {personaSplit}:{currDomain},will be creating partial dataset''')
+                    #to track failure in split tracking
+                    if not splitHadError:
+                        splitHadError=True
+                    #log the execption
+                    if not questionErrorLogged:
+                        _recordSplitError(
+                            stats=stats,
+                            split=personaSplit.split,
+                            stage="question_generation",
+                            error=q,
+                            retryable=True,
+                        )
+                        questionErrorLogged=True
+                    currQuestions.append('')
+                else :
+                    currQuestions.append(str(q.content))
+        # generate answers
+        if apiExceptionRaised:
+            currAnswers=['']*len(currInputPersonas)
         else:
-            currAnswers=generateAnswers(
-               questions=currQuestions,
-               model=teacherModelInstance,
+            if personaSplit.teacherModel is not None and personaSplit.teacherModel.modelId in openrouterModelList:
+                #will be removed and added in server
+                #generate questions
+                answerResponses=generateAnswers(
+                   questions=currQuestions,
+                   model=personaSplit.teacherModel.createModelInstance(),
+                )
+            else:
+                answerResponses=generateAnswers(
+                   questions=currQuestions,
+                   model=teacherModelInstance,
 
-            )
-        # print(answer)
-        #TODO :split rate limited queries if exists
+                )
+            #againg shouldnt happen just in case
+            if answerResponses is None or len(answerResponses)==0:
+                log.error(f"Answer list was empty for split:{personaSplit.split}")
+                _recordSplitError(
+                    stats=stats,
+                    split=personaSplit.split,
+                    stage="answer_generation",
+                    error=ValueError("Generated answer list is empty"),
+                    retryable=False,
+                )
+                stats["failedSplits"] += 1
+                continue
+
+            #check for errors and exceptions
+            for q in answerResponses:
+                if  isinstance(q,Exception):
+                    #set apiExceptionRaised to true to ensure we dont make futher calls
+                    if not apiExceptionRaised:
+                        log.error(f'''Api call to openrouter has returned an exception while generation answers for {personaSplit}:{currDomain},will be creating partial dataset''')
+                        apiExceptionRaised=True
+                    if not splitHadError:
+                        splitHadError=True
+                    #do logging
+                    if not answerErrorLogged:
+                        _recordSplitError(
+                            stats=stats,
+                            split=personaSplit.split,
+                            stage="answer_generation",
+                            error=q,
+                            retryable=True,
+                        )
+                        answerErrorLogged=True
+                    currAnswers.append('')
+                else :
+                    currAnswers.append(str(q.content))
+
         #append to the dataset
         inputPersonas.extend(currInputPersonas)
+        domains.extend([currDomain]*len(currInputPersonas))
         questions.extend(currQuestions)
         answers.extend(currAnswers)
+        #determining if it is a failed or succesfull split
+        if splitHadError:
+            stats["failedSplits"] += 1
+        else:
+            stats["successfulSplits"] += 1
+
+        completeRows=0
+        for q,a in zip(currQuestions,currAnswers):
+            if q!='' and a!='':
+                completeRows+=1
+        stats["rowsGenerated"] += completeRows
 
     #create the dataset
     log.info("creating the dataset")
-    df = pd.DataFrame(list(zip(inputPersonas, questions, answers)),
-                          columns=['input persona', 'Question', 'Answer'])
+    #final check to see if all rows are the same size shouldnt happen but yeah
+    if len(inputPersonas)>len(questions):
+        questions.extend(['']*(len(inputPersonas)-len(questions)))
+    if len(inputPersonas)>len(answers):
+        answers.extend(['']*(len(inputPersonas)-len(answers)))
+    df = pd.DataFrame(list(zip(inputPersonas,domains, questions, answers)),
+                          columns=['input persona','domain','Question', 'Answer'])
     # ensure dataset folder exists and save
     df.to_csv(DATASET_FOLDER+datasetName+'.csv', index=False)
     log.info("saved the dataset" )
+    stats["rowsFailed"] = max(stats["totalRowsRequested"] - stats["rowsGenerated"], 0)
+    return stats
 
 if __name__=="__main__":
     choices: List[Dict[Domain, personaSplitsChoices]] = [
-            {"math": personaSplitsChoices(size=2)}
+            {"math": personaSplitsChoices(size=2)},
+            {"tool": personaSplitsChoices(size=3,split="general")}
     ]
     try:
-        generateDataset(datasetConfig=choices,datasetSize=2)
+        print(generateDataset(datasetConfig=choices,datasetSize=5,datasetName="test_2domain"))
     except Exception as e:
         print(e)
