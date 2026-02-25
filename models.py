@@ -86,6 +86,28 @@ class personaSplitsChoices(BaseModel):
                 "size":self.size,
             }
 
+class splitErrors(BaseModel):
+    split:personaSplits
+    stage:Literal["persona_read", "question_generation", "answer_generation","validation", "unknown"]
+    errorType:str
+    message:str
+    retryable:bool=False
+
+#TODO :ADD these ro server endpoint
+#if failedSplits == totalSplits ,then total failure
+#if successfulSplits == totalSplits ,then total success
+#If 0 < rowsGenerated < totalRowsRequestedor or if 0 < successfulSplits < totalSplits.
+class datasetGenerationMetrics(BaseModel):
+    jobId:str
+    totalSplits:int=Field(ge=0)
+    successfulSplits:int=Field(ge=0)
+    failedSplits:int=Field(ge=0)
+    totalRowsRequested:int=Field(ge=0)
+    rowsGenerated:int=Field(ge=0)
+    rowsFailed:int=Field(ge=0)
+    partialSuccess: bool=False
+    datasetSaveLocation:str
+    errors:List[splitErrors]=Field(default_factory=list)
 
 
 

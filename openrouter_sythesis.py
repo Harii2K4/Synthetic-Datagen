@@ -1,3 +1,4 @@
+from langchain_core.messages import AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_openrouter import ChatOpenRouter
 from langchain_core.prompts import ChatPromptTemplate
@@ -44,7 +45,7 @@ def generateQuestions(
         model:ChatOpenRouter,
         domain:Domain="math",
         maxConcurrentRequests:int=10
-                    )->List[str]:
+                    )->List[AIMessage]:
     #gets the domain template per selectionMethod
     domainTemplate=getDomainTemplate(domain)
     #get the list of prompts
@@ -65,10 +66,6 @@ def generateQuestions(
         config=config
     )
     log.info(f"Recieved {len(responses)} questions")
-
-    #convert the responses to strings
-    responses=[str(r.content) for r in responses]
-
     return responses
 
 
@@ -77,7 +74,7 @@ def generateAnswers(
         model:ChatOpenRouter,
         teacherName:str="default",
         maxConcurrentRequests:int=10
-                    )->str|List[str]:
+                    )->List[AIMessage]:
 
     if teacherName=="default":
         systemPrompt=defaultPrompt
@@ -108,10 +105,6 @@ def generateAnswers(
         config=config
     )
     log.info(f"recieved {len(responses)} answers")
-
-    #convert the responses to strings
-    responses=[str(r.content) for r in responses ]
-
     return responses
 
 def createPersonaList(
