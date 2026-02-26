@@ -1,10 +1,11 @@
 venv/*
-persona_hub/*
+data/persona_hub/
+data/openrouter_models_list.json
+data/datasets/test_datasets/
+
 pyrightconfig.json
 .env
 check_limits.py
 __pycache__/
 log/*
-openrouter_models_list.json
-datasets/test_datasets/*
 
