@@ -6,16 +6,16 @@ from langchain_core.runnables import RunnableLambda
 
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-PERSONA_DIR = REPO_ROOT / "persona_hub"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PERSONA_DIR = REPO_ROOT / "data/persona_hub"
 import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import openrouter_sythesis as ors
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+import core.openrouter_sythesis as ors
 from prompts.domain_templates import mathTemplate
 from prompts.teacher_template import defaultPrompt
-#checks the formatting template 
+#checks the formatting template
 def test_generate_questions_sends_real_domain_prompt_to_model_and_returns_results():
     personas = ors.createPersonaList(
         split="math",
@@ -39,7 +39,7 @@ def test_generate_questions_sends_real_domain_prompt_to_model_and_returns_result
         maxConcurrentRequests=1,
     )
 
-    assert results == ["question-1", "question-2", "question-3"]
+    assert [r.content for r in results] == ["question-1", "question-2", "question-3"]
     assert len(captured_prompts) == 3
 
     for idx, messages in enumerate(captured_prompts):
@@ -71,7 +71,7 @@ def test_generate_answers_sends_default_teacher_prompt_and_returns_results():
         maxConcurrentRequests=1,
     )
 
-    assert results == [
+    assert [r.content for r in results] == [
         "answer::What is the derivative of x^2?",
         "answer::Solve for x: 2x + 3 = 9",
     ]
@@ -115,7 +115,7 @@ def test_create_persona_list_random_seeded_selection_is_stable_with_real_csv():
     assert len(first) == 10
     assert first["persona"].tolist() == second["persona"].tolist()
 
-#check if selection list is correcly used 
+#check if selection list is correcly used
 def test_create_persona_list_selected_uses_requested_rows_from_real_csv():
     selection = [0, 4, 9]
     expected_df = pd.read_csv(PERSONA_DIR / "persona.csv")

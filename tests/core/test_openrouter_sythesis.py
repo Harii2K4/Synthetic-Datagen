@@ -6,9 +6,9 @@ import sys
 import os
 
 #add the parent directory to the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-import openrouter_sythesis as ors
+from core import openrouter_sythesis as ors
 
 
 class FakeChain:
@@ -69,7 +69,7 @@ def test_generate_questions_supports_all_domain_inputs(
 
     results = ors.generateQuestions(personas=["persona-a"], model=fake_model, domain=domain)
 
-    assert results == [f"question-{domain}"]
+    assert [r.content for r in results] == [f"question-{domain}"]
     assert recorder["chain_used"] is True
     assert recorder["model"] is fake_model
     assert len(recorder["prompts"]) == 1
@@ -82,7 +82,7 @@ def test_generate_answers_returns_one_answer_per_question(install_fake_model_sta
 
     results = ors.generateAnswers(questions=["q1", "q2"], model=fake_model, teacherName="default")
 
-    assert results == ["a1", "a2"]
+    assert [r.content for r in results] == ["a1", "a2"]
     assert recorder["model"] is fake_model
     assert len(recorder["prompts"]) == 2
 
@@ -102,7 +102,7 @@ def test_generate_answers_default_teacher_name_does_not_raise_invalid_teacher_pr
 
     results = ors.generateAnswers(questions=["q1"], model=fake_model, teacherName="default")
 
-    assert results == ["a1"]
+    assert [r.content for r in results]== ["a1"]
 
 #test if the {}->{{}} conversion is done to ensure langchain doesnt mistake variables
 def test_generate_answers_handles_questions_with_curly_braces(

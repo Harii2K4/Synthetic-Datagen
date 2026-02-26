@@ -2,15 +2,22 @@
 file:generate.py
 description:Contains the functions to generate the dateset using functions in openrouter_synthesis.py
 """
-from exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
-from openrouter_sythesis import *
-from models import generationModelConfig, personaSplitsChoices, teacherModelConfig
+import os
+import sys
+#add the parent directory to the path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.openrouter_sythesis import *
 import json
-from logger import Logger
 from typing import Any, Dict
+
+from utils.exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
+from utils.models import generationModelConfig, personaSplitsChoices, teacherModelConfig
+from utils.logger import Logger
+
 #create the log
 log=Logger(__name__)
-MODEL_LIST_FILE="./openrouter_models_list.json"
+MODEL_LIST_FILE="./data/openrouter_models_list.json"
 with open(MODEL_LIST_FILE) as f:
     openrouterModelList=[model.get('id') for model in json.load(f)]
 
@@ -270,6 +277,6 @@ if __name__=="__main__":
             {"tool": personaSplitsChoices(size=3,split="general")}
     ]
     try:
-        print(generateDataset(datasetConfig=choices,datasetSize=5,datasetName="test_2domain"))
+        print(generateDataset(datasetConfig=choices,datasetSize=5,datasetName="test_2domain_after_refactor"))
     except Exception as e:
         print(e)

@@ -5,11 +5,11 @@ import pandas as pd
 import pytest
 
 # add the parent directory to the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-import generate
-from exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
-from models import generationModelConfig, personaSplitsChoices, teacherModelConfig
+from core import generate
+from utils.exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
+from utils.models import generationModelConfig, personaSplitsChoices, teacherModelConfig
 
 
 class FakeModelConfig:

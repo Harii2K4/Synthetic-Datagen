@@ -5,9 +5,9 @@ import pytest
 from pydantic import ValidationError
 
 # add the parent directory to the path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-import models
+from utils import models
 
 
 @pytest.mark.parametrize(

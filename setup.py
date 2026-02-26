@@ -9,8 +9,8 @@ from pandas import DataFrame
 import requests
 import json
 #for downloading the dataset
-DATASET_FOLDER="./persona_hub/"
-MODEL_LIST_FILE="./openrouter_models_list.json"
+DATASET_FOLDER="./data/persona_hub/"
+MODEL_LIST_FILE="./data/openrouter_models_list.json"
 
 def storeAsCsv(datasetName:str):
     try:

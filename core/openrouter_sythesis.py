@@ -1,20 +1,28 @@
+import os
+import sys
+
+# add the parent directory to the path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from langchain_core.messages import AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_openrouter import ChatOpenRouter
 from langchain_core.prompts import ChatPromptTemplate
-from exceptions import TeacherPromptNotFoundError
-from models import personaSplits,Domain
-from prompts.teacher_template import defaultPrompt
-from dotenv import load_dotenv
 import pandas as pd
-from logger import Logger
-from typing import Literal,Optional,List
 import warnings
+from typing import Literal,Optional,List
+
+from utils.exceptions import TeacherPromptNotFoundError
+from utils.models import personaSplits,Domain
+from utils.logger import Logger
+from prompts.teacher_template import defaultPrompt
+
+from dotenv import load_dotenv
 #load the environment variables
 load_dotenv()
 
-PERSONA_FOLDER="./persona_hub/"
-DATASET_FOLDER="./datasets/test_datasets/"
+PERSONA_FOLDER="./data/persona_hub/"
+DATASET_FOLDER="./data/datasets/test_datasets/"
 #setup the logger
 log=Logger(__name__)
 
