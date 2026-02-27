@@ -33,7 +33,7 @@ class ModelConfig(BaseModel):
     reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='none',description="for choosing reasoning effort affects tokens out")
     reasoningSummary:Literal['auto', 'concise', 'detailed']=Field(default='auto',description="for choosing reasoning summary length affects tokens out")
     providerPriority:Optional[List[str]]=Field(default=None,description="used for specifying order of providers to use")
-    route:Optional[str]=Field(default=None,description="used to route the model if providers list is wrong or unavailable")
+    route:Optional[List[str]]=Field(default=None,description="used to route the model if providers list is wrong or unavailable")
 
 
 
@@ -93,7 +93,6 @@ class splitErrors(BaseModel):
     message:str
     retryable:bool=False
 
-#TODO :ADD these ro server endpoint
 #if failedSplits == totalSplits ,then total failure
 #if successfulSplits == totalSplits ,then total success
 #If 0 < rowsGenerated < totalRowsRequestedor or if 0 < successfulSplits < totalSplits.
@@ -105,11 +104,23 @@ class datasetGenerationMetrics(BaseModel):
     totalRowsRequested:int=Field(ge=0)
     rowsGenerated:int=Field(ge=0)
     rowsFailed:int=Field(ge=0)
-    partialSuccess: bool=False
+    status:Literal["success","partial","failure"]
     datasetSaveLocation:str
     errors:List[splitErrors]=Field(default_factory=list)
 
+class datasetGenerationConfig(BaseModel):
+    personaConfig:List[Dict[Domain,personaSplitsChoices]]
+    datasetSize:int
+    generationModel:generationModelConfig=Field(default=generationModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"))
+    teacherModel:teacherModelConfig=Field(default=teacherModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"))
+    datasetName:str="default_gen"
 
+class datasetGenerationRequest(BaseModel):
+    jobId:str
+    config:datasetGenerationConfig
 
+class datasetGenerationResponse(BaseModel):
+    jobId:str
+    meterics:datasetGenerationMetrics
 
 

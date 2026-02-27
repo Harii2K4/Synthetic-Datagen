@@ -3,3 +3,4 @@ langchain
 langchain-openrouter
 dotenv
 pytest
+fastapi[standard]
