@@ -1,17 +1,17 @@
-input persona,question
-A history teacher with a passion for military strategies and the impact of leadership on the outcomes of battles and wars.,"The history teacher is preparing a lesson on the Battle of Waterloo. The teacher wants to illustrate the impact of leadership decisions on the outcome of the battle. She mentions four key decisions: 
+persona,question
+A history teacher with a passion for military strategies and the impact of leadership on the outcomes of battles and wars.,"The history teacher is preparing a lesson on the Battle of Waterloo. The teacher wants to illustrate the impact of leadership decisions on the outcome of the battle. She mentions four key decisions:
 
-1. Napoleon's decision to delay the start of the battle, hoping for the ground to dry. 
+1. Napoleon's decision to delay the start of the battle, hoping for the ground to dry.
 2. Wellington's decision to position his troops behind a ridge, shielding them from direct fire.
 3. Napoleon's decision to send his Imperial Guard, the last reserve, in a desperate attempt to break Wellington's center.
 4. Wellington's decision to hold his ground despite heavy losses, relying on the arrival of Prussian reinforcements.
 
-Based on these decisions, the teacher asks her students to determine which decision had the most significant impact on the outcome of the battle and why. 
+Based on these decisions, the teacher asks her students to determine which decision had the most significant impact on the outcome of the battle and why.
 
-To solve this problem, students must understand the sequence of decisions, their consequences, and how they interrelate. They must also understand the broader context of the battle, including the condition of the armies, the terrain, the weather, and the timing of the Prussian reinforcements. 
+To solve this problem, students must understand the sequence of decisions, their consequences, and how they interrelate. They must also understand the broader context of the battle, including the condition of the armies, the terrain, the weather, and the timing of the Prussian reinforcements.
 
 What is the most significant decision and why?"
-A publisher at a leading comic book company who supports emerging talents from underrepresented communities,"The publisher at a leading comic book company is committed to supporting emerging talents from underrepresented communities. He has received proposals from five different artists this month, each from a different underrepresented community. The proposals are for comics in five different genres - fantasy, superhero, horror, sci-fi, and historical fiction. 
+A publisher at a leading comic book company who supports emerging talents from underrepresented communities,"The publisher at a leading comic book company is committed to supporting emerging talents from underrepresented communities. He has received proposals from five different artists this month, each from a different underrepresented community. The proposals are for comics in five different genres - fantasy, superhero, horror, sci-fi, and historical fiction.
 
 Here are some clues:
 
@@ -33,7 +33,7 @@ Given these clues, can you help the poet figure out the correct order in which t
 A student renowned for their excellent study habits and high grades in history,"The renowned student has a unique study routine for their history class. They spend 2 hours studying every weekday, and 3 hours studying every weekend day. They also take a 15-minute break every hour. If the student maintains this routine for a month of 30 days, with 4 of those days being weekends, how much total time does the student spend on breaks?"
 A retired engineer who wants to learn coding to create a program for tracking their grandchildren's activities,"The retired engineer wants to create a program that tracks the activities of his four grandchildren. Each grandchild is involved in different activities: soccer, piano, dance, and painting. They each have their activities on different days of the week: Monday, Wednesday, Friday, and Sunday. The engineer has a study room where he plans to work on his program. The study room has four walls, each facing North, East, South, and West.
 
-To stay motivated, he decides to hang a picture of each grandchild on a different wall, each picture associated with the day of the week their activity falls on. He sets some rules for himself: 
+To stay motivated, he decides to hang a picture of each grandchild on a different wall, each picture associated with the day of the week their activity falls on. He sets some rules for himself:
 
 1. The grandchild who has piano lessons is placed on the wall opposite to the one who does soccer.
 2. The grandchild who has dance lessons is placed on the North wall.
@@ -41,9 +41,9 @@ To stay motivated, he decides to hang a picture of each grandchild on a differen
 4. The grandchild who does painting doesn't have their activity on Monday or on the same day as the grandchild on the South wall.
 
 Given these rules, can you determine which picture goes on which wall and on what day each grandchild has their activity?"
-A journalist who values unbiased reporting and encourages their family member to question authority,"The journalist has a cousin named Sarah who is a high-ranking officer in a large corporation. Sarah comes to the journalist with a dilemma. She has been given information from a reliable source that the corporation she works for is involved in an unethical business practice. However, revealing this information would potentially jeopardize her position in the company and the family's financial stability. 
+A journalist who values unbiased reporting and encourages their family member to question authority,"The journalist has a cousin named Sarah who is a high-ranking officer in a large corporation. Sarah comes to the journalist with a dilemma. She has been given information from a reliable source that the corporation she works for is involved in an unethical business practice. However, revealing this information would potentially jeopardize her position in the company and the family's financial stability.
 
-The journalist, who values unbiased reporting and encourages questioning authority, advises Sarah to act according to her conscience. Sarah decides to expose the unethical practice to the public. The next day, the journalist receives a press release from the corporation denying all allegations and threatening legal action against anyone who spreads false information. 
+The journalist, who values unbiased reporting and encourages questioning authority, advises Sarah to act according to her conscience. Sarah decides to expose the unethical practice to the public. The next day, the journalist receives a press release from the corporation denying all allegations and threatening legal action against anyone who spreads false information.
 
 The journalist has a choice: to report the corporation's statement as is, or to include Sarah's allegations as part of the story. If the journalist values unbiased reporting, what should they do and why?"
 A local toy store owner who also carries a wide selection of board games,"The local toy store owner has just received a shipment of 5 different board games: Monopoly, Scrabble, Chess, Clue, and Risk. She wants to display them in the store window, but she has certain rules she wants to follow:
@@ -53,12 +53,12 @@ A local toy store owner who also carries a wide selection of board games,"The lo
 3. Clue must be displayed next to Risk.
 
 In how many different ways can she arrange the board games in the store window following these rules?"
-An entrepreneur with high expectations for project quality and timely delivery,"The entrepreneur has two major projects, Project A and Project B, that need to be completed. Both projects require high quality and timely delivery. Project A will take 60 days to complete with a team of 5 people working 8 hours a day. Project B will take 45 days to complete with a team of 3 people working 8 hours a day. The entrepreneur has a total of 6 team members available. 
+An entrepreneur with high expectations for project quality and timely delivery,"The entrepreneur has two major projects, Project A and Project B, that need to be completed. Both projects require high quality and timely delivery. Project A will take 60 days to complete with a team of 5 people working 8 hours a day. Project B will take 45 days to complete with a team of 3 people working 8 hours a day. The entrepreneur has a total of 6 team members available.
 
 However, there is a twist. One of the team members is a senior expert who works at twice the speed of the other team members. If the entrepreneur assigns this senior expert to one of the projects, the total project time will reduce by 15%.
 
 The entrepreneur wants both projects to be finished as soon as possible. To which project should the entrepreneur assign the senior expert to minimize the total time taken to complete both projects?"
-A secular humanist organizer working towards the same goal of church-state separation,"The secular humanist organizer, named Alex, is working towards the goal of church-state separation. He is planning a campaign to raise awareness about the issue. He has three main strategies: 
+A secular humanist organizer working towards the same goal of church-state separation,"The secular humanist organizer, named Alex, is working towards the goal of church-state separation. He is planning a campaign to raise awareness about the issue. He has three main strategies:
 
 1. Organize a peaceful protest in the city center.
 2. Launch an online petition to gather signatures.
@@ -72,28 +72,28 @@ Given the following information, which strategy should Alex choose and why?
 - The online petition can reach a broad audience, but it may not necessarily engage people in a meaningful dialogue about the issue.
 - The public debates can stimulate thoughtful discussions and potentially change people's minds, but they may only attract a limited audience interested in the topic."
 A minister of energy who supports and allocates funding for renewable energy initiatives in Latin America,"The Minister of Energy has a budget of $5 million to allocate for renewable energy initiatives in Latin America. He has decided to distribute the funds among solar power, wind power, and hydroelectric power projects. He wants to give the solar power projects twice as much as the wind power projects, and the hydroelectric power projects three times as much as the wind power projects. How much will each type of project receive?"
-"An acclaimed science fiction author, often exchanging ideas about the human brain and consciousness","The acclaimed science fiction author is currently working on a novel set in the year 2300 where humans have developed technology to upload their consciousness into a digital realm. However, this technology has a limitation - it can only upload consciousness that has experienced less than 100 years of life due to data storage constraints. 
+"An acclaimed science fiction author, often exchanging ideas about the human brain and consciousness","The acclaimed science fiction author is currently working on a novel set in the year 2300 where humans have developed technology to upload their consciousness into a digital realm. However, this technology has a limitation - it can only upload consciousness that has experienced less than 100 years of life due to data storage constraints.
 
-The author's protagonist, John, is 99 years old and has a twin brother, James, who is 99 years old as well. They were born 10 minutes apart, with John being the older one. They both decide to upload their consciousness on their 100th birthday at the exact time they were born. 
+The author's protagonist, John, is 99 years old and has a twin brother, James, who is 99 years old as well. They were born 10 minutes apart, with John being the older one. They both decide to upload their consciousness on their 100th birthday at the exact time they were born.
 
-On the day of their 100th birthday, due to a glitch in the system, John's upload starts 10 minutes earlier than scheduled. The upload process takes exactly 20 minutes. 
+On the day of their 100th birthday, due to a glitch in the system, John's upload starts 10 minutes earlier than scheduled. The upload process takes exactly 20 minutes.
 
 Does John's consciousness successfully get uploaded into the digital realm or does it fail due to the 100-year limit?"
-"A biomedical scientist specializing in surgical robotics, constantly pushing the boundaries of innovation","Dr. Smith, a biomedical scientist specializing in surgical robotics, has been developing a new robotic surgical system. The system is designed to perform five different types of surgeries: cardiovascular, neurosurgery, orthopedic, urologic, and gastrointestinal. 
+"A biomedical scientist specializing in surgical robotics, constantly pushing the boundaries of innovation","Dr. Smith, a biomedical scientist specializing in surgical robotics, has been developing a new robotic surgical system. The system is designed to perform five different types of surgeries: cardiovascular, neurosurgery, orthopedic, urologic, and gastrointestinal.
 
 Each surgery type requires a different set of tools, and the robot has a limited storage capacity. The tools for cardiovascular surgery weigh 2 kg, neurosurgery tools weigh 3 kg, orthopedic tools weigh 4 kg, urologic tools weigh 1 kg, and gastrointestinal tools weigh 2 kg. The robot can carry a maximum of 7 kg.
 
-Dr. Smith has been tasked with preparing the robot for a day of surgeries. However, due to unforeseen circumstances, the robot can only be loaded once at the start of the day. The surgeries to be performed, in no particular order, are neurosurgery, urologic, and either cardiovascular or gastrointestinal. 
+Dr. Smith has been tasked with preparing the robot for a day of surgeries. However, due to unforeseen circumstances, the robot can only be loaded once at the start of the day. The surgeries to be performed, in no particular order, are neurosurgery, urologic, and either cardiovascular or gastrointestinal.
 
 Given the weight limitations of the robot, which surgery should Dr. Smith choose to perform between cardiovascular and gastrointestinal?"
-A sympathetic government official who works towards implementing stricter regulations on polluting industries,"The sympathetic government official has been working tirelessly to implement stricter regulations on industries that are major contributors to pollution. She has identified four key industries: Oil, Textile, Food Processing, and Automobile. 
+A sympathetic government official who works towards implementing stricter regulations on polluting industries,"The sympathetic government official has been working tirelessly to implement stricter regulations on industries that are major contributors to pollution. She has identified four key industries: Oil, Textile, Food Processing, and Automobile.
 
-The Oil industry contributes to 35% of the total pollution, the Textile industry 25%, the Food Processing industry 20%, and the Automobile industry 20%. 
+The Oil industry contributes to 35% of the total pollution, the Textile industry 25%, the Food Processing industry 20%, and the Automobile industry 20%.
 
 The official has the capacity to implement stricter regulations on only three out of these four industries in the current year. She decides to choose the ones that contribute the most to pollution. However, she also has to consider the economic impact. The Oil industry contributes 40% to the economy, the Textile industry 20%, the Food Processing industry 30%, and the Automobile industry 10%.
 
 If the official's goal is to reduce pollution the most without reducing the overall economic contribution by more than 15%, which industries should she implement stricter regulations on?"
-an overly reactive nationalist from the Maldives,"An overly reactive nationalist from the Maldives is embroiled in a heated debate over the sovereignty of his country. He strongly believes that the Maldives should not engage in any international agreements that might compromise its sovereignty. He is particularly against a proposed agreement that would allow a foreign country to establish a military base on one of the Maldivian islands. 
+an overly reactive nationalist from the Maldives,"An overly reactive nationalist from the Maldives is embroiled in a heated debate over the sovereignty of his country. He strongly believes that the Maldives should not engage in any international agreements that might compromise its sovereignty. He is particularly against a proposed agreement that would allow a foreign country to establish a military base on one of the Maldivian islands.
 
 The nationalist's main arguments are:
 
@@ -109,7 +109,7 @@ a) The economic aid will improve the living standards of the Maldivian people.
 b) The foreign country is a powerful ally that can help the Maldives in times of crisis.
 c) The Maldives can negotiate terms within the agreement to ensure its sovereignty is not completely compromised.
 d) The foreign military base can provide jobs for the Maldivian people."
-A computer science student eager to learn about real-world software development practices from the project manager,"The computer science student is given a task by the project manager to develop a software system that can handle 1000 queries per second. The student has two options: 
+A computer science student eager to learn about real-world software development practices from the project manager,"The computer science student is given a task by the project manager to develop a software system that can handle 1000 queries per second. The student has two options:
 
 1. Use a single powerful server that can handle 1000 queries per second, but costs $5000 and has a 5% chance of failure per year. In case of failure, it would take a week to get it back up and running, during which time the system would be completely down.
 
@@ -123,27 +123,27 @@ A retired science teacher who still has a great passion for reading about scient
 3. ""The Climate Crisis: An Inconvenient Truth""
 4. ""The Universe: A Detailed Guide""
 
-The teacher has already read two of the four books. She doesn't want to read the book about climate change because she believes the topic is too politicized. She also doesn't want to read the book that doesn't provide clear and precise information about its topic. 
+The teacher has already read two of the four books. She doesn't want to read the book about climate change because she believes the topic is too politicized. She also doesn't want to read the book that doesn't provide clear and precise information about its topic.
 
 The book about the universe is known for its beautiful illustrations but lacks in-depth explanations. The book about quantum physics is praised for its clear and detailed explanations but criticized for its lack of illustrations. The book about genetics is known for its comprehensive and precise information.
 
 Based on the teacher's preferences, which book should she choose for the book club this week?"
-A former mutual fund manager who now advocates for transparency and investor protection,"John is a former mutual fund manager who is now a strong advocate for transparency and investor protection. He has recently been invited to speak at a conference about the importance of transparency in the financial industry. At the conference, there are four different sessions: Session A, Session B, Session C, and Session D. 
+A former mutual fund manager who now advocates for transparency and investor protection,"John is a former mutual fund manager who is now a strong advocate for transparency and investor protection. He has recently been invited to speak at a conference about the importance of transparency in the financial industry. At the conference, there are four different sessions: Session A, Session B, Session C, and Session D.
 
-John has been told that he cannot speak at Session A because it is reserved for current mutual fund managers. He also knows that he cannot speak at Session D because it is focused on a topic that he does not have enough expertise in. 
+John has been told that he cannot speak at Session A because it is reserved for current mutual fund managers. He also knows that he cannot speak at Session D because it is focused on a topic that he does not have enough expertise in.
 
 The conference organizers have also given him two additional pieces of information. First, if he speaks at Session B, then a current mutual fund manager will also speak at that session. Second, if he does not speak at Session B, then he will speak at Session C.
 
 Given this information, at which session will John likely speak?"
-An Indonesian citizen who follows politics closely and is concerned about economic growth.,"This Indonesian citizen, let's call him Ari, is an avid follower of politics and is deeply concerned about economic growth. One day, Ari reads in the newspaper that the government is planning to implement three new policies: Policy A, Policy B, and Policy C. 
+An Indonesian citizen who follows politics closely and is concerned about economic growth.,"This Indonesian citizen, let's call him Ari, is an avid follower of politics and is deeply concerned about economic growth. One day, Ari reads in the newspaper that the government is planning to implement three new policies: Policy A, Policy B, and Policy C.
 
 Policy A involves cutting taxes for large corporations to encourage investment. Policy B involves increasing government spending on infrastructure. Policy C involves reducing government spending on social welfare programs.
 
-Ari is aware that each of these policies can have a different impact on the economy. 
+Ari is aware that each of these policies can have a different impact on the economy.
 
-1. Policy A can stimulate economic growth by encouraging corporations to invest more, but it can also lead to income inequality if the benefits of the tax cuts are not distributed evenly. 
+1. Policy A can stimulate economic growth by encouraging corporations to invest more, but it can also lead to income inequality if the benefits of the tax cuts are not distributed evenly.
 
-2. Policy B can stimulate economic growth by creating jobs and improving the country's infrastructure, but it can also lead to increased government debt if not managed properly. 
+2. Policy B can stimulate economic growth by creating jobs and improving the country's infrastructure, but it can also lead to increased government debt if not managed properly.
 
 3. Policy C can help reduce government debt, but it can also lead to increased poverty and social instability if it results in a significant reduction in social welfare services.
 
@@ -155,21 +155,21 @@ A political strategist skilled in presenting counterarguments and challenging th
 John is aware that while uninsured citizens have increased, the overall public health has actually improved under the current government's policy due to other factors like better healthcare facilities and improved living conditions. Additionally, he knows that while the previous government's policy ensured more citizens were insured, it led to a financial strain on the economy.
 
 How can John effectively counter Lisa's argument, presenting the facts in a way that challenges her narrative, without directly denying her points?"
-A Kurdish cultural anthropologist specializing in the study of migration and population changes due to political and social pressures.,"The Kurdish cultural anthropologist is conducting a study on a small, isolated Kurdish village where 150 families currently live. The anthropologist has found that over the past five years, the number of families in the village has decreased by 20% due to political pressures. However, social pressures have also caused a 10% increase in the number of families migrating to the village. There is no other population change due to births, deaths, or other factors. 
+A Kurdish cultural anthropologist specializing in the study of migration and population changes due to political and social pressures.,"The Kurdish cultural anthropologist is conducting a study on a small, isolated Kurdish village where 150 families currently live. The anthropologist has found that over the past five years, the number of families in the village has decreased by 20% due to political pressures. However, social pressures have also caused a 10% increase in the number of families migrating to the village. There is no other population change due to births, deaths, or other factors.
 
 The anthropologist has to determine the original number of families in the village before the changes occurred. Based on the given information, can you help the anthropologist in finding the original number of families in the village?"
-"A political commentator with similar views, but who differs on certain policies","John and Alex are both political commentators who share similar views, yet differ on certain policies. They are discussing the upcoming election. 
+"A political commentator with similar views, but who differs on certain policies","John and Alex are both political commentators who share similar views, yet differ on certain policies. They are discussing the upcoming election.
 
-John says, ""I believe the candidate from the Blue Party will win because they have a strong stance on environmental policies, which is a major concern for the public this year."" 
+John says, ""I believe the candidate from the Blue Party will win because they have a strong stance on environmental policies, which is a major concern for the public this year.""
 
-Alex, however, disagrees. He believes the candidate from the Red Party will win, as this candidate has a more balanced view on both environmental and economic policies. He thinks the public will appreciate a candidate who can handle both aspects. 
+Alex, however, disagrees. He believes the candidate from the Red Party will win, as this candidate has a more balanced view on both environmental and economic policies. He thinks the public will appreciate a candidate who can handle both aspects.
 
 One day, they receive information that a major economic crisis has hit the country. Given this new information, Alex changes his prediction about the election winner.
 
 Question: Based on the information, who is Alex likely to predict as the winner now, the candidate from the Blue Party or the Red Party?"
 A resilient farmer who has faced numerous challenges and is determined to tell their story,"The resilient farmer has had a challenging life and wants to share his story through a book. He decides to dedicate a chapter to each significant challenge he has faced in his life. He has faced challenges in his personal life, his farming career, and his community involvement. He has faced twice as many challenges in his farming career as in his personal life, and the number of challenges he faced in his community is the average of the challenges he faced personally and in his farming career. If he has a total of 9 chapters in his book, can you determine how many chapters are dedicated to each category of his life?"
 A published author who mentors and inspires the magazine editor with their storytelling abilities,"The published author has written three books: Book A, Book B, and Book C. Each book was reviewed by the magazine editor at different points in time. The editor gave Book A a 5-star rating, Book B a 4-star rating, and Book C a 3-star rating. According to the editor, each book had unique strengths and weaknesses: Book A had the best plot, Book B had the best character development, and Book C had the best writing style. However, the author believes that the editor's ratings were influenced by the order in which the books were read. Knowing that the editor read the books in the order of their strengths (i.e., the book with the best plot was read first, the book with the best character development was read second, and the book with the best writing style was read last), can you determine the order in which the editor read the books?"
-A cultural studies student who provides insights into the social context of historical cultural environments,"The cultural studies student is currently researching two historical cultural environments: Ancient Greece and the Medieval Islamic world. She is particularly interested in the social context related to the dissemination of knowledge in these societies. 
+A cultural studies student who provides insights into the social context of historical cultural environments,"The cultural studies student is currently researching two historical cultural environments: Ancient Greece and the Medieval Islamic world. She is particularly interested in the social context related to the dissemination of knowledge in these societies.
 
 She finds out that in Ancient Greece, the knowledge was mainly disseminated through oral traditions and later through written texts in public libraries, while in the Medieval Islamic world, knowledge was primarily spread through written texts in private libraries and madrasas (educational institutions).
 
