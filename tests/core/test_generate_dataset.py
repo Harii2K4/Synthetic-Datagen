@@ -50,13 +50,13 @@ def valid_models(monkeypatch):
     monkeypatch.setattr(generate, "openrouterModelList", ["gen-model", "teacher-model", "split-gen", "split-teacher"])
     return FakeModelConfig("gen-model", "GEN"), FakeModelConfig("teacher-model", "TEACHER")
 
-#empty list as input raises error
+#empty list as  raises error
 def test_generate_dataset_raises_when_dataset_config_is_empty(valid_models):
     gen_model, teacher_model = valid_models
 
     with pytest.raises(ValueError):
         generate.generateDataset(
-            datasetConfig=[],
+            personaConfig=[],
             datasetSize=1,
             generationModel=gen_model,
             teacherModel=teacher_model,
@@ -69,7 +69,7 @@ def test_generate_dataset_raises_when_dataset_size_invalid(valid_models, dataset
 
     with pytest.raises(ValueError):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=dataset_size,
             generationModel=gen_model,
             teacherModel=teacher_model,
@@ -81,7 +81,7 @@ def test_generate_dataset_raises_for_unknown_global_generation_model(monkeypatch
 
     with pytest.raises(GenerationModelNotFoundError):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
             generationModel=FakeModelConfig("missing-gen"),
             teacherModel=FakeModelConfig("teacher-model"),
@@ -93,7 +93,7 @@ def test_generate_dataset_raises_for_unknown_global_teacher_model(monkeypatch):
 
     with pytest.raises(TeacherModelNotFoundError):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
             generationModel=FakeModelConfig("gen-model"),
             teacherModel=FakeModelConfig("missing-teacher"),
@@ -105,7 +105,7 @@ def test_generate_dataset_raises_if_global_model_instance_creation_fails(monkeyp
 
     with pytest.raises(RuntimeError, match="bad generation init"):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(size=1)}],
             datasetSize=1,
             generationModel=FakeModelConfig("gen-model", raise_on_create=RuntimeError("bad generation init")),
             teacherModel=FakeModelConfig("teacher-model"),
@@ -146,7 +146,7 @@ def test_generate_dataset_collects_non_retryable_persona_read_errors_and_continu
     captured = _capture_to_csv(monkeypatch)
 
     stats = generate.generateDataset(
-        datasetConfig=[
+        personaConfig=[
             {"math": personaSplitsChoices(split="math", size=1)},
             {"instruction": personaSplitsChoices(split="instruction", size=2)},
         ],
@@ -166,8 +166,8 @@ def test_generate_dataset_collects_non_retryable_persona_read_errors_and_continu
     assert stats["errors"][0]["retryable"] is False
     assert captured["path"].endswith("persona-read-error.csv")
     assert captured["df"].to_dict("records") == [
-        {"input persona": "instruction-p1", "domain": "instruction", "Question": "instruction-q-0", "Answer": "a-0"},
-        {"input persona": "instruction-p2", "domain": "instruction", "Question": "instruction-q-1", "Answer": "a-1"},
+        {"persona": "instruction-p1", "domain": "instruction", "Question": "instruction-q-0", "Answer": "a-0"},
+        {"persona": "instruction-p2", "domain": "instruction", "Question": "instruction-q-1", "Answer": "a-1"},
     ]
     assert stats["errors"][0]['message']==str(persona_error)
 
@@ -181,7 +181,7 @@ def test_generate_dataset_marks_empty_persona_list_as_non_retryable(monkeypatch,
     captured = _capture_to_csv(monkeypatch)
 
     stats = generate.generateDataset(
-        datasetConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
+        personaConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
         datasetSize=1,
         generationModel=gen_model,
         teacherModel=teacher_model,
@@ -226,7 +226,7 @@ def test_generate_dataset_collects_retryable_question_errors_and_stops_future_mo
     captured = _capture_to_csv(monkeypatch)
 
     stats = generate.generateDataset(
-        datasetConfig=[
+        personaConfig=[
             {"math": personaSplitsChoices(split="math", size=2)},
             {"tool": personaSplitsChoices(split="tool", size=2)},
         ],
@@ -275,7 +275,7 @@ def test_generate_dataset_collects_retryable_answer_errors_and_stops_future_mode
     captured = _capture_to_csv(monkeypatch)
 
     stats = generate.generateDataset(
-        datasetConfig=[
+        personaConfig=[
             {"math": personaSplitsChoices(split="math", size=2)},
             {"tool": personaSplitsChoices(split="tool", size=2)},
         ],
@@ -307,7 +307,7 @@ def test_generate_dataset_marks_empty_question_generation_as_non_retryable(monke
     captured = _capture_to_csv(monkeypatch)
 
     stats = generate.generateDataset(
-        datasetConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
+        personaConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
         datasetSize=1,
         generationModel=gen_model,
         teacherModel=teacher_model,
@@ -335,7 +335,7 @@ def test_generate_dataset_marks_empty_answer_generation_as_non_retryable(monkeyp
     captured = _capture_to_csv(monkeypatch)
 
     stats = generate.generateDataset(
-        datasetConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
+        personaConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
         datasetSize=1,
         generationModel=gen_model,
         teacherModel=teacher_model,
@@ -412,7 +412,7 @@ def test_generate_dataset_uses_split_model_overrides_when_available(
     split_teacher = teacherModelConfig(modelId=split_teacher_model_id) if split_teacher_model_id else None
 
     stats = generate.generateDataset(
-        datasetConfig=[
+        personaConfig=[
             {
                 "math": personaSplitsChoices(
                     split="math",
@@ -434,7 +434,7 @@ def test_generate_dataset_uses_split_model_overrides_when_available(
     assert stats["rowsGenerated"] == 1
     assert stats["rowsFailed"] == 0
     assert captured["df"].to_dict("records") == [
-        {"input persona": "p1", "domain": "math", "Question": "q1", "Answer": "a1"}
+        {"persona": "p1", "domain": "math", "Question": "q1", "Answer": "a1"}
     ]
 
 
@@ -450,7 +450,7 @@ def test_generate_dataset_raises_on_question_call_exception_outside_loop_handlin
 
     with pytest.raises(RuntimeError, match="question call failed"):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
             datasetSize=1,
             generationModel=gen_model,
             teacherModel=teacher_model,
@@ -470,7 +470,7 @@ def test_generate_dataset_raises_on_answer_call_exception_outside_loop_handling(
 
     with pytest.raises(RuntimeError, match="answer call failed"):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
             datasetSize=1,
             generationModel=gen_model,
             teacherModel=teacher_model,
@@ -491,7 +491,7 @@ def test_generate_dataset_raises_if_dataset_save_fails(monkeypatch, valid_models
 
     with pytest.raises(OSError, match="disk full"):
         generate.generateDataset(
-            datasetConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
+            personaConfig=[{"math": personaSplitsChoices(split="math", size=1)}],
             datasetSize=1,
             generationModel=gen_model,
             teacherModel=teacher_model,

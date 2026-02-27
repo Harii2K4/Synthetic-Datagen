@@ -118,7 +118,8 @@ def generateAnswers(
 def createPersonaList(
     split:personaSplits="general",
     size:int=10,
-    selectionMethod:Literal["random","sequence","selected"]="sequence",
+    selectionMethod:Literal["random","sequence","selected","ranged"]="sequence",
+    rangeList:Optional[List[int]]=None,
     selectionList:Optional[List[int]]=None,
     seed:int=42
                   ):
@@ -141,6 +142,22 @@ def createPersonaList(
         personaList=df.loc[:size-1]
     elif selectionMethod=="random":
         personaList=df.sample(n=size,random_state=seed)
+    elif selectionMethod=="ranged":
+        if rangeList ==None:
+            log.error("rangeList is not provided for ranged selection")
+            raise ValueError("rangeList is not provided for ranged selection")
+        if len(rangeList)>2:
+            log.error(f"rangeList is provided has more than two elements:{len(rangeList)}")
+            raise ValueError("rangeList is provided has more than two elements")
+        lowerLimit=min(rangeList)
+        upperLimit=max(rangeList)
+        if lowerLimit<0:
+            log.warning(f"lowerLimit is negative setting to zero:{lowerLimit}")
+            lowerLimit=0
+        if upperLimit>df.shape[0]:
+            log.warning(f"upperLimit is out of index setting to last index:{upperLimit}")
+            upperLimit=df.shape[0]
+        personaList=df.iloc[lowerLimit:upperLimit]
     elif selectionMethod=="selected":
         if selectionList is None or len(selectionList)==0:
             raise ValueError("""In selected mode and requires personas to be selected,
@@ -166,7 +183,7 @@ def createPersonaList(
 #     # # print(answer)
 #     # log.info("creating the dataset")
 #     # df = pd.DataFrame(list(zip(inputPersona, question, answer)),
-#     #                       columns=['input persona', 'Question', 'Answer'])
+#     #                       columns=['persona', 'Question', 'Answer'])
 #     # # ensure dataset folder exists and save
 #     # df.to_csv(DATASET_FOLDER+'qa_output_2.csv', index=False)
 #     # log.info("saved the dataset" )

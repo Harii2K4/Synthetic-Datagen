@@ -18,6 +18,7 @@ from utils.logger import Logger
 #create the log
 log=Logger(__name__)
 MODEL_LIST_FILE="./data/openrouter_models_list.json"
+DATASET_FOLDER="./data/datasets/test_datasets/"
 with open(MODEL_LIST_FILE) as f:
     openrouterModelList=[model.get('id') for model in json.load(f)]
 
@@ -53,22 +54,22 @@ def _recordSplitError(
 
 
 def generateDataset(
-    datasetConfig:List[Dict[Domain,personaSplitsChoices]],
+    personaConfig:List[Dict[Domain,personaSplitsChoices]],
     datasetSize:int,
     generationModel:generationModelConfig=generationModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"),
     teacherModel:teacherModelConfig=teacherModelConfig(modelId="upstage/solar-pro-3:free"),
     datasetName:str="default_gen"
                     ):
     #checking if non default values are of the right type
-    if datasetConfig is None or len(datasetConfig)==0:
-        log.error(f"Invalid datasetConfig:{datasetConfig}")
-        raise ValueError(f"User configurations for each split is empty or null got :{datasetConfig}")
+    if personaConfig is None or len(personaConfig)==0:
+        log.error(f"Invalid personaConfig:{personaConfig}")
+        raise ValueError(f"User configurations for each split is empty or null got :{personaConfig}")
     if datasetSize is None or datasetSize==0:
         log.error(f"Invalid datasetSize:{datasetSize}")
         raise ValueError(f"User configurations for each split is empty or null got :{datasetSize}")
 
 
-    # #check will be removed later and done on server
+    #check to the model ID
     if generationModel.modelId not in openrouterModelList:
         log.error(f"Invalid generation modelId :{generationModel.modelId}")
         raise GenerationModelNotFoundError(f"The generation model id :{generationModel.modelId} doesnt exist in {MODEL_LIST_FILE}")
@@ -80,7 +81,7 @@ def generateDataset(
     generationModelInstance=generationModel.createModelInstance()
     teacherModelInstance=teacherModel.createModelInstance()
     stats=_initGenerationStats(
-        total_splits=len(datasetConfig),
+        total_splits=len(personaConfig),
         total_rows_requested=datasetSize,
     )
 
@@ -92,7 +93,7 @@ def generateDataset(
     apiExceptionRaised:bool=False
     log.info(f"generating a dataset of size :{datasetSize}")
     #starting generation
-    for config in datasetConfig:
+    for config in personaConfig:
         #initialise local variable
         currDomain,personaSplit=next(iter(config.items()))
         currQuestions:List[str]=[]
@@ -120,6 +121,7 @@ def generateDataset(
 
         #should never happen but just in case
         if currInputPersonas is None or len(currInputPersonas)==0:
+            log.error(f"personas retrieval return empty or no results:{currInputPersonas}")
             _recordSplitError(
                 stats=stats,
                 split=personaSplit.split,
@@ -133,11 +135,12 @@ def generateDataset(
         #question generation block
         #if prev split has lead to exceptions skip making model calls
         if apiExceptionRaised:
+            log.info("Skipping question generation as api exception was raised")
             currQuestions=['']*len(currInputPersonas)
         else:
             if personaSplit.generationModel is not None and personaSplit.generationModel.modelId in openrouterModelList:
-                #TODO:will be removed and added in server
                 #generate questions
+                log.info(f"Question generation with local model:{personaSplit.generationModel.modelId}")
                 questionResponses=generateQuestions(
                     personas=currInputPersonas,
                     model=personaSplit.generationModel.createModelInstance(),
@@ -145,6 +148,7 @@ def generateDataset(
                 )
             else:
                 #generate questions
+                log.info(f"Question generation with global model:{generationModel.modelId}")
                 questionResponses=generateQuestions(
                     personas=currInputPersonas,
                     model=generationModelInstance,
@@ -188,16 +192,18 @@ def generateDataset(
                     currQuestions.append(str(q.content))
         # generate answers
         if apiExceptionRaised:
+            log.info("Skipping answers generation as api exception was raised")
             currAnswers=['']*len(currInputPersonas)
         else:
             if personaSplit.teacherModel is not None and personaSplit.teacherModel.modelId in openrouterModelList:
-                #will be removed and added in server
-                #generate questions
+                #generate answers
+                log.info(f"Answer generation with local model:{personaSplit.teacherModel.modelId}")
                 answerResponses=generateAnswers(
                    questions=currQuestions,
                    model=personaSplit.teacherModel.createModelInstance(),
                 )
             else:
+                log.info(f"Answer generation with local model:{teacherModel.modelId}")
                 answerResponses=generateAnswers(
                    questions=currQuestions,
                    model=teacherModelInstance,
@@ -257,17 +263,19 @@ def generateDataset(
         stats["rowsGenerated"] += completeRows
 
     #create the dataset
-    log.info("creating the dataset")
+    fileLocation=DATASET_FOLDER+datasetName+'.csv'
+    log.info(f"creating the dataset at {fileLocation}")
     #final check to see if all rows are the same size shouldnt happen but yeah
     if len(inputPersonas)>len(questions):
         questions.extend(['']*(len(inputPersonas)-len(questions)))
     if len(inputPersonas)>len(answers):
         answers.extend(['']*(len(inputPersonas)-len(answers)))
     df = pd.DataFrame(list(zip(inputPersonas,domains, questions, answers)),
-                          columns=['input persona','domain','Question', 'Answer'])
+                          columns=['persona','domain','Question', 'Answer'])
     # ensure dataset folder exists and save
-    df.to_csv(DATASET_FOLDER+datasetName+'.csv', index=False)
+    df.to_csv(fileLocation, index=False)
     log.info("saved the dataset" )
+    stats['datasetSaveLocation']=fileLocation
     stats["rowsFailed"] = max(stats["totalRowsRequested"] - stats["rowsGenerated"], 0)
     return stats
 
@@ -277,6 +285,6 @@ if __name__=="__main__":
             {"tool": personaSplitsChoices(size=3,split="general")}
     ]
     try:
-        print(generateDataset(datasetConfig=choices,datasetSize=5,datasetName="test_2domain_after_refactor"))
+        print(generateDataset(personaConfig=choices,datasetSize=5,datasetName="test_2domain_after_refactor"))
     except Exception as e:
         print(e)
