@@ -27,9 +27,10 @@ def storeAsCsv(datasetName:str):
         fileName="persona.csv"
         if datasetName!="persona":
             df.rename(columns={'input persona': 'persona'}, inplace=True)
-            df=df[~df['persona'].str.contains('我')]
-            df=df['persona']
             #remove all the rows with ? in them
+            df=df[~df['persona'].str.contains('我')]
+            df['origin']='system'
+            df=df.loc[:,['persona','origin']]
 
             fileName=f"persona_{datasetName}.csv"
         df.to_csv(DATASET_FOLDER + fileName,index=False)
@@ -51,31 +52,31 @@ def main():
 
         print("Dataset saved to all domains successfully in persona_hub folder")
        # List all models and their properties (GET /models)
-        response = requests.get(
-          "https://openrouter.ai/api/v1/models",
-          headers={},
-        )
-
-        if response.status_code != 200:
-            raise Exception(f"Error in downloading models information: {response.status_code}")
-        modelsData=response.json()
-        #filter the modelData to what we want
-        modelsData=[
-            {
-                "id":model.get('id'),
-                "name":model.get('name'),
-                "context_length":model.get('context_length'),
-                "input_price":model.get('pricing').get('prompt'),
-                "output_price":model.get('pricing').get('completion'),
-            }
-            for model in modelsData['data']
-            if 'text' in model.get('architecture').get('input_modalities') and
-            'text' in model.get('architecture').get('output_modalities')
-        ]
-        print(f'Storing {len(modelsData)} model information')
-
-        with open(MODEL_LIST_FILE, "w", encoding="utf-8") as f:
-            json.dump(modelsData,f,ensure_ascii=False,indent=2)
+        # response = requests.get(
+        #   "https://openrouter.ai/api/v1/models",
+        #   headers={},
+        # )
+        #
+        # if response.status_code != 200:
+        #     raise Exception(f"Error in downloading models information: {response.status_code}")
+        # modelsData=response.json()
+        # #filter the modelData to what we want
+        # modelsData=[
+        #     {
+        #         "id":model.get('id'),
+        #         "name":model.get('name'),
+        #         "context_length":model.get('context_length'),
+        #         "input_price":model.get('pricing').get('prompt'),
+        #         "output_price":model.get('pricing').get('completion'),
+        #     }
+        #     for model in modelsData['data']
+        #     if 'text' in model.get('architecture').get('input_modalities') and
+        #     'text' in model.get('architecture').get('output_modalities')
+        # ]
+        # print(f'Storing {len(modelsData)} model information')
+        #
+        # with open(MODEL_LIST_FILE, "w", encoding="utf-8") as f:
+        #     json.dump(modelsData,f,ensure_ascii=False,indent=2)
 
 
 if __name__ == "__main__":
