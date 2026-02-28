@@ -6,13 +6,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import pandas as pd
 import os,json
+from typing import Literal, Optional,Dict
 #load env variables
 from dotenv import load_dotenv
 
-from core.openrouter_sythesis import PERSONA_FOLDER, createPersonaList
+from core.openrouter_sythesis import PERSONA_FOLDER
 load_dotenv()
 
 from core.generate import generateDataset
+from utils.csv_selection import filteredSelection,rangedSelection
 from utils.exceptions import TeacherModelNotFoundError,GenerationModelNotFoundError
 from utils.logger import Logger
 from utils.models import datasetGenerationMetrics, datasetGenerationRequest, personaSplits
@@ -110,7 +112,13 @@ def getPersonList():
 
 
 @app.get("/persona_hub/{personaSplit}")
-def viewPersonaSplit(personaSplit:personaSplits,lowerLimit:int,upperLimit:int):
+def viewPersonaSplit(personaSplit:personaSplits,
+                     noOfRows:int,
+                     lowerLimit:Optional[int]=None,
+                     upperLimit:Optional[int]=None,
+                     method:Literal["range","filter","hybrid"]='range',
+                     filter:Optional[Literal["user","system"]]='system'):
+
     fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
 
     #if datasets folder doesnt exists in disk
@@ -124,22 +132,83 @@ def viewPersonaSplit(personaSplit:personaSplits,lowerLimit:int,upperLimit:int):
         raise HTTPException(status_code=404,detail=f"Invalid personaSplit file '{personaSplit}': {e}") from e
     except FileNotFoundError :
         raise HTTPException(status_code=404,detail=f"personaSplit not found at {fileLocation}")
-    #validate the row ranges
-    if lowerLimit<0:
-        log.warning(f"lowerLimit is negative setting to zero:{lowerLimit}")
-        lowerLimit=0
-    if upperLimit>df.shape[0]:
-        log.warning(f"upperLimit is out of index setting to last index:{upperLimit}")
-        upperLimit=df.shape[0]
+    if method=="filter":
+        if filter is None:
+            raise HTTPException(status_code=422,detail=f"Filter type is not provided please choose system or user:{method}")
+        try:
+            df,requestedRows=filteredSelection(df,filter,noOfRows)
+        except Exception as e:
+            raise HTTPException(status_code=422,
+                                detail=str(e))
+    elif method=="range":
+        try:
+            df,requestedRows=rangedSelection(df,lowerLimit,upperLimit)
+        except Exception as e:
+            raise HTTPException(status_code=422,
+                                detail=str(e))
+    else:
+        if filter is None:
+            raise HTTPException(status_code=422,detail=f"Filter type is not provided please choose system or user:{method}")
+        try:
+            df,_=rangedSelection(df,lowerLimit,upperLimit)
+            df,requestedRows=filteredSelection(df,filter,noOfRows)
+        except Exception as e:
+            raise HTTPException(status_code=422,
+                                detail=str(e))
 
-    df:pd.DataFrame=df.iloc[lowerLimit:upperLimit]
+
     responseDf=str(df.to_json(orient="records"))
     rowsReturned=len(json.loads(responseDf))
-
     log.info(f"Successfully sent requested rows {lowerLimit}:{upperLimit} for {personaSplit}")
-    return JSONResponse({"dataset":responseDf,"rowsReturned":rowsReturned})
+    return JSONResponse({"dataset":responseDf,
+                         "rowsReturned":rowsReturned,
+                         "rowsRequested":requestedRows})
 
 
-#TODO person addition and persona updating
+#TODO: persona updating
+@app.post("/persona_hub/{personaSplit}")
+def addPersonaToSplit(personaSplit:personaSplits,persona:str):
+    fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
+    if  not os.path.exists(PERSONA_FOLDER):
+        log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
+        raise HTTPException(status_code=404,detail=f"personaSplit folder not found at {PERSONA_FOLDER}")
+
+    #row to add to the file
+    personaInput=persona+","+"user"
+    with open(fileLocation,"a")as f:
+        log.info(f"writing persona in to split:{personaSplit}")
+        f.write(personaInput)
+    log.info(f"Successfully written persona into split:{personaSplit}")
+    return {"message":f"Successfully written persona into split:{personaSplit}"}
+
+
+#general csv endpoints
+@app.get("/csv")
+def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
+    if dataType=="dataset":
+        if  not os.path.exists(DATASET_FOLDER):
+            log.error(f"dataset folder not found create it:{DATASET_FOLDER}")
+            raise HTTPException(status_code=404,detail=f"dataset folder not found at {DATASET_FOLDER}")
+        fileLocation=DATASET_FOLDER+fileName+".csv"
+    else:
+        if  not os.path.exists(PERSONA_FOLDER):
+            log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
+            raise HTTPException(status_code=404,detail=f"personaSplit folder not found at {PERSONA_FOLDER}")
+        fileLocation=PERSONA_FOLDER+f"persona_{fileName}.csv"
+    try:
+        df=pd.read_csv(fileLocation)
+        log.info("Successfully loaded file :{fileName}")
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        raise HTTPException(status_code=404,detail=f"Invalid filename '{fileName}': {e}") from e
+    except FileNotFoundError :
+        raise HTTPException(status_code=404,detail=f"File not found at {fileLocation}")
+    return{"NoOfRows":df.shape[0]}
+
+
+
+
+
+
+
 
 
