@@ -70,7 +70,7 @@ class teacherModelConfig(ModelConfig):
 
 class personaSplitsChoices(BaseModel):
     split:personaSplits=Field(default="general",description="the csv file to use for personas")
-    selectionMethod:Literal["random","sequence","selected"]=Field(default="sequence",description="the method to choose the personas")
+    selectionMethod:Literal["random","sequence","selected","ranged"]=Field(default="sequence",description="the method to choose the personas")
     selectionList:Optional[List[int]]=Field(default=None,description="the list of indexes to use for selecting personas")
     seed:int=42
     generationModel:Optional[generationModelConfig]=None

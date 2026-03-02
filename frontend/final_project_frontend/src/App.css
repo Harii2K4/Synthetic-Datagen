@@ -292,6 +292,19 @@
   gap: 6px;
 }
 
+.generate-save-row {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.save-status {
+  margin: 0;
+  color: #3f3f3f;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 1000px) {
   .model-sections {
     grid-template-columns: 1fr;
