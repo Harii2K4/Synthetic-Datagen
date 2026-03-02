@@ -1,0 +1,30 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1d1d1d;
+  background: #f4f4f4;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid #bdbdbd;
+  background: #ffffff;
+  color: #1d1d1d;
+  padding: 10px 14px;
+}
+
+button:hover {
+  background: #f0f0f0;
+}
+
+button:focus-visible {
+  outline: 2px solid #6a6a6a;
+  outline-offset: 2px;
+}
