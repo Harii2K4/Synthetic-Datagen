@@ -1,10 +1,15 @@
 import type { NavigationTab } from '../data/navigation'
+import { GenerateDatasetsPage } from '../pages/GenerateDatasetsPage'
 
 type MainContentProps = {
   activeTab: NavigationTab
 }
 
 function MainContent({ activeTab }: MainContentProps) {
+  if (activeTab.id === 'generate-datasets') {
+    return <GenerateDatasetsPage />
+  }
+
   return (
     <section className="home-content" aria-live="polite">
       <h2>{activeTab.label}</h2>
