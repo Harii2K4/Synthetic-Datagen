@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fetchPersonaSplits } from '../lib/api'
+import { ModelConfigForm } from '../components/generate-datasets/ModelConfigForm'
+import { PersonaSplitDropdown } from '../components/generate-datasets/PersonaSplitDropdown'
 import { openRouterModels } from '../lib/openrouterModels'
+import { fetchPersonaSplits } from '../lib/api'
+import { SplitConfigStepperPage } from './SplitConfigStepperPage'
 import type {
   DatasetGenerationRequestPayload,
   Domain,
   ModelConfigPayload,
   PersonaConfigEntry,
   PersonaSplitsChoicesPayload,
+  SplitConfigDraft,
 } from '../types/datasetRequest'
 import type { PersonaOption, UIModelConfig } from '../types/generation'
-import { ModelConfigForm } from '../components/generate-datasets/ModelConfigForm'
-import { PersonaSplitDropdown } from '../components/generate-datasets/PersonaSplitDropdown'
 
 const defaultModelId = openRouterModels[0]?.id ?? ''
 const DOMAIN_SPLITS: Domain[] = ['math', 'instruction', 'knowledge', 'reasoning', 'tool', 'npc']
@@ -49,8 +51,11 @@ function toModelPayload(config: UIModelConfig): ModelConfigPayload {
   }
 }
 
-function buildPersonaConfig(selectedSplits: string[]): PersonaConfigEntry[] {
-  return selectedSplits.filter(isDomainSplit).map((split) => {
+function buildPersonaConfigFromDrafts(
+  selectedSplits: string[],
+  splitConfigDrafts: SplitConfigDraft[],
+): PersonaConfigEntry[] {
+  const fallbackConfigs = selectedSplits.filter(isDomainSplit).map((split) => {
     const splitConfig: PersonaSplitsChoicesPayload = {
       split,
       selectionMethod: 'sequence',
@@ -60,6 +65,36 @@ function buildPersonaConfig(selectedSplits: string[]): PersonaConfigEntry[] {
     }
 
     return { [split]: splitConfig }
+  })
+
+  if (splitConfigDrafts.length === 0) {
+    return fallbackConfigs
+  }
+
+  return splitConfigDrafts.map((draft) => {
+    const selectionListForPayload =
+      draft.selectionMethod === 'selected'
+        ? draft.selectionList
+        : draft.selectionMethod === 'ranged'
+          ? [draft.lowerLimit, draft.upperLimit]
+          : null
+
+    const splitConfig: PersonaSplitsChoicesPayload = {
+      split: draft.split,
+      selectionMethod: draft.selectionMethod,
+      selectionList: selectionListForPayload,
+      seed: draft.seed,
+      size:
+        draft.selectionMethod === 'ranged'
+          ? Math.max(0, draft.upperLimit - draft.lowerLimit)
+          : draft.size,
+      ...(draft.generationModel ? { generationModel: draft.generationModel } : {}),
+      ...(draft.teacherModel ? { teacherModel: draft.teacherModel } : {}),
+    }
+
+    return {
+      [draft.domain]: splitConfig,
+    }
   })
 }
 
@@ -77,6 +112,8 @@ function GenerateDatasetsPage() {
   const [isPersonaLoading, setIsPersonaLoading] = useState(true)
   const [generationConfig, setGenerationConfig] = useState<UIModelConfig>(defaultGenerationConfig)
   const [teacherConfig, setTeacherConfig] = useState<UIModelConfig>(defaultTeacherConfig)
+  const [splitConfigDrafts, setSplitConfigDrafts] = useState<SplitConfigDraft[]>([])
+  const [isSplitConfigView, setIsSplitConfigView] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
 
   useEffect(() => {
@@ -104,7 +141,7 @@ function GenerateDatasetsPage() {
   }
 
   const handleSaveSelections = () => {
-    const personaConfig = buildPersonaConfig(selectedPersonaSplits)
+    const personaConfig = buildPersonaConfigFromDrafts(selectedPersonaSplits, splitConfigDrafts)
     const nonDomainSplits = selectedPersonaSplits.filter((split) => !isDomainSplit(split))
 
     const requestPayload: DatasetGenerationRequestPayload = {
@@ -121,6 +158,7 @@ function GenerateDatasetsPage() {
     const savedDraft = {
       savedAt: new Date().toISOString(),
       selectedPersonaSplits,
+      splitConfigDrafts,
       nonDomainSplits,
       requestPayload,
     }
@@ -132,6 +170,21 @@ function GenerateDatasetsPage() {
       nonDomainSplits.length > 0
         ? `Saved. Non-domain splits kept for future config: ${nonDomainSplits.join(', ')}`
         : 'Saved successfully.',
+    )
+  }
+
+  if (isSplitConfigView) {
+    return (
+      <SplitConfigStepperPage
+        selectedSplits={selectedPersonaSplits}
+        globalGenerationModel={generationConfig}
+        globalTeacherModel={teacherConfig}
+        initialConfigs={splitConfigDrafts}
+        onBack={(configs) => {
+          setSplitConfigDrafts(configs)
+          setIsSplitConfigView(false)
+        }}
+      />
     )
   }
 
@@ -185,6 +238,13 @@ function GenerateDatasetsPage() {
       <div className="generate-save-row">
         <button type="button" onClick={handleSaveSelections}>
           Save Selections
+        </button>
+        <button
+          type="button"
+          disabled={selectedPersonaSplits.length === 0}
+          onClick={() => setIsSplitConfigView(true)}
+        >
+          Configure Split Settings
         </button>
         {saveMessage ? <p className="save-status">{saveMessage}</p> : null}
       </div>

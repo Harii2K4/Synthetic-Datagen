@@ -11,7 +11,7 @@ export type PersonaSplit =
 
 export type Domain = Exclude<PersonaSplit, 'general'>
 
-export type SelectionMethod = 'random' | 'sequence' | 'selected'
+export type SelectionMethod = 'random' | 'sequence' | 'selected' | 'ranged'
 
 export type ModelConfigPayload = {
   modelId: string
@@ -28,6 +28,8 @@ export type PersonaSplitsChoicesPayload = {
   selectionList?: number[] | null
   seed: number
   size: number
+  generationModel?: ModelConfigPayload
+  teacherModel?: ModelConfigPayload
 }
 
 export type PersonaConfigEntry = {
@@ -45,4 +47,18 @@ export type DatasetGenerationConfigPayload = {
 export type DatasetGenerationRequestPayload = {
   jobId: string
   config: DatasetGenerationConfigPayload
+}
+
+export type SplitConfigDraft = {
+  split: PersonaSplit
+  domain: Domain
+  selectionMethod: SelectionMethod
+  size: number
+  seed: number
+  lowerLimit: number
+  upperLimit: number
+  selectionList: number[]
+  rowCount: number | null
+  generationModel?: ModelConfigPayload
+  teacherModel?: ModelConfigPayload
 }

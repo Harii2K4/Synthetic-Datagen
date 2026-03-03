@@ -33,4 +33,20 @@ async function fetchPersonaSplits(): Promise<PersonaOption[]> {
   }
 }
 
-export { fetchPersonaSplits }
+async function fetchPersonaRowCount(split: string): Promise<number | null> {
+  try {
+    const response = await fetch(
+      `http://localhost:8000/csv?fileName=${encodeURIComponent(split)}&dataType=persona`,
+    )
+    if (!response.ok) {
+      return null
+    }
+
+    const payload = (await response.json()) as { NoOfRows?: number }
+    return typeof payload.NoOfRows === 'number' ? payload.NoOfRows : null
+  } catch {
+    return null
+  }
+}
+
+export { fetchPersonaSplits, fetchPersonaRowCount }
