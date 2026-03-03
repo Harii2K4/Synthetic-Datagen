@@ -361,6 +361,10 @@
   padding: 16px;
 }
 
+.dataset-preview-modal {
+  width: min(1220px, 100%);
+}
+
 .modal-actions {
   margin-top: 12px;
   display: flex;
@@ -434,6 +438,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.csv-preview-cell-expanded {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.35;
 }
 
 .csv-preview-grid-selectable .ag-row {

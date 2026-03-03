@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
-import type { ColDef, RowClickedEvent } from 'ag-grid-community'
+import type { ColDef, RowClickedEvent, RowDoubleClickedEvent } from 'ag-grid-community'
 import type {
   CsvDataSource,
   CsvPreviewFilter,
@@ -20,6 +20,7 @@ type CsvPreviewTableProps = {
   initialPageSize?: number
   height?: number
   mode?: CsvPreviewMethod
+  enableOriginFilter?: boolean
   defaultFilter?: CsvPreviewFilter | null
   lowerLimit?: number
   upperLimit?: number
@@ -34,6 +35,7 @@ function CsvPreviewTable({
   initialPageSize = 25,
   height = 520,
   mode = 'range',
+  enableOriginFilter = false,
   defaultFilter = null,
   lowerLimit,
   upperLimit,
@@ -53,13 +55,20 @@ function CsvPreviewTable({
   const [rowsReturned, setRowsReturned] = useState(0)
   const [rowsRequested, setRowsRequested] = useState(0)
   const [totalRows, setTotalRows] = useState<number | null>(null)
+  const [expandedRowIndex, setExpandedRowIndex] = useState<number | null>(null)
+  const hasRangeBounds = lowerLimit !== undefined || upperLimit !== undefined
+  const effectiveMode: CsvPreviewMethod =
+    enableOriginFilter && activeFilter
+      ? (hasRangeBounds ? 'hybrid' : 'filter')
+      : mode
 
   useEffect(() => {
     setPage(0)
     setSearchInput('')
     setSearch('')
     setActiveFilter(defaultFilter)
-  }, [source.id, defaultFilter, mode, lowerLimit, upperLimit])
+    setExpandedRowIndex(null)
+  }, [source.id, defaultFilter, mode, lowerLimit, upperLimit, enableOriginFilter])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -79,7 +88,7 @@ function CsvPreviewTable({
         page,
         pageSize,
         search: undefined,
-        mode,
+        mode: effectiveMode,
         filter: activeFilter,
         lowerLimit,
         upperLimit,
@@ -89,6 +98,7 @@ function CsvPreviewTable({
           return
         }
         setRows(result.rows)
+        setExpandedRowIndex(null)
         setRowsReturned(result.rowsReturned)
         setRowsRequested(result.rowsRequested)
         setTotalRows(result.totalRows)
@@ -113,7 +123,7 @@ function CsvPreviewTable({
     return () => {
       active = false
     }
-  }, [activeFilter, lowerLimit, mode, onError, page, pageSize, source, upperLimit])
+  }, [activeFilter, effectiveMode, lowerLimit, onError, page, pageSize, source, upperLimit])
 
   const selectedIndexSet = useMemo(() => new Set(selectedRowIndexes), [selectedRowIndexes])
   const filteredRows = useMemo(() => filterCsvRows(rows, search), [rows, search])
@@ -126,28 +136,37 @@ function CsvPreviewTable({
     return Object.keys(rows[0])
       .filter((key) => key !== CSV_PREVIEW_ROW_INDEX_FIELD)
       .map((key) => ({
-      field: key,
-      colId: key,
-      headerName: key,
-      sortable: true,
-      resizable: true,
-      minWidth: 140,
-      flex: 1,
-      wrapText: false,
-      autoHeight: false,
-      tooltipField: key,
-      valueFormatter: (params) =>
-        params.value === null || params.value === undefined ? '' : String(params.value),
-      cellRenderer: (params: { value: unknown }) => {
-        if (params.value === null || params.value === undefined) {
-          return ''
-        }
-        const value = String(params.value)
-        return value.length > 220 ? `${value.slice(0, 220)}...` : value
-      },
-      cellClass: 'csv-preview-cell',
+        field: key,
+        colId: key,
+        headerName: key,
+        sortable: true,
+        resizable: true,
+        minWidth: 140,
+        flex: 1,
+        wrapText: false,
+        autoHeight: false,
+        tooltipField: key,
+        valueFormatter: (params) =>
+          params.value === null || params.value === undefined ? '' : String(params.value),
+        cellRenderer: (params: { value: unknown; data?: CsvPreviewRow }) => {
+          if (params.value === null || params.value === undefined) {
+            return ''
+          }
+          const value = String(params.value)
+          const rowIndex = params.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]
+          if (typeof rowIndex === 'number' && rowIndex === expandedRowIndex) {
+            return value
+          }
+          return value.length > 220 ? `${value.slice(0, 220)}...` : value
+        },
+        cellClass: (params) => {
+          const rowIndex = params.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]
+          return typeof rowIndex === 'number' && rowIndex === expandedRowIndex
+            ? 'csv-preview-cell csv-preview-cell-expanded'
+            : 'csv-preview-cell'
+        },
       }))
-  }, [rows])
+  }, [expandedRowIndex, rows])
 
   const hasNextPage =
     totalRows === null ? rows.length === pageSize : (page + 1) * pageSize < totalRows
@@ -174,6 +193,15 @@ function CsvPreviewTable({
     onSelectedRowIndexesChange?.(Array.from(nextSelection).sort((a, b) => a - b))
   }
 
+  const onRowDoubleClicked = (event: RowDoubleClickedEvent<CsvPreviewRow>) => {
+    const rowIndex = event.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]
+    if (typeof rowIndex !== 'number') {
+      return
+    }
+    setExpandedRowIndex((current) => (current === rowIndex ? null : rowIndex))
+    event.api.resetRowHeights()
+  }
+
   return (
     <div className="csv-preview-shell">
       <div className="csv-preview-toolbar">
@@ -182,8 +210,9 @@ function CsvPreviewTable({
           value={searchInput}
           placeholder="Search this split"
           onChange={(event) => setSearchInput(event.target.value)}
+          title="Double-click any row to expand/collapse full text."
         />
-        {(mode === 'filter' || mode === 'hybrid') ? (
+        {enableOriginFilter ? (
           <select
             value={activeFilter ?? ''}
             onChange={(event) => {
@@ -224,6 +253,11 @@ function CsvPreviewTable({
           }}
           suppressMultiSort={true}
           onRowClicked={onRowClicked}
+          onRowDoubleClicked={onRowDoubleClicked}
+          getRowHeight={(params) => {
+            const rowIndex = params.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]
+            return typeof rowIndex === 'number' && rowIndex === expandedRowIndex ? 92 : 34
+          }}
           getRowStyle={(params) => {
             const rowIndex = params.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]
             if (!selectable || typeof rowIndex !== 'number' || !selectedIndexSet.has(rowIndex)) {

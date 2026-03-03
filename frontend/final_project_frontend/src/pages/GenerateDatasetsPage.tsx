@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { CsvPreviewTable } from '../components/csv-preview/CsvPreviewTable'
 import { ModelConfigForm } from '../components/generate-datasets/ModelConfigForm'
 import { PersonaSplitDropdown } from '../components/generate-datasets/PersonaSplitDropdown'
 import { fetchPersonaSplits, generateDataset } from '../lib/api'
+import { createDatasetCsvDataSource } from '../lib/csvPreviewSources'
 import { openRouterModels } from '../lib/openrouterModels'
 import { SplitConfigStepperPage } from './SplitConfigStepperPage'
 import type {
@@ -168,6 +170,23 @@ function validateSplitDraft(draft: SplitConfigDraft): string | null {
   return null
 }
 
+function extractDatasetNameFromLocation(datasetSaveLocation: string): string | null {
+  const trimmed = datasetSaveLocation.trim()
+  if (!trimmed) {
+    return null
+  }
+
+  // Accept absolute, relative, or plain names and always return only the filename.
+  // Examples:
+  // /data/datasets/test_frontend.csv -> test_frontend.csv
+  // ./data/datasets/test_frontend.csv -> test_frontend.csv
+  // test_frontend.csv -> test_frontend.csv
+  const normalized = trimmed.replace(/\\/g, '/')
+  const segments = normalized.split('/').filter(Boolean)
+  const filename = segments[segments.length - 1]?.trim() ?? ''
+  return filename || null
+}
+
 function buildValidatedPayload(
   selectedPersonaSplits: string[],
   splitConfigDrafts: SplitConfigDraft[],
@@ -278,6 +297,7 @@ function GenerateDatasetsPage() {
   )
   const [isGeneratingDataset, setIsGeneratingDataset] = useState(false)
   const [generationStats, setGenerationStats] = useState<DatasetGenerationMetricsPayload | null>(null)
+  const [isDatasetPreviewOpen, setIsDatasetPreviewOpen] = useState(false)
 
   useEffect(() => {
     isMountedRef.current = true
@@ -342,6 +362,15 @@ function GenerateDatasetsPage() {
         .filter((option) => selectedPersonaSplits.includes(option.id))
         .map((option) => option.label),
     [personaOptions, selectedPersonaSplits],
+  )
+  const previewDatasetName = useMemo(
+    () =>
+      generationStats ? extractDatasetNameFromLocation(generationStats.datasetSaveLocation) : null,
+    [generationStats],
+  )
+  const datasetPreviewSource = useMemo(
+    () => (previewDatasetName ? createDatasetCsvDataSource(previewDatasetName) : null),
+    [previewDatasetName],
   )
 
   const togglePersonaSplit = (id: string) => {
@@ -584,6 +613,18 @@ function GenerateDatasetsPage() {
             {generationStats.totalRowsRequested} requested
           </p>
           <p className="muted-text">Saved at: {generationStats.datasetSaveLocation}</p>
+          <div className="split-actions-row">
+            <button
+              type="button"
+              disabled={!datasetPreviewSource}
+              onClick={() => setIsDatasetPreviewOpen(true)}
+            >
+              View Dataset
+            </button>
+            {!datasetPreviewSource ? (
+              <p className="muted-text">Dataset name could not be resolved from saved location.</p>
+            ) : null}
+          </div>
           {generationStats.errors.length > 0 ? (
             <div className="stats-errors">
               {generationStats.errors.map((error, index) => (
@@ -596,6 +637,25 @@ function GenerateDatasetsPage() {
             <p className="muted-text">No split-level errors reported.</p>
           )}
         </section>
+      ) : null}
+
+      {isDatasetPreviewOpen && datasetPreviewSource ? (
+        <div
+          className="modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="View Generated Dataset"
+        >
+          <div className="modal-card dataset-preview-modal">
+            <div className="split-header-row">
+              <h3>Dataset Preview: {previewDatasetName}</h3>
+              <button type="button" onClick={() => setIsDatasetPreviewOpen(false)}>
+                Close
+              </button>
+            </div>
+            <CsvPreviewTable source={datasetPreviewSource} mode="range" height={560} />
+          </div>
+        </div>
       ) : null}
     </section>
   )

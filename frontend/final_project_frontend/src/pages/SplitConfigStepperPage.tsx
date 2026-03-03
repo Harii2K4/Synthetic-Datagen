@@ -638,6 +638,7 @@ function SplitConfigStepperPage({
         <CsvPreviewTable
           source={previewSource}
           mode={previewConfig.mode}
+          enableOriginFilter={true}
           defaultFilter={previewConfig.defaultFilter}
           lowerLimit={previewConfig.lowerLimit}
           upperLimit={previewConfig.upperLimit}

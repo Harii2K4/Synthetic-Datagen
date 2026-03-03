@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os,json
-from typing import Literal, Optional,Dict
+from typing import Literal, Optional
 #load env variables
 from dotenv import load_dotenv
 
@@ -15,15 +15,16 @@ from core.openrouter_sythesis import PERSONA_FOLDER
 load_dotenv()
 
 from core.generate import generateDataset
-from utils.csv_selection import filteredSelection,rangedSelection
+from utils.csv_selection import filteredSelection,rangedSelection,resolveFilePath
 from utils.exceptions import TeacherModelNotFoundError,GenerationModelNotFoundError
 from utils.logger import Logger
 from utils.models import datasetGenerationMetrics, datasetGenerationRequest, personaSplits
 log=Logger(__name__)
 
 #Global variables
-DATASET_FOLDER="./data/datasets/"
+DATASET_FOLDER="./data/datasets/test_datasets/"
 PERSONA_FOLDER="./data/persona_hub/"
+PROJECT_ROOT=os.path.abspath(".")
 #create the app
 app =FastAPI()
 
@@ -50,14 +51,17 @@ def listDatasets():
             datasets.append(file)
     return {"datasetList":datasets}
 
-@app.get("/dataset/{datasetName}")
-def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
-    fileLocation=DATASET_FOLDER+datasetName+".csv"
 
+@app.get("/dataset/{datasetName:path}")
+def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
+    log.info(f"Dataset Name {datasetName}")
     #if datasets folder doesnt exists in disk
     if  not os.path.exists(DATASET_FOLDER):
         log.error(f"Dataset folder not found create it or run setup.py:{DATASET_FOLDER}")
         raise HTTPException(status_code=404,detail=f"Dataset folder not found at {DATASET_FOLDER}")
+
+    fileLocation=DATASET_FOLDER+datasetName
+
     #TODO:change this to load only the required rows
     try:
         df=pd.read_csv(fileLocation)
@@ -133,7 +137,7 @@ def viewPersonaSplit(personaSplit:personaSplits,
         fileLocation=PERSONA_FOLDER+"persona.csv"
     else:
         fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
-    
+
 
     #if datasets folder doesnt exists in disk
     if  not os.path.exists(PERSONA_FOLDER):
@@ -203,7 +207,8 @@ def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
         if  not os.path.exists(DATASET_FOLDER):
             log.error(f"dataset folder not found create it:{DATASET_FOLDER}")
             raise HTTPException(status_code=404,detail=f"dataset folder not found at {DATASET_FOLDER}")
-        fileLocation=DATASET_FOLDER+fileName+".csv"
+        fileLocation=DATASET_FOLDER+fileName
+
     else:
         if  not os.path.exists(PERSONA_FOLDER):
             log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
@@ -224,7 +229,5 @@ def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
 
 
 #supabase
-
-
 
 
