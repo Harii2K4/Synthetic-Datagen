@@ -1,4 +1,5 @@
 import type { OpenRouterModel } from '../types/generation'
+import type { CsvPreviewRow } from '../types/csvPreview'
 
 function fuzzyScore(source: string, query: string): number {
   if (!query) {
@@ -46,4 +47,25 @@ function filterModels(models: OpenRouterModel[], query: string, limit = 25): Ope
     .map((entry) => entry.model)
 }
 
-export { filterModels }
+function filterCsvRows(rows: CsvPreviewRow[], query: string): CsvPreviewRow[] {
+  const normalizedQuery = query.trim().toLowerCase()
+  if (!normalizedQuery) {
+    return rows
+  }
+
+  return rows
+    .map((row) => {
+      const valueText = Object.values(row)
+        .map((value) => String(value ?? '').toLowerCase())
+        .join(' ')
+      return {
+        row,
+        score: fuzzyScore(valueText, normalizedQuery),
+      }
+    })
+    .filter((entry) => entry.score >= 0)
+    .sort((a, b) => b.score - a.score)
+    .map((entry) => entry.row)
+}
+
+export { filterModels, filterCsvRows }

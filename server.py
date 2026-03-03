@@ -129,7 +129,11 @@ def viewPersonaSplit(personaSplit:personaSplits,
                      method:Literal["range","filter","hybrid"]='range',
                      filter:Optional[Literal["user","system"]]='system'):
 
-    fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
+    if personaSplit == "general":
+        fileLocation=PERSONA_FOLDER+"persona.csv"
+    else:
+        fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
+    
 
     #if datasets folder doesnt exists in disk
     if  not os.path.exists(PERSONA_FOLDER):

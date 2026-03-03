@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ModelConfigForm } from '../components/generate-datasets/ModelConfigForm'
+import { CsvPreviewTable } from '../components/csv-preview/CsvPreviewTable'
 import { fetchPersonaRowCount } from '../lib/api'
+import { createPersonaCsvDataSource } from '../lib/csvPreviewSources'
 import { openRouterModels } from '../lib/openrouterModels'
 import type {
   Domain,
@@ -10,6 +12,7 @@ import type {
   SplitConfigCompletion,
   SplitConfigDraft,
 } from '../types/datasetRequest'
+import type { CsvPreviewFilter, CsvPreviewMethod } from '../types/csvPreview'
 import type { UIModelConfig } from '../types/generation'
 
 type SplitConfigStepperPageProps = {
@@ -182,6 +185,34 @@ function validateSplitDraft(draft: SplitConfigDraft): string | null {
   return null
 }
 
+function getPreviewConfig(draft: SplitConfigDraft): {
+  mode: CsvPreviewMethod
+  defaultFilter: CsvPreviewFilter | null
+  lowerLimit?: number
+  upperLimit?: number
+} {
+  if (draft.selectionMethod === 'ranged') {
+    return {
+      mode: 'range',
+      defaultFilter: null,
+      lowerLimit: draft.lowerLimit,
+      upperLimit: draft.upperLimit,
+    }
+  }
+
+  if (draft.selectionMethod === 'selected') {
+    return {
+      mode: 'range',
+      defaultFilter: null,
+    }
+  }
+
+  return {
+    mode: 'range',
+    defaultFilter: null,
+  }
+}
+
 function ModelOverrideModal({
   title,
   initialConfig,
@@ -311,6 +342,11 @@ function SplitConfigStepperPage({
   }, [drafts])
 
   const currentDraft = drafts[currentIndex]
+  const previewSource = useMemo(
+    () => (currentDraft ? createPersonaCsvDataSource(currentDraft.split) : null),
+    [currentDraft?.split],
+  )
+  const previewConfig = useMemo(() => (currentDraft ? getPreviewConfig(currentDraft) : null), [currentDraft])
 
   const updateCurrentDraft = (updates: Partial<SplitConfigDraft>) => {
     setStepError('')
@@ -331,6 +367,10 @@ function SplitConfigStepperPage({
         </button>
       </section>
     )
+  }
+
+  if (!previewSource || !previewConfig) {
+    return null
   }
 
   if (isSummaryView) {
@@ -545,6 +585,9 @@ function SplitConfigStepperPage({
                 }
                 placeholder="e.g. 0, 4, 10"
               />
+              <p className="muted-text">
+                You can also select personas directly in the preview table below.
+              </p>
             </label>
           ) : null}
         </div>
@@ -592,7 +635,17 @@ function SplitConfigStepperPage({
 
       <section className="generate-section">
         <h3>Split Preview</h3>
-        <p className="muted-text">CSV preview for this split will be added in the next step.</p>
+        <CsvPreviewTable
+          source={previewSource}
+          mode={previewConfig.mode}
+          defaultFilter={previewConfig.defaultFilter}
+          lowerLimit={previewConfig.lowerLimit}
+          upperLimit={previewConfig.upperLimit}
+          selectable={selectionMethod === 'selected'}
+          selectedRowIndexes={currentDraft.selectionList}
+          onSelectedRowIndexesChange={(selectionList) => updateCurrentDraft({ selectionList })}
+          height={420}
+        />
       </section>
 
       <div className="split-nav-row">
