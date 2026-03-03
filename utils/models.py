@@ -108,6 +108,22 @@ class datasetGenerationMetrics(BaseModel):
     datasetSaveLocation:str
     errors:List[splitErrors]=Field(default_factory=list)
 
+    @classmethod
+    def mock(cls,jobid: str = "test-job-123") :
+        """Return a mocked instance of datasetGenerationMetrics."""
+        return cls(
+            jobId=jobid,
+            totalSplits=2,
+            successfulSplits=2,
+            failedSplits=0,
+            totalRowsRequested=5,
+            rowsGenerated=5,
+            rowsFailed=0,
+            status="success",
+            datasetSaveLocation="/mock/path/dataset",
+            errors=[],
+        )
+
 class datasetGenerationConfig(BaseModel):
     personaConfig:List[Dict[Domain,personaSplitsChoices]]
     datasetSize:int
@@ -122,5 +138,10 @@ class datasetGenerationRequest(BaseModel):
 class datasetGenerationResponse(BaseModel):
     jobId:str
     meterics:datasetGenerationMetrics
+
+    @classmethod
+    def mock(cls,jobId:str):
+        metrics=datasetGenerationMetrics.mock(jobid=jobId)
+        return cls(jobId=jobId,meterics=metrics)
 
 

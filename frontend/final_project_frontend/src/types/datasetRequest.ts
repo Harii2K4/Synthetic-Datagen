@@ -62,3 +62,39 @@ export type SplitConfigDraft = {
   generationModel?: ModelConfigPayload
   teacherModel?: ModelConfigPayload
 }
+
+export type SplitConfigCompletion = {
+  splitConfigDrafts: SplitConfigDraft[]
+  datasetName: string
+  datasetSize: number
+}
+
+export type SplitErrorStage =
+  | 'persona_read'
+  | 'question_generation'
+  | 'answer_generation'
+  | 'validation'
+  | 'unknown'
+
+export type SplitErrorPayload = {
+  split: PersonaSplit
+  stage: SplitErrorStage
+  errorType: string
+  message: string
+  retryable: boolean
+}
+
+export type DatasetGenerationStatus = 'success' | 'partial' | 'failure'
+
+export type DatasetGenerationMetricsPayload = {
+  jobId: string
+  totalSplits: number
+  successfulSplits: number
+  failedSplits: number
+  totalRowsRequested: number
+  rowsGenerated: number
+  rowsFailed: number
+  status: DatasetGenerationStatus
+  datasetSaveLocation: string
+  errors: SplitErrorPayload[]
+}

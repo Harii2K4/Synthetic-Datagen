@@ -1,4 +1,8 @@
 import type { PersonaOption } from '../types/generation'
+import type {
+  DatasetGenerationMetricsPayload,
+  DatasetGenerationRequestPayload,
+} from '../types/datasetRequest'
 
 const DEFAULT_SPLITS = ['math', 'instruction', 'knowledge', 'reasoning', 'tool', 'npc', 'general']
 
@@ -42,11 +46,54 @@ async function fetchPersonaRowCount(split: string): Promise<number | null> {
       return null
     }
 
-    const payload = (await response.json()) as { NoOfRows?: number }
-    return typeof payload.NoOfRows === 'number' ? payload.NoOfRows : null
+    const payload = (await response.json()) as { NoOfRows?: number | string }
+    const rows = payload.NoOfRows
+    console.log("the no of rows:",rows)
+    console.log(Number .isFinite(rows))
+
+    if (typeof rows === 'number' && Number.isFinite(rows)) {
+      console.log("Returning for "+split+":",rows)
+      return rows
+    }
+
+    if (typeof rows === 'string') {
+      const parsed = Number(rows)
+      return Number.isFinite(parsed) ? parsed : null
+    }
+
+    return null
   } catch {
     return null
   }
 }
 
-export { fetchPersonaSplits, fetchPersonaRowCount }
+async function generateDataset(
+  requestPayload: DatasetGenerationRequestPayload,
+): Promise<DatasetGenerationMetricsPayload> {
+  const response = await fetch('http://localhost:8000/dataset', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestPayload),
+  })
+
+  if (!response.ok) {
+    let message = `dataset generation failed: ${response.status}`
+
+    try {
+      const payload = (await response.json()) as { detail?: string }
+      if (payload.detail) {
+        message = payload.detail
+      }
+    } catch {
+      // keep default message when response is not JSON
+    }
+
+    throw new Error(message)
+  }
+
+  return (await response.json()) as DatasetGenerationMetricsPayload
+}
+
+export { fetchPersonaSplits, fetchPersonaRowCount, generateDataset }

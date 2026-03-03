@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ModelConfigForm } from '../components/generate-datasets/ModelConfigForm'
 import { fetchPersonaRowCount } from '../lib/api'
 import { openRouterModels } from '../lib/openrouterModels'
@@ -7,6 +7,7 @@ import type {
   ModelConfigPayload,
   PersonaSplit,
   SelectionMethod,
+  SplitConfigCompletion,
   SplitConfigDraft,
 } from '../types/datasetRequest'
 import type { UIModelConfig } from '../types/generation'
@@ -16,7 +17,9 @@ type SplitConfigStepperPageProps = {
   globalGenerationModel: UIModelConfig
   globalTeacherModel: UIModelConfig
   initialConfigs: SplitConfigDraft[]
-  onBack: (configs: SplitConfigDraft[]) => void
+  initialDatasetName: string
+  onCancel: (configs: SplitConfigDraft[]) => void
+  onComplete: (result: SplitConfigCompletion) => void
 }
 
 type OverrideKind = 'generation' | 'teacher' | null
@@ -93,6 +96,92 @@ function getConfiguredDrafts(
   })
 }
 
+function parseSelectionList(input: string): number[] {
+  return input
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part !== '')
+    .map((part) => Number(part))
+    .filter((value) => Number.isInteger(value) && value >= 0)
+}
+
+function parseNonNegativeIntInput(input: string): number | null {
+  if (!/^\d*$/.test(input)) {
+    return null
+  }
+
+  if (input === '') {
+    return 0
+  }
+
+  const parsed = Number(input)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function getSplitSize(draft: SplitConfigDraft): number {
+  if (draft.selectionMethod === 'selected') {
+    return draft.selectionList.length
+  }
+  if (draft.selectionMethod === 'ranged') {
+    return Math.max(0, draft.upperLimit - draft.lowerLimit)
+  }
+  return Math.max(0, draft.size)
+}
+
+function validateSplitDraft(draft: SplitConfigDraft): string | null {
+  if (!draft.domain) {
+    return 'Choose a domain for the split.'
+  }
+
+  if (draft.selectionMethod === 'sequence' || draft.selectionMethod === 'random') {
+    if (!Number.isFinite(draft.size) || draft.size <= 0) {
+      return 'Size must be greater than 0 for sequence/random selection.'
+    }
+    if (draft.rowCount !== null && draft.size > draft.rowCount) {
+      return `Size cannot exceed available rows (${draft.rowCount}).`
+    }
+  }
+
+  if (draft.selectionMethod === 'random') {
+    if (!Number.isFinite(draft.seed)) {
+      return 'Seed is required for random selection.'
+    }
+  }
+
+  if (draft.selectionMethod === 'ranged') {
+    if (!Number.isFinite(draft.lowerLimit) || !Number.isFinite(draft.upperLimit)) {
+      return 'Lower and upper limits are required for ranged selection.'
+    }
+    if (draft.lowerLimit < 0) {
+      return 'Lower limit must be 0 or greater.'
+    }
+    if (draft.upperLimit <= draft.lowerLimit) {
+      return 'Upper limit must be greater than lower limit.'
+    }
+    if (draft.rowCount !== null && draft.upperLimit > draft.rowCount) {
+      return `Upper limit cannot exceed available rows (${draft.rowCount}).`
+    }
+  }
+
+  if (draft.selectionMethod === 'selected') {
+    if (draft.selectionList.length === 0) {
+      return 'Provide at least one selected row index.'
+    }
+    if (draft.rowCount !== null && Math.max(...draft.selectionList) >= draft.rowCount) {
+      return `Selected row indexes must be less than ${draft.rowCount}.`
+    }
+  }
+
+  if (draft.generationModel && !draft.generationModel.modelId.trim()) {
+    return 'Local generation model override must have a model ID.'
+  }
+  if (draft.teacherModel && !draft.teacherModel.modelId.trim()) {
+    return 'Local teacher model override must have a model ID.'
+  }
+
+  return null
+}
+
 function ModelOverrideModal({
   title,
   initialConfig,
@@ -114,7 +203,12 @@ function ModelOverrideModal({
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={title}>
       <div className="modal-card">
         <h3>{title}</h3>
-        <ModelConfigForm title="Model Override" config={draft} models={openRouterModels} onChange={setDraft} />
+        <ModelConfigForm
+          title="Model Override"
+          config={draft}
+          models={openRouterModels}
+          onChange={setDraft}
+        />
         <div className="modal-actions">
           <button
             type="button"
@@ -139,76 +233,188 @@ function SplitConfigStepperPage({
   globalGenerationModel,
   globalTeacherModel,
   initialConfigs,
-  onBack,
+  initialDatasetName,
+  onCancel,
+  onComplete,
 }: SplitConfigStepperPageProps) {
-  const validSelectedSplits = useMemo(
-    () => selectedSplits.filter(isPersonaSplit),
-    [selectedSplits],
-  )
+  const validSelectedSplits = useMemo(() => selectedSplits.filter(isPersonaSplit), [selectedSplits])
 
   const [drafts, setDrafts] = useState<SplitConfigDraft[]>(() =>
     getConfiguredDrafts(validSelectedSplits, initialConfigs),
   )
   const [currentIndex, setCurrentIndex] = useState(0)
   const [overrideKind, setOverrideKind] = useState<OverrideKind>(null)
+  const [stepError, setStepError] = useState('')
+  const [isSummaryView, setIsSummaryView] = useState(false)
+  const [datasetName, setDatasetName] = useState(initialDatasetName)
+  const [summaryError, setSummaryError] = useState('')
+  const requestedSplitsRef = useRef<Set<PersonaSplit>>(new Set())
 
   useEffect(() => {
     setDrafts(getConfiguredDrafts(validSelectedSplits, initialConfigs))
     setCurrentIndex(0)
-  }, [validSelectedSplits, initialConfigs])
-
-  const currentDraft = drafts[currentIndex]
+    setStepError('')
+    setIsSummaryView(false)
+    setSummaryError('')
+    setDatasetName(initialDatasetName)
+    requestedSplitsRef.current = new Set()
+  }, [validSelectedSplits, initialConfigs, initialDatasetName])
 
   useEffect(() => {
-    if (!currentDraft || currentDraft.rowCount !== null) {
+    const pendingSplits = drafts
+      .filter((draft) => draft.rowCount === null)
+      .filter((draft) => !requestedSplitsRef.current.has(draft.split))
+
+    if (pendingSplits.length === 0) {
       return
     }
 
+    pendingSplits.forEach((draft) => requestedSplitsRef.current.add(draft.split))
+
     let isCancelled = false
 
-    const loadRowCount = async () => {
-      const rowCount = await fetchPersonaRowCount(currentDraft.split)
+    const loadRows = async () => {
+      const results = await Promise.all(
+        pendingSplits.map(async (draft) => ({
+          split: draft.split,
+          rowCount: await fetchPersonaRowCount(draft.split),
+        })),
+      )
+
       if (isCancelled) {
         return
       }
 
+      const resultMap = new Map(results.map((item) => [item.split, item.rowCount]))
+
       setDrafts((previous) =>
-        previous.map((draft, index) => {
-          if (index !== currentIndex) {
+        previous.map((draft) => {
+          if (!resultMap.has(draft.split)) {
             return draft
           }
 
-          const normalizedUpper = rowCount !== null && draft.upperLimit === 0 ? rowCount : draft.upperLimit
+          const rowCount = resultMap.get(draft.split) ?? null
           return {
             ...draft,
             rowCount,
-            upperLimit: normalizedUpper,
+            upperLimit: rowCount !== null && draft.upperLimit === 0 ? rowCount : draft.upperLimit,
           }
         }),
       )
     }
 
-    void loadRowCount()
+    void loadRows()
 
     return () => {
       isCancelled = true
     }
-  }, [currentDraft, currentIndex])
+  }, [drafts])
+
+  const currentDraft = drafts[currentIndex]
 
   const updateCurrentDraft = (updates: Partial<SplitConfigDraft>) => {
+    setStepError('')
     setDrafts((previous) =>
       previous.map((draft, index) => (index === currentIndex ? { ...draft, ...updates } : draft)),
     )
   }
+
+  const datasetSize = useMemo(() => drafts.reduce((sum, draft) => sum + getSplitSize(draft), 0), [drafts])
 
   if (validSelectedSplits.length === 0 || !currentDraft) {
     return (
       <section className="generate-page">
         <h2>Split Settings</h2>
         <p className="muted-text">No splits selected. Go back and select at least one split.</p>
-        <button type="button" onClick={() => onBack(initialConfigs)}>
+        <button type="button" onClick={() => onCancel(initialConfigs)}>
           Back To Generate Datasets
         </button>
+      </section>
+    )
+  }
+
+  if (isSummaryView) {
+    return (
+      <section className="generate-page">
+        <div className="split-header-row">
+          <h2>Split Settings Summary</h2>
+          <button type="button" onClick={() => onCancel(drafts)}>
+            Back To Generate Datasets
+          </button>
+        </div>
+
+        <section className="generate-section">
+          <h3>Configured Splits</h3>
+          <div className="summary-list">
+            {drafts.map((draft) => (
+              <div key={draft.split} className="summary-card">
+                <p><strong>Split:</strong> {draft.split}</p>
+                <p><strong>Domain:</strong> {draft.domain}</p>
+                <p><strong>Selection:</strong> {draft.selectionMethod}</p>
+                <p><strong>Local Size:</strong> {getSplitSize(draft)}</p>
+                {draft.selectionMethod === 'random' ? <p><strong>Seed:</strong> {draft.seed}</p> : null}
+                {draft.selectionMethod === 'ranged' ? (
+                  <p><strong>Range:</strong> {draft.lowerLimit} to {draft.upperLimit}</p>
+                ) : null}
+                {draft.selectionMethod === 'selected' ? (
+                  <p><strong>Selected Rows:</strong> {draft.selectionList.join(', ')}</p>
+                ) : null}
+                <p>
+                  <strong>Local Generation Model:</strong>{' '}
+                  {draft.generationModel?.modelId ?? 'Using global'}
+                </p>
+                <p>
+                  <strong>Local Teacher Model:</strong>{' '}
+                  {draft.teacherModel?.modelId ?? 'Using global'}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="generate-section">
+          <h3>Dataset Details</h3>
+          <label>
+            <span className="field-label">Dataset Name</span>
+            <input
+              type="text"
+              value={datasetName}
+              onChange={(event) => {
+                setDatasetName(event.target.value)
+                setSummaryError('')
+              }}
+            />
+          </label>
+          <p className="muted-text">Dataset size (sum of split sizes): {datasetSize}</p>
+          {summaryError ? <p className="validation-error">{summaryError}</p> : null}
+        </section>
+
+        <div className="split-nav-row">
+          <button type="button" onClick={() => setIsSummaryView(false)}>
+            Back To Split Editing
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!datasetName.trim()) {
+                setSummaryError('Dataset name is required.')
+                return
+              }
+              if (datasetSize <= 0) {
+                setSummaryError('Dataset size must be greater than zero.')
+                return
+              }
+
+              onComplete({
+                splitConfigDrafts: drafts,
+                datasetName: datasetName.trim(),
+                datasetSize,
+              })
+            }}
+          >
+            Confirm Summary And Return
+          </button>
+        </div>
       </section>
     )
   }
@@ -222,7 +428,7 @@ function SplitConfigStepperPage({
     <section className="generate-page">
       <div className="split-header-row">
         <h2>Split Settings</h2>
-        <button type="button" onClick={() => onBack(drafts)}>
+        <button type="button" onClick={() => onCancel(drafts)}>
           Back To Generate Datasets
         </button>
       </div>
@@ -270,11 +476,16 @@ function SplitConfigStepperPage({
                 Local Size {currentDraft.rowCount !== null ? `(max ${currentDraft.rowCount})` : ''}
               </span>
               <input
-                type="number"
-                min={0}
-                max={currentDraft.rowCount ?? undefined}
-                value={currentDraft.size}
-                onChange={(event) => updateCurrentDraft({ size: Number(event.target.value) })}
+                type="text"
+                inputMode="numeric"
+                value={String(currentDraft.size)}
+                onChange={(event) => {
+                  const nextValue = parseNonNegativeIntInput(event.target.value)
+                  if (nextValue === null) {
+                    return
+                  }
+                  updateCurrentDraft({ size: nextValue })
+                }}
               />
             </label>
           ) : null}
@@ -283,9 +494,16 @@ function SplitConfigStepperPage({
             <label>
               <span className="field-label">Seed</span>
               <input
-                type="number"
-                value={currentDraft.seed}
-                onChange={(event) => updateCurrentDraft({ seed: Number(event.target.value) })}
+                type="text"
+                inputMode="numeric"
+                value={String(currentDraft.seed)}
+                onChange={(event) => {
+                  const nextValue = parseNonNegativeIntInput(event.target.value)
+                  if (nextValue === null) {
+                    return
+                  }
+                  updateCurrentDraft({ seed: nextValue })
+                }}
               />
             </label>
           ) : null}
@@ -315,17 +533,27 @@ function SplitConfigStepperPage({
               </label>
             </>
           ) : null}
+
+          {selectionMethod === 'selected' ? (
+            <label>
+              <span className="field-label">Selection List (comma-separated row indexes)</span>
+              <input
+                type="text"
+                value={currentDraft.selectionList.join(', ')}
+                onChange={(event) =>
+                  updateCurrentDraft({ selectionList: parseSelectionList(event.target.value) })
+                }
+                placeholder="e.g. 0, 4, 10"
+              />
+            </label>
+          ) : null}
         </div>
 
-        {selectionMethod === 'selected' ? (
-          <p className="muted-text">
-            Manual row selection and CSV preview will be added next. Current selected rows: {currentDraft.selectionList.length}
-          </p>
-        ) : null}
-
         <p className="muted-text">
-          Total rows in split: {currentDraft.rowCount !== null ? currentDraft.rowCount : 'Unavailable'}
+          Total rows in split:{' '}
+          {currentDraft.rowCount !== null ? currentDraft.rowCount : 'Loading or unavailable'}
         </p>
+        {stepError ? <p className="validation-error">{stepError}</p> : null}
       </section>
 
       <section className="generate-section">
@@ -342,7 +570,8 @@ function SplitConfigStepperPage({
         </div>
 
         <p className="muted-text">
-          Generation model: {currentDraft.generationModel ? currentDraft.generationModel.modelId : 'Using global'}
+          Generation model:{' '}
+          {currentDraft.generationModel ? currentDraft.generationModel.modelId : 'Using global'}
         </p>
 
         <div className="split-actions-row">
@@ -369,7 +598,10 @@ function SplitConfigStepperPage({
       <div className="split-nav-row">
         <button
           type="button"
-          onClick={() => setCurrentIndex((value) => Math.max(0, value - 1))}
+          onClick={() => {
+            setStepError('')
+            setCurrentIndex((value) => Math.max(0, value - 1))
+          }}
           disabled={currentIndex === 0}
         >
           Previous Split
@@ -378,13 +610,39 @@ function SplitConfigStepperPage({
         {currentIndex < drafts.length - 1 ? (
           <button
             type="button"
-            onClick={() => setCurrentIndex((value) => Math.min(drafts.length - 1, value + 1))}
+            onClick={() => {
+              const validationError = validateSplitDraft(currentDraft)
+              if (validationError) {
+                setStepError(validationError)
+                return
+              }
+              setStepError('')
+              setCurrentIndex((value) => Math.min(drafts.length - 1, value + 1))
+            }}
           >
             Next Split
           </button>
         ) : (
-          <button type="button" onClick={() => onBack(drafts)}>
-            Save Split Settings And Return
+          <button
+            type="button"
+            onClick={() => {
+              const validationError = validateSplitDraft(currentDraft)
+              if (validationError) {
+                setStepError(validationError)
+                return
+              }
+
+              const firstInvalid = drafts.map(validateSplitDraft).find((message) => message !== null)
+              if (firstInvalid) {
+                setStepError(firstInvalid)
+                return
+              }
+
+              setStepError('')
+              setIsSummaryView(true)
+            }}
+          >
+            Review Summary
           </button>
         )}
       </div>

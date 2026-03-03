@@ -4,6 +4,7 @@ description:File contain the endpoints for the fast api server
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os,json
 from typing import Literal, Optional,Dict
@@ -25,6 +26,14 @@ DATASET_FOLDER="./data/datasets/"
 PERSONA_FOLDER="./data/persona_hub/"
 #create the app
 app =FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #NOTE:always create the fixed routes first
 #create the endpoints
@@ -74,6 +83,7 @@ def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
 @app.post("/dataset",response_model=datasetGenerationMetrics)
 def datasetGeneration(request:datasetGenerationRequest):
     #check if api key is present .env if not sleep for 5 checks and return mocked dataset
+
     if os.getenv("OPENROUTER_API_KEY")is None:
         #TODO Get the mocked dataset for viewing with mocked stats
         pass
@@ -194,10 +204,13 @@ def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
         if  not os.path.exists(PERSONA_FOLDER):
             log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
             raise HTTPException(status_code=404,detail=f"personaSplit folder not found at {PERSONA_FOLDER}")
-        fileLocation=PERSONA_FOLDER+f"persona_{fileName}.csv"
+        if fileName == "general":
+            fileLocation=PERSONA_FOLDER+"persona.csv"
+        else:
+            fileLocation=PERSONA_FOLDER+f"persona_{fileName}.csv"
     try:
         df=pd.read_csv(fileLocation)
-        log.info("Successfully loaded file :{fileName}")
+        log.info(f"Successfully loaded file :{fileName}")
     except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
         raise HTTPException(status_code=404,detail=f"Invalid filename '{fileName}': {e}") from e
     except FileNotFoundError :
@@ -207,7 +220,6 @@ def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
 
 
 #supabase
-
 
 
 
