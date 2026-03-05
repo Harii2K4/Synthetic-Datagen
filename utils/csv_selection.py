@@ -14,6 +14,19 @@ def filteredSelection(
     noOfRows:int,
 
 )->Tuple[pd.DataFrame,int]:
+    """
+    This function is used to filter the contents of the dataframe based on the wether
+    the person is user or system defined.
+
+    Args:
+        df:pd.DataFrame
+        filter:Literal["user","system"]
+        noOfRows:int
+
+    Returns:
+        Tuple[pd.DataFrame,int]:
+
+    """
     #filter the df
     filteredDf=df[df['origin']==filter]
     noOfRowsRetrieved=filteredDf.shape[0]
@@ -38,6 +51,20 @@ def rangedSelection(
     upperLimit:int|None,
 
 )->Tuple[pd.DataFrame,int]:
+    """
+    This function is used to select the rows from the dataframe based on the range
+    Used for pagination in the frontend
+
+    Args:
+        df:pd.DataFrame
+        lowerLimit:int
+        upperLimit:int
+
+    Returns:
+        Tuple[pd.DataFrame,int]
+    Raises:
+        Exception: If lowerLimit or upperLimit is not provided
+    """
     if  lowerLimit is None or upperLimit is None:
         raise Exception(f'''Either upperLimit({upperLimit}) or lowerLimit({lowerLimit})
                             is not provided''')

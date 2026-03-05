@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# Final Project Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript frontend for dataset generation and management application.
 
-Currently, two official plugins are available:
+## Components
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### CSV Display Components
+- **CSV Preview System**: Located in `src/components/csv-preview/`
+  - Supports pagination, sorting, filtering, and search
+  - Handles both range-based and filter-based data fetching
+  - Types defined in `src/types/csvPreview.ts`
 
-## React Compiler
+### Dataset Generation Components
+- Located in `src/components/generate-datasets/`
+  - Form components for dataset configuration
+  - Model selection and parameter configuration
+  - Progress tracking and error handling
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Types and Backend Integration
 
-## Expanding the ESLint configuration
+### Core Type Definitions
+- **CSV Operations**: `src/types/csvPreview.ts`
+  - `CsvPreviewQuery`, `CsvPreviewResult`, `CsvDataSource`
+  - Sorting, filtering, and pagination interfaces
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Dataset Requests**: `src/types/datasetRequest.ts`
+  - `DatasetGenerationConfigPayload`, `PersonaSplitsChoicesPayload`
+  - Model configuration and job status types
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Generation**: `src/types/generation.ts`
+  - Reasoning effort and summary types
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Backend API Integration
+- **API Client**: `src/lib/api.ts`
+  - All backend service calls and HTTP requests
+  - Dataset generation, CSV preview, and model management endpoints
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Model Configuration**: `src/lib/openrouterModels.ts`, `src/lib/providerEndpoints.ts`
+  - Available models and provider configurations
+
+
+### Setup
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Build
+```bash
+npm run build
 ```
+
+### Tech Stack
+- React 18 with TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- ESLint for code quality

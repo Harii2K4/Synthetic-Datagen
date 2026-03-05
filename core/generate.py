@@ -19,11 +19,22 @@ from utils.logger import Logger
 log=Logger(__name__)
 MODEL_LIST_FILE="./data/openrouter_models_list.json"
 DATASET_FOLDER="./data/datasets/test_datasets/"
+#Model List for openrouter
 with open(MODEL_LIST_FILE) as f:
     openrouterModelList=[model.get('id') for model in json.load(f)]
 
-
 def _initGenerationStats(total_splits:int,total_rows_requested:int)->Dict[str,Any]:
+    """
+    The function is used to initialize the stats for the generation
+
+    Args:
+        total_splits:int
+        total_rows_requested:int
+
+    Returns:
+        Dict[str,Any]
+
+    """
     return {
         "totalSplits": total_splits,
         "successfulSplits": 0,
@@ -42,6 +53,16 @@ def _recordSplitError(
     error:Exception,
     retryable:bool=False
 )->None:
+    """
+    The function is used to record the errors in generation if it occurs in the split
+
+    Args:
+        stats:Dict[str,Any]
+        split:personaSplits
+        stage:str
+        error:Exception
+        retryable:bool
+    """
     stats["errors"].append(
         {
             "split": split,
@@ -57,9 +78,31 @@ def generateDataset(
     personaConfig:List[Dict[Domain,personaSplitsChoices]],
     datasetSize:int,
     generationModel:generationModelConfig=generationModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"),
-    teacherModel:teacherModelConfig=teacherModelConfig(modelId="upstage/solar-pro-3:free"),
+    teacherModel:teacherModelConfig=teacherModelConfig(modelId="stepfun/step-3.5-flash:free"),
     datasetName:str="default_gen"
-                    ):
+                    )->Dict[str,Any]:
+    """
+    The function is used to generate the dataset.It takes the user configurations and generates the dataset.
+    Each split is generated sequentially and independently of the other splits
+    Local configs overrid the global configs
+
+    Policy for generation:If any step returns an error, the rest of the steps are skipped and user can retry later
+    (Due to api rate limits or any other reason)
+
+    Args:
+        personaConfig:List[Dict[Domain,personaSplitsChoices]]
+        datasetSize:int
+        generationModel:generationModelConfig
+        teacherModel:generationModelConfig
+        datasetName:str
+
+    Returns:
+        Dict[str,Any]
+    Raises:
+        ValueError:Raised when the user configurations are invalid
+        GenerationModelNotFoundError:If the generation model is not found
+        TeacherModelNotFoundError:if the teacher model is not found
+    """
     #checking if non default values are of the right type
     if personaConfig is None or len(personaConfig)==0:
         log.error(f"Invalid personaConfig:{personaConfig}")
@@ -279,12 +322,12 @@ def generateDataset(
     stats["rowsFailed"] = max(stats["totalRowsRequested"] - stats["rowsGenerated"], 0)
     return stats
 
-if __name__=="__main__":
-    choices: List[Dict[Domain, personaSplitsChoices]] = [
-            {"math": personaSplitsChoices(size=2)},
-            {"tool": personaSplitsChoices(size=3,split="general")}
-    ]
-    try:
-        print(generateDataset(personaConfig=choices,datasetSize=5,datasetName="test_2domain_after_refactor"))
-    except Exception as e:
-        print(e)
+# if __name__=="__main__":
+#     choices: List[Dict[Domain, personaSplitsChoices]] = [
+#             {"math": personaSplitsChoices(size=2)},
+#             {"tool": personaSplitsChoices(size=3,split="general")}
+#     ]
+#     try:
+#         print(generateDataset(personaConfig=choices,datasetSize=5,datasetName="test_2domain_after_refactor"))
+#     except Exception as e:
+#         print(e)

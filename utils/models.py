@@ -28,6 +28,18 @@ Domain = Literal[
 
 
 class ModelConfig(BaseModel):
+    """
+    The model config is used to store the configuration for the model(teacher or generation)
+
+    Attributes:
+        modelId:str
+        temperature:float
+        reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']
+        reasoningSummary:Literal['auto', 'concise', 'detailed']
+        providerPriority:Optional[List[str]]
+        route:Optional[str]
+    """
+
     modelId:str
     temperature:float=0
     reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='none',description="for choosing reasoning effort affects tokens out")
@@ -48,6 +60,13 @@ class ModelConfig(BaseModel):
 
 
     def createModelInstance(self)->ChatOpenRouter:
+        """
+         create the chatopenrouter instance based on the model configuration
+
+        Returns:
+            ChatOpenRouter
+
+        """
         #create the model configuration
         modelConfig={
                 "model":self.modelId,
@@ -63,12 +82,37 @@ class ModelConfig(BaseModel):
 
 
 class generationModelConfig(ModelConfig):
+    """
+    The generation model config is used to store the configuration for the generation model
+
+    Attributes:
+        reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=none
+    """
     reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='none',description="for choosing reasoning effort affects tokens out")
 
 class teacherModelConfig(ModelConfig):
+    """
+    The teacher model config is used to store the configuration for the teacher model
+
+    Attributes:
+        reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=medium
+    """
     reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='medium',description="for choosing reasoning effort affects tokens out")
 
 class personaSplitsChoices(BaseModel):
+    """
+    The persona splits choices is used to store the configuration for the persona splits
+    These are used for the genration of the dataset
+
+    Attributes:
+        split:personaSplits
+        selectionMethod:Literal["random","sequence","selected","ranged"]
+        selectionList:Optional[List[int]]
+        seed:int
+        generationModel:Optional[generationModelConfig]=None
+        teacherModel:Optional[teacherModelConfig]=None
+        size:int
+    """
     split:personaSplits=Field(default="general",description="the csv file to use for personas")
     selectionMethod:Literal["random","sequence","selected","ranged"]=Field(default="sequence",description="the method to choose the personas")
     selectionList:Optional[List[int]]=Field(default=None,description="the list of indexes to use for selecting personas")
@@ -78,6 +122,13 @@ class personaSplitsChoices(BaseModel):
     size:int
 
     def returnSplitConfig(self)->Dict[str,Any]:
+        """
+        returns the config for the split used to pass into createPersonaList.
+
+        Returns:
+            Dict[str,Any]
+
+        """
         return {
                 "split":self.split,
                 "selectionMethod":self.selectionMethod,
@@ -87,6 +138,17 @@ class personaSplitsChoices(BaseModel):
             }
 
 class splitErrors(BaseModel):
+    """
+    The split errors is used to store the errors for the split during generation to
+    send back to the user
+
+    Attributes:
+        split:personaSplits
+        stage:Literal["persona_read", "question_generation", "answer_generation","validation", "unknown"]
+        errorType:str
+        message:str
+        retryable:bool
+    """
     split:personaSplits
     stage:Literal["persona_read", "question_generation", "answer_generation","validation", "unknown"]
     errorType:str
@@ -97,6 +159,22 @@ class splitErrors(BaseModel):
 #if successfulSplits == totalSplits ,then total success
 #If 0 < rowsGenerated < totalRowsRequestedor or if 0 < successfulSplits < totalSplits.
 class datasetGenerationMetrics(BaseModel):
+    """
+    The dataset generation metrics is used to store the metrics for the dataset generation
+    Sent to the user in the generation response
+
+    Attributes:
+        jobId:str
+        totalSplits:int
+        successfulSplits:int
+        failedSplits:int
+        totalRowsRequested:int
+        rowsGenerated:int
+        rowsFailed:int
+        status:Literal["success","partial","failure"]
+        datasetSaveLocation:str
+        errors:List[splitErrors]
+    """
     jobId:str
     totalSplits:int=Field(ge=0)
     successfulSplits:int=Field(ge=0)
@@ -125,6 +203,16 @@ class datasetGenerationMetrics(BaseModel):
         )
 
 class datasetGenerationConfig(BaseModel):
+    """
+    The dataset generation config is used to store parameters to pass to generateDataset
+
+    Attributes:
+        personaConfig:List[Dict[Domain,personaSplitsChoices]]
+        datasetSize:int
+        generationModel:generationModelConfig
+        teacherModel:teacherModelConfig
+        datasetName:str
+    """
     personaConfig:List[Dict[Domain,personaSplitsChoices]]
     datasetSize:int
     generationModel:generationModelConfig=Field(default=generationModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"))
@@ -132,15 +220,38 @@ class datasetGenerationConfig(BaseModel):
     datasetName:str="default_gen"
 
 class datasetGenerationRequest(BaseModel):
+    """
+        Used to recieve and validate the incoming request from the user
+
+    Attributes:
+        jobId:str
+        config:datasetGenerationConfig
+    """
     jobId:str
     config:datasetGenerationConfig
 
 class datasetGenerationResponse(BaseModel):
+    """
+        Used to send the response back to the user
+
+    Attributes:
+        jobId:str
+        meterics:datasetGenerationMetrics
+    """
     jobId:str
     meterics:datasetGenerationMetrics
 
     @classmethod
     def mock(cls,jobId:str):
+        """
+        Return a mocked instance of datasetGenerationResponse
+
+        Args:
+            jobId:str
+
+        Returns:
+            datasetGenerationResponse
+        """
         metrics=datasetGenerationMetrics.mock(jobid=jobId)
         return cls(jobId=jobId,meterics=metrics)
 

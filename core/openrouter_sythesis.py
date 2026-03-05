@@ -22,13 +22,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PERSONA_FOLDER="./data/persona_hub/"
-DATASET_FOLDER="./data/datasets/test_datasets/"
+DATASET_FOLDER="./data/datasets/"
 #setup the logger
 log=Logger(__name__)
 
 def getDomainTemplate(
         domain:Domain,
  )->str:
+    """
+    The function is used to get the respective domain for the domain
+    Each domain has its own template for generation Model
+    Args:
+        domain:Domain
+
+    Returns:
+        str
+
+    """
     if domain=="math":
         from prompts.domain_templates import mathTemplate
         return mathTemplate
@@ -54,6 +64,21 @@ def generateQuestions(
         domain:Domain="math",
         maxConcurrentRequests:int=10
                     )->List[AIMessage]:
+    """
+    The function is used to generate questions for list of personas
+    the api calls are made to the model through openrouter
+    The requests are made concurrently
+
+    Args:
+        personas:List[str]
+        model:ChatOpenRouter
+        domain:Domain
+        maxConcurrentRequests:int
+
+    Returns:
+        List[AIMessage]
+
+    """
     #gets the domain template per selectionMethod
     domainTemplate=getDomainTemplate(domain)
     #get the list of prompts
@@ -84,6 +109,23 @@ def generateAnswers(
         maxConcurrentRequests:int=10
                     )->List[AIMessage]:
 
+
+    """
+    The function is used to generate answers for list of questions
+    the api calls are made to the model through openrouter
+    The requests are made concurrently
+
+    Args:
+        questions:List[str]
+        model:ChatOpenRouter
+        teacherName:str
+        maxConcurrentRequests:int
+
+    Returns:
+        List[AIMessage]
+    Raises:
+        TeacherPromptNotFoundError:If the user defined teacher prompt is not found
+    """
     if teacherName=="default":
         systemPrompt=defaultPrompt
     else:
@@ -122,7 +164,28 @@ def createPersonaList(
     rangeList:Optional[List[int]]=None,
     selectionList:Optional[List[int]]=None,
     seed:int=42
-                  ):
+                  )->pd.DataFrame:
+
+    """
+    The function is used to create the list of personas to be used for generation
+    from the spilt.
+    There are different modes for selection of personas based on the selectionMethod
+    the required parameters are validated
+
+    Args:
+        split:personaSplits
+        size:int
+        selectionMethod:Literal["random","sequence","selected","ranged"]
+        rangeList:Optional[List[int]]
+        selectionList:Opetional[List[int]]
+        seed:int
+
+    Returns:
+        pd.DataFrame
+    Raises:
+        ValueError:If the parameters are invalid
+        FileNotFoundError:If the file is not found in the disk
+    """
     #create the dataset name
     fileName=f"persona_{split}.csv" if split!="general" else "persona.csv"
     #loading the dataset
@@ -173,23 +236,24 @@ def createPersonaList(
 
 
 # if __name__ == "__main__":
-#     #
-#     # inputPersona=createPersonaList("math",size=2)['input persona'].tolist()
-#     # # print(inputPersona)
-#     # question=generateQuestions(inputPersona)
-#     # # print(question)
-#     question=["question 1","question 2"]
-#     answer=generateAnswers(question,teacherName="custom-teacher")
-#     # # print(answer)
-#     # log.info("creating the dataset")
-#     # df = pd.DataFrame(list(zip(inputPersona, question, answer)),
-#     #                       columns=['persona', 'Question', 'Answer'])
-#     # # ensure dataset folder exists and save
-#     # df.to_csv(DATASET_FOLDER+'qa_output_2.csv', index=False)
-#     # log.info("saved the dataset" )
-
-
-
-
-
-
+#
+#     file="./data/persona_hub/experiment_subset/"+"persona_subset.csv"
+#     inputPersona=pd.read_csv(file)['persona'].tolist()
+#     generationModel=ChatOpenRouter(
+#         model="nvidia/nemotron-3-nano-30b-a3b:free",
+#         reasoning={"effort":"none"}
+#     )
+#     question=generateQuestions(inputPersona,generationModel,domain="math")
+#     question=[str(q.content) for q in question  if isinstance(q,AIMessage)]
+#
+#     answerModel=ChatOpenRouter(model="stepfun/step-3.5-flash:free")
+#     answer=generateAnswers(question,answerModel)
+#     answer=[str(a.content) for a in answer  if isinstance(a,AIMessage)]
+#
+#     domain=["math"]*len(inputPersona)
+#     log.info("creating the dataset")
+#     df = pd.DataFrame(list(zip(inputPersona, question, answer)),
+#                           columns=['persona', 'Question', 'Answer'])
+#     # ensure dataset folder exists and save
+#     df.to_csv(DATASET_FOLDER+'Mock_general.csv', index=False)
+#     log.info("saved the dataset" )

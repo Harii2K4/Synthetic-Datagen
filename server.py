@@ -41,11 +41,21 @@ app.add_middleware(
 #create the endpoints
 @app.get("/")
 def readRoot():
+    """Root endpoint to check if server is running.
+    
+    Returns:
+        str: Confirmation message that server is working
+    """
     return "hello server is working boy"
 
 #dataset related endpoints
 @app.get("/dataset")
 def listDatasets():
+    """List all available CSV datasets in the dataset folder.
+    
+    Returns:
+        dict: Dictionary containing list of dataset filenames
+    """
     datasets=[]
     for file in os.listdir(DATASET_FOLDER):
         if file.endswith('.csv'):
@@ -55,6 +65,19 @@ def listDatasets():
 
 @app.get("/dataset/{datasetName:path}")
 def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
+    """View a specific dataset with row range limits.
+    
+    Args:
+        datasetName: Name of the dataset file to view
+        lowerLimit: Starting row index (inclusive)
+        upperLimit: Ending row index (exclusive)
+    
+    Returns:
+        JSONResponse: Dataset rows within specified range and count of rows returned
+    
+    Raises:
+        HTTPException: If dataset folder not found, file not found, or invalid file format
+    """
     log.info(f"Dataset Name {datasetName}")
     #if datasets folder doesnt exists in disk
     if  not os.path.exists(DATASET_FOLDER):
@@ -87,6 +110,17 @@ def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
 
 @app.post("/dataset",response_model=datasetGenerationMetrics)
 async def datasetGeneration(request:datasetGenerationRequest):
+    """Generate a new dataset based on persona configuration.
+    
+    Args:
+        request: Dataset generation request containing configuration and job ID
+    
+    Returns:
+        datasetGenerationMetrics: Statistics about the generated dataset including status
+    
+    Raises:
+        HTTPException: If generation or teacher model not found, or invalid configuration
+    """
     #check if api key is present .env if not sleep for 5 checks and return mocked dataset
 
     if  os.getenv("OPENROUTER_API_KEY") is None:
@@ -123,6 +157,11 @@ async def datasetGeneration(request:datasetGenerationRequest):
 #persona endpoints
 @app.get("/persona_hub")
 def getPersonList():
+    """List all available persona split files in the persona hub.
+    
+    Returns:
+        dict: Dictionary containing list of persona split filenames
+    """
     personaSplits=[]
     for file in os.listdir(PERSONA_FOLDER):
         if file.endswith('.csv'):
@@ -137,6 +176,22 @@ def viewPersonaSplit(personaSplit:personaSplits,
                      upperLimit:Optional[int]=None,
                      method:Literal["range","filter","hybrid"]='range',
                      filter:Optional[Literal["user","system"]]='system'):
+    """View a specific persona split with various selection methods.
+    
+    Args:
+        personaSplit: Name of the persona split to view
+        noOfRows: Number of rows to return
+        lowerLimit: Starting row index for range method
+        upperLimit: Ending row index for range method
+        method: Selection method ('range', 'filter', or 'hybrid')
+        filter: Filter type ('user' or 'system') for filter method
+    
+    Returns:
+        JSONResponse: Persona data, rows returned, and rows requested
+    
+    Raises:
+        HTTPException: If persona folder not found, file not found, or invalid parameters
+    """
 
     if personaSplit == "general":
         fileLocation=PERSONA_FOLDER+"persona.csv"
@@ -191,6 +246,18 @@ def viewPersonaSplit(personaSplit:personaSplits,
 #TODO: persona updating
 @app.post("/persona_hub/{personaSplit}")
 def addPersonaToSplit(personaSplit:personaSplits,persona:str):
+    """Add a new persona to a specific persona split file.
+    
+    Args:
+        personaSplit: Name of the persona split to add to
+        persona: Persona text to add
+    
+    Returns:
+        dict: Success message confirming persona was added
+    
+    Raises:
+        HTTPException: If persona folder not found
+    """
     fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
     if  not os.path.exists(PERSONA_FOLDER):
         log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
@@ -208,6 +275,18 @@ def addPersonaToSplit(personaSplit:personaSplits,persona:str):
 #general csv endpoints
 @app.get("/csv")
 def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
+    """Get the number of rows in a CSV file (dataset or persona).
+    
+    Args:
+        fileName: Name of the CSV file
+        dataType: Type of data ('dataset' or 'persona')
+    
+    Returns:
+        dict: Number of rows in the specified file
+    
+    Raises:
+        HTTPException: If folder not found, file not found, or invalid file format
+    """
     if dataType=="dataset":
         if  not os.path.exists(DATASET_FOLDER):
             log.error(f"dataset folder not found create it:{DATASET_FOLDER}")
@@ -233,6 +312,6 @@ def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
 
 
 
-#supabase
+#supabase endpoints
 
 
