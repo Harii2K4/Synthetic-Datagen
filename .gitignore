@@ -2,6 +2,12 @@ venv/*
 data/persona_hub/
 data/openrouter_models_list.json
 data/datasets/test_datasets/
+logo_extraction.py
+
+#frontend
+frontend/final_project_frontend/src/assets/provider_logos/
+frontend/final_project_frontend/src/data/openrouter_models_list.json
+
 
 pyrightconfig.json
 .env

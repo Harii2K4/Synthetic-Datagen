@@ -60,7 +60,7 @@ function toUIModelConfig(model: ModelConfigPayload | undefined, fallback: UIMode
     reasoningEffort: model.reasoningEffort,
     reasoningSummary: model.reasoningSummary,
     providerPriority: model.providerPriority ?? [],
-    route: model.route ?? [],
+    route: model.route ?? null,
   }
 }
 
@@ -71,7 +71,7 @@ function toModelPayload(config: UIModelConfig): ModelConfigPayload {
     reasoningEffort: config.reasoningEffort,
     reasoningSummary: config.reasoningSummary,
     ...(config.providerPriority.length > 0 ? { providerPriority: config.providerPriority } : {}),
-    ...(config.route.length > 0 ? { route: config.route } : {}),
+    ...(config.route ? { route: config.route } : {}),
   }
 }
 

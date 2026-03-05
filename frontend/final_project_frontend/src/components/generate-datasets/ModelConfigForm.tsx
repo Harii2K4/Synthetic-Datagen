@@ -121,7 +121,7 @@ function ModelConfigForm({ title, config, models, onChange }: ModelConfigFormPro
     })
   }
 
-  const routeMode: RouteMode = config.route.includes('fallback') ? 'fallback' : 'none'
+  const routeMode: RouteMode = config.route === 'fallback' ? 'fallback' : 'none'
 
   return (
     <section className="model-config-card">
@@ -216,7 +216,7 @@ function ModelConfigForm({ title, config, models, onChange }: ModelConfigFormPro
               const mode = event.target.value as RouteMode
               onChange({
                 ...config,
-                route: mode === 'fallback' ? ['fallback'] : [],
+                route: mode === 'fallback' ? 'fallback' : null,
               })
             }}
           >

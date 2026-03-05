@@ -19,7 +19,7 @@ export type ModelConfigPayload = {
   reasoningEffort: ReasoningEffort
   reasoningSummary: ReasoningSummary
   providerPriority?: string[]
-  route?: string[]
+  route?: string
 }
 
 export type PersonaSplitsChoicesPayload = {

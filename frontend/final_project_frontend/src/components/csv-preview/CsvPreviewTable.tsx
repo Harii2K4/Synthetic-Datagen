@@ -1,7 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'
-import type { ColDef, RowClickedEvent, RowDoubleClickedEvent } from 'ag-grid-community'
+import type {
+  ColDef,
+  GetRowIdParams,
+  GridApi,
+  RowClickedEvent,
+  RowDoubleClickedEvent,
+} from 'ag-grid-community'
 import type {
   CsvDataSource,
   CsvPreviewFilter,
@@ -44,6 +50,7 @@ function CsvPreviewTable({
   onSelectedRowIndexesChange,
   onError,
 }: CsvPreviewTableProps) {
+  const gridApiRef = useRef<GridApi<CsvPreviewRow> | null>(null)
   const [rows, setRows] = useState<CsvPreviewRow[]>([])
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(initialPageSize)
@@ -128,6 +135,10 @@ function CsvPreviewTable({
   const selectedIndexSet = useMemo(() => new Set(selectedRowIndexes), [selectedRowIndexes])
   const filteredRows = useMemo(() => filterCsvRows(rows, search), [rows, search])
 
+  useEffect(() => {
+    gridApiRef.current?.resetRowHeights()
+  }, [expandedRowIndex, filteredRows])
+
   const columnDefs = useMemo<ColDef<CsvPreviewRow>[]>(() => {
     if (rows.length === 0) {
       return []
@@ -199,7 +210,30 @@ function CsvPreviewTable({
       return
     }
     setExpandedRowIndex((current) => (current === rowIndex ? null : rowIndex))
-    event.api.resetRowHeights()
+  }
+
+  const estimateExpandedRowHeight = (row: CsvPreviewRow): number => {
+    let maxLines = 2
+
+    for (const [key, value] of Object.entries(row)) {
+      if (key === CSV_PREVIEW_ROW_INDEX_FIELD) {
+        continue
+      }
+
+      const text = String(value ?? '')
+      const segments = text.split('\n')
+      const estimatedLines = segments.reduce((sum, segment) => {
+        const lineLength = segment.length
+        const wrapped = Math.max(1, Math.ceil(lineLength / 70))
+        return sum + wrapped
+      }, 0)
+      if (estimatedLines > maxLines) {
+        maxLines = estimatedLines
+      }
+    }
+
+    const contentHeight = maxLines * 20 + 14
+    return Math.min(320, Math.max(72, contentHeight))
   }
 
   return (
@@ -245,6 +279,13 @@ function CsvPreviewTable({
       >
         <AgGridReact<CsvPreviewRow>
           rowData={filteredRows}
+          onGridReady={(event) => {
+            gridApiRef.current = event.api
+          }}
+          getRowId={(params: GetRowIdParams<CsvPreviewRow>) => {
+            const rowIndex = params.data[CSV_PREVIEW_ROW_INDEX_FIELD]
+            return typeof rowIndex === 'number' ? String(rowIndex) : JSON.stringify(params.data)
+          }}
           columnDefs={columnDefs}
           theme="legacy"
           defaultColDef={{
@@ -256,7 +297,10 @@ function CsvPreviewTable({
           onRowDoubleClicked={onRowDoubleClicked}
           getRowHeight={(params) => {
             const rowIndex = params.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]
-            return typeof rowIndex === 'number' && rowIndex === expandedRowIndex ? 92 : 34
+            if (typeof rowIndex === 'number' && rowIndex === expandedRowIndex) {
+              return estimateExpandedRowHeight(params.data ?? {})
+            }
+            return 34
           }}
           getRowStyle={(params) => {
             const rowIndex = params.data?.[CSV_PREVIEW_ROW_INDEX_FIELD]

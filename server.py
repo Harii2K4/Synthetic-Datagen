@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os,json
+import asyncio
 from typing import Literal, Optional
 #load env variables
 from dotenv import load_dotenv
@@ -15,14 +16,14 @@ from core.openrouter_sythesis import PERSONA_FOLDER
 load_dotenv()
 
 from core.generate import generateDataset
-from utils.csv_selection import filteredSelection,rangedSelection,resolveFilePath
+from utils.csv_selection import filteredSelection,rangedSelection
 from utils.exceptions import TeacherModelNotFoundError,GenerationModelNotFoundError
 from utils.logger import Logger
 from utils.models import datasetGenerationMetrics, datasetGenerationRequest, personaSplits
 log=Logger(__name__)
 
 #Global variables
-DATASET_FOLDER="./data/datasets/test_datasets/"
+DATASET_FOLDER="./data/datasets/"
 PERSONA_FOLDER="./data/persona_hub/"
 PROJECT_ROOT=os.path.abspath(".")
 #create the app
@@ -85,12 +86,16 @@ def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
     return JSONResponse({"dataset":responseDf,"rowsReturned":rowsReturned})
 
 @app.post("/dataset",response_model=datasetGenerationMetrics)
-def datasetGeneration(request:datasetGenerationRequest):
+async def datasetGeneration(request:datasetGenerationRequest):
     #check if api key is present .env if not sleep for 5 checks and return mocked dataset
 
-    if os.getenv("OPENROUTER_API_KEY")is None:
+    if  os.getenv("OPENROUTER_API_KEY") is None:
         #TODO Get the mocked dataset for viewing with mocked stats
-        pass
+        log.info("No api key found in .env mocking the data")
+        await asyncio.sleep(5)
+        stats=datasetGenerationMetrics.mock()
+        return stats
+
     try :
         log.info(f"generating dataset for jobID:{request.jobId}")
         stats=generateDataset(

@@ -33,7 +33,7 @@ class ModelConfig(BaseModel):
     reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='none',description="for choosing reasoning effort affects tokens out")
     reasoningSummary:Literal['auto', 'concise', 'detailed']=Field(default='auto',description="for choosing reasoning summary length affects tokens out")
     providerPriority:Optional[List[str]]=Field(default=None,description="used for specifying order of providers to use")
-    route:Optional[List[str]]=Field(default=None,description="used to route the model if providers list is wrong or unavailable")
+    route:Optional[str]=Field(default=None,description="used to route the model if providers list is wrong or unavailable")
 
 
 
@@ -113,14 +113,14 @@ class datasetGenerationMetrics(BaseModel):
         """Return a mocked instance of datasetGenerationMetrics."""
         return cls(
             jobId=jobid,
-            totalSplits=2,
-            successfulSplits=2,
+            totalSplits=1,
+            successfulSplits=1,
             failedSplits=0,
-            totalRowsRequested=5,
-            rowsGenerated=5,
+            totalRowsRequested=25,
+            rowsGenerated=25,
             rowsFailed=0,
             status="success",
-            datasetSaveLocation="/mock/path/dataset",
+            datasetSaveLocation="./data/datasets/Mock_general.csv",
             errors=[],
         )
 

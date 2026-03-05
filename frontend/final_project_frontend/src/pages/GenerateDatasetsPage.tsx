@@ -28,7 +28,7 @@ const defaultGenerationConfig: UIModelConfig = {
   reasoningEffort: 'none',
   reasoningSummary: 'auto',
   providerPriority: [],
-  route: [],
+  route: null,
 }
 
 const defaultTeacherConfig: UIModelConfig = {
@@ -37,7 +37,7 @@ const defaultTeacherConfig: UIModelConfig = {
   reasoningEffort: 'medium',
   reasoningSummary: 'auto',
   providerPriority: [],
-  route: [],
+  route: null,
 }
 
 function isDomainSplit(split: string): split is Domain {
@@ -51,7 +51,7 @@ function toModelPayload(config: UIModelConfig): ModelConfigPayload {
     reasoningEffort: config.reasoningEffort,
     reasoningSummary: config.reasoningSummary,
     ...(config.providerPriority.length > 0 ? { providerPriority: config.providerPriority } : {}),
-    ...(config.route.length > 0 ? { route: config.route } : {}),
+    ...(config.route ? { route: config.route } : {}),
   }
 }
 
@@ -62,7 +62,7 @@ function toUIModelConfig(config: ModelConfigPayload): UIModelConfig {
     reasoningEffort: config.reasoningEffort,
     reasoningSummary: config.reasoningSummary,
     providerPriority: config.providerPriority ?? [],
-    route: config.route ?? [],
+    route: config.route ?? null,
   }
 }
 

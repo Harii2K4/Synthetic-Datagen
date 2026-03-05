@@ -20,7 +20,7 @@ export type UIModelConfig = {
   reasoningEffort: ReasoningEffort
   reasoningSummary: ReasoningSummary
   providerPriority: string[]
-  route: string[]
+  route: string | null
 }
 
 export type OpenRouterModel = {
