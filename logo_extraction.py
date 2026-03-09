@@ -48,7 +48,7 @@ providerWebsites= {
     "huggingface":"huggingface.com"
 }
 
-LOGO_DEV_PUBLIC_KEY = 'pk_SYOVsu6JQGqJmYjciBVO1A'
+LOGO_DEV_PUBLIC_KEY = '<YOUR_PUBLIC_KEY>'
 
 def getCompanyLogo(domain, size=256):
     url = f"https://img.logo.dev/{domain}?token={LOGO_DEV_PUBLIC_KEY}&size={size}&format=png"
