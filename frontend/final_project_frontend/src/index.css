@@ -1,30 +1,413 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  min-width: 320px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #1d1d1d;
-  background: #f4f4f4;
+  background: #0a0a0a;
+  color: #f3f3f3;
+  font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
 }
 
-button {
+button,
+input,
+select,
+textarea {
   font: inherit;
+}
+
+.generate-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.generate-page h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  letter-spacing: 0.01em;
+  font-family: "Bodoni Moda", serif;
+  font-weight: 500;
+}
+
+.generate-section,
+.model-config-card,
+.modal-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.generate-section h3,
+.model-config-card h3 {
+  margin: 0 0 0.8rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.field-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.field-label {
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.generate-page label,
+.model-config-card label,
+.model-picker {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.generate-page input,
+.generate-page select,
+.generate-page textarea,
+.model-config-card input,
+.model-config-card select,
+.model-picker input,
+.csv-preview-toolbar input,
+.csv-preview-toolbar select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.72rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  outline: none;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.generate-page input:focus,
+.generate-page select:focus,
+.generate-page textarea:focus,
+.model-config-card input:focus,
+.model-config-card select:focus,
+.model-picker input:focus,
+.csv-preview-toolbar input:focus,
+.csv-preview-toolbar select:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.generate-page button,
+.model-config-card button,
+.csv-preview-shell button,
+.modal-card button {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.45rem 0.86rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.74rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   cursor: pointer;
-  border-radius: 8px;
-  border: 1px solid #bdbdbd;
-  background: #ffffff;
-  color: #1d1d1d;
-  padding: 10px 14px;
+  transition: border-color 120ms ease, background-color 120ms ease;
 }
 
-button:hover {
-  background: #f0f0f0;
+.generate-page button:hover,
+.model-config-card button:hover,
+.csv-preview-shell button:hover,
+.modal-card button:hover {
+  border-color: rgba(255, 255, 255, 0.48);
+  background: rgba(255, 255, 255, 0.16);
 }
 
-button:focus-visible {
-  outline: 2px solid #6a6a6a;
-  outline-offset: 2px;
+.generate-page button:disabled,
+.model-config-card button:disabled,
+.csv-preview-shell button:disabled,
+.modal-card button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.field-grid,
+.model-sections {
+  display: grid;
+  gap: 0.9rem;
+}
+
+@media (min-width: 980px) {
+  .model-sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.multi-select {
+  position: relative;
+}
+
+.multi-select-menu {
+  position: absolute;
+  z-index: 30;
+  margin-top: 0.45rem;
+  width: min(100%, 420px);
+  max-height: 280px;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.8rem;
+  background: #101010;
+  padding: 0.5rem;
+}
+
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.44rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.multi-select-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.selected-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chip {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.22rem 0.62rem;
+  font-size: 0.74rem;
+}
+
+.muted-text {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.64);
+}
+
+.generate-save-row,
+.split-actions-row,
+.split-nav-row,
+.split-header-row,
+.modal-actions,
+.provider-actions,
+.csv-preview-toolbar,
+.csv-preview-meta,
+.csv-preview-pagination {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.split-header-row {
+  justify-content: space-between;
+}
+
+.save-status {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.86rem;
+}
+
+.validation-error {
+  margin: 0;
+  color: #f8a3a3;
+  font-size: 0.85rem;
+}
+
+.provider-panels,
+.summary-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+@media (min-width: 980px) {
+  .provider-panels,
+  .summary-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.provider-panel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.9rem;
+  padding: 0.8rem;
+}
+
+.provider-panel-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.provider-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.provider-list-item,
+.summary-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.55rem 0.65rem;
+}
+
+.provider-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.summary-card p {
+  margin: 0.2rem 0;
+  font-size: 0.88rem;
+}
+
+.model-results {
+  margin-top: 0.5rem;
+  max-height: 280px;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.75rem;
+  padding: 0.4rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.model-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.52rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.model-result-item.focused {
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.model-result-item.active {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.48);
+}
+
+.model-provider-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.model-empty-text {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.84rem;
+  padding: 0.35rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.72);
+  padding: 1rem;
+}
+
+.modal-card {
+  width: min(1040px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  background: #131313;
+}
+
+.dataset-preview-modal {
+  width: min(1240px, 100%);
+}
+
+.csv-preview-shell {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.csv-preview-toolbar input {
+  min-width: 220px;
+  flex: 1;
+}
+
+.csv-preview-meta {
+  justify-content: space-between;
+}
+
+.csv-preview-pagination span {
+  font-size: 0.83rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.csv-preview-grid {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.9rem;
+}
+
+.csv-preview-grid.ag-theme-quartz {
+  --ag-background-color: #131313;
+  --ag-foreground-color: #f2f2f2;
+  --ag-header-background-color: #171717;
+  --ag-border-color: rgba(255, 255, 255, 0.1);
+  --ag-row-hover-color: rgba(255, 255, 255, 0.08);
+  --ag-selected-row-background-color: rgba(255, 255, 255, 0.12);
+  --ag-font-size: 13px;
+}
+
+.csv-preview-cell-expanded {
+  white-space: pre-wrap;
+  line-height: 1.35;
 }

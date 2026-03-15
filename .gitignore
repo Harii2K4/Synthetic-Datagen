@@ -2,8 +2,10 @@ venv/*
 data/persona_hub/
 data/openrouter_models_list.json
 data/datasets/test_datasets/
-logo_extraction.py
 
+data/datasets/research_datasets/
+frontend/final_project_frontend/prompt.md
+generate_research.py
 #frontend
 frontend/final_project_frontend/src/assets/provider_logos/
 frontend/final_project_frontend/src/data/openrouter_models_list.json

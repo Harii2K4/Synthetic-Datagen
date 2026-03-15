@@ -340,43 +340,6 @@
   gap: 8px;
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.summary-stat-card {
-  border: 1px solid #dddddd;
-  border-radius: 8px;
-  padding: 10px;
-  background: #fafafa;
-}
-
-.history-table-shell {
-  overflow: auto;
-  border: 1px solid #d8d8d8;
-  border-radius: 8px;
-}
-
-.history-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 820px;
-}
-
-.history-table th,
-.history-table td {
-  text-align: left;
-  padding: 8px;
-  border-bottom: 1px solid #e8e8e8;
-  vertical-align: top;
-}
-
-.history-table th {
-  background: #f6f6f6;
-}
-
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -422,40 +385,6 @@
 
 .summary-card p {
   margin: 4px 0;
-}
-
-.history-details-modal {
-  width: min(1100px, 100%);
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.details-card {
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  background: #fafafa;
-  padding: 10px;
-}
-
-.details-card p {
-  margin: 4px 0;
-}
-
-.json-panel {
-  margin: 8px 0 0;
-  border: 1px solid #d8d8d8;
-  border-radius: 8px;
-  padding: 12px;
-  max-height: 260px;
-  overflow: auto;
-  background: #0f172a;
-  color: #dbeafe;
-  font-size: 0.85rem;
-  line-height: 1.35;
 }
 
 .csv-preview-shell {

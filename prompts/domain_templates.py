@@ -66,4 +66,7 @@ Constraints:
 3. Also specify how the npc interacts with other characters.
 3. Structure: Include "Name", "Background", "Motivation", and "Dialogue Samples".
 4. Format:
-    - Your response must start with the literal string "NPC Profile:"."""
+
+- Your response must start with the literal string "NPC Profile:"."""
+
+
