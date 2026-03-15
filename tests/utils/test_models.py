@@ -110,7 +110,7 @@ def test_persona_splits_choices_rejects_invalid_split_literal():
         models.personaSplitsChoices(size=1, split="invalid")
 
 
-@pytest.mark.parametrize("method", ["random", "sequence", "selected"])
+@pytest.mark.parametrize("method", ["random", "sequence", "selected", "ranged"])
 def test_persona_splits_choices_accepts_all_selection_methods(method):
     config = models.personaSplitsChoices(size=1, selectionMethod=method)
     assert config.selectionMethod == method
@@ -156,3 +156,20 @@ def test_persona_splits_choices_supports_nested_model_configs_from_dicts():
 def test_persona_splits_choices_requires_size():
     with pytest.raises(ValidationError):
         models.personaSplitsChoices()
+
+
+def test_persona_splits_choices_return_split_config_maps_ranged_selection_to_range_list():
+    config = models.personaSplitsChoices(
+        size=5,
+        split="math",
+        selectionMethod="ranged",
+        selectionList=[10, 20],
+    )
+
+    assert config.returnSplitConfig() == {
+        "split": "math",
+        "selectionMethod": "ranged",
+        "rangeList": [10, 20],
+        "seed": 42,
+        "size": 5,
+    }

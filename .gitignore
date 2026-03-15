@@ -15,3 +15,7 @@ check_limits.py
 __pycache__/
 log/*
 
+capstone/*
+.pytest_cache/
+
+

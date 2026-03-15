@@ -4,3 +4,4 @@ langchain-openrouter
 dotenv
 pytest
 fastapi[standard]
+supabase

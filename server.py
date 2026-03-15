@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import os,json
 import asyncio
+from uuid import uuid4
 from typing import Literal, Optional
 #load env variables
 from dotenv import load_dotenv
@@ -17,9 +18,22 @@ load_dotenv()
 
 from core.generate import generateDataset
 from utils.csv_selection import filteredSelection,rangedSelection
+from utils.database import (
+    fetch_dashboard_summary,
+    fetch_generation_history,
+    fetch_generation_job,
+    get_database_status,
+    get_schema_sql,
+    save_generation_run,
+)
 from utils.exceptions import TeacherModelNotFoundError,GenerationModelNotFoundError
 from utils.logger import Logger
-from utils.models import datasetGenerationMetrics, datasetGenerationRequest, personaSplits
+from utils.models import (
+    datasetGenerationConfig,
+    datasetGenerationMetrics,
+    datasetGenerationRequest,
+    personaSplits,
+)
 log=Logger(__name__)
 
 #Global variables
@@ -36,6 +50,33 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _persist_generation_result(
+    request_payload:dict,
+    stats:dict,
+    retried_from_job_id:Optional[str]=None,
+)->None:
+    """Persist generation result to Supabase without breaking request flow on DB errors."""
+    ok, err = save_generation_run(
+        job_id=stats.get("jobId", request_payload.get("jobId", "")),
+        request_payload=request_payload,
+        stats=stats,
+        retried_from_job_id=retried_from_job_id,
+    )
+    if not ok:
+        log.warning(f"Supabase persistence skipped/failed: {err}")
+
+
+def _apply_generation_status(stats:dict,job_id:str)->dict:
+    if stats['failedSplits'] == stats['totalSplits']:
+        stats['status']='failure'
+    elif stats['successfulSplits'] == stats['totalSplits']:
+        stats['status']='success'
+    else:
+        stats['status']='partial'
+    stats['jobId']=job_id
+    return stats
 
 #NOTE:always create the fixed routes first
 #create the endpoints
@@ -123,11 +164,15 @@ async def datasetGeneration(request:datasetGenerationRequest):
     """
     #check if api key is present .env if not sleep for 5 checks and return mocked dataset
 
-    if  os.getenv("OPENROUTER_API_KEY") is None:
+    if not os.getenv("OPENROUTER_API_KEY"):
         #TODO Get the mocked dataset for viewing with mocked stats
         log.info("No api key found in .env mocking the data")
         await asyncio.sleep(5)
-        stats=datasetGenerationMetrics.mock()
+        stats=datasetGenerationMetrics.mock(jobid=request.jobId)
+        _persist_generation_result(
+            request_payload=request.model_dump(),
+            stats=stats.model_dump(),
+        )
         return stats
 
     try :
@@ -143,16 +188,102 @@ async def datasetGeneration(request:datasetGenerationRequest):
         raise HTTPException(status_code=422,detail=str(e))
     except (ValueError) as e:
         raise HTTPException(status_code=400,detail=str(e))
-    #now we need to figure if partial failure or not
-    if stats['failedSplits'] == stats['totalSplits']:
-        stats['status']='failure'
-    elif stats['successfulSplits'] == stats['totalSplits']:
-        stats['status']='success'
-    else:
-        #if  0 < rowsGenerated < totalRowsRequestedor or if 0 < successfulSplits < totalSplits.
-        stats['status']='partial'
-    stats['jobId']=request.jobId
+
+    stats=_apply_generation_status(stats=stats,job_id=request.jobId)
+    _persist_generation_result(
+        request_payload=request.model_dump(),
+        stats=stats,
+    )
     return stats
+
+
+@app.post("/dataset/retry/{jobId}",response_model=datasetGenerationMetrics)
+async def retryDatasetGeneration(jobId:str):
+    """Retry generation for a previously saved job config from Supabase."""
+    if os.getenv("OPENROUTER_API_KEY") is None:
+        raise HTTPException(status_code=400,detail="OPENROUTER_API_KEY missing. Add credits/key and retry.")
+
+    jobRow,dbErr=fetch_generation_job(jobId)
+    if dbErr is not None:
+        raise HTTPException(status_code=503,detail=dbErr)
+    if jobRow is None:
+        raise HTTPException(status_code=404,detail=f"No job found for jobId:{jobId}")
+
+    requestPayload=jobRow.get("request_payload")
+    if not isinstance(requestPayload,dict):
+        raise HTTPException(status_code=422,detail=f"Invalid request payload saved for jobId:{jobId}")
+
+    configPayload=requestPayload.get("config")
+    if not isinstance(configPayload,dict):
+        raise HTTPException(status_code=422,detail=f"Missing config in saved payload for jobId:{jobId}")
+
+    try:
+        config=datasetGenerationConfig.model_validate(configPayload)
+    except Exception as e:
+        raise HTTPException(status_code=422,detail=f"Saved config validation failed: {e}")
+
+    retryJobId=f"{jobId}-retry-{uuid4().hex[:8]}"
+    try:
+        stats=generateDataset(
+            personaConfig=config.personaConfig,
+            datasetSize=config.datasetSize,
+            generationModel=config.generationModel,
+            teacherModel=config.teacherModel,
+            datasetName=config.datasetName,
+        )
+    except (GenerationModelNotFoundError,TeacherModelNotFoundError) as e:
+        raise HTTPException(status_code=422,detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400,detail=str(e))
+
+    stats=_apply_generation_status(stats=stats,job_id=retryJobId)
+    retryPayload={
+        "jobId":retryJobId,
+        "config":config.model_dump(),
+    }
+    _persist_generation_result(
+        request_payload=retryPayload,
+        stats=stats,
+        retried_from_job_id=jobId,
+    )
+
+    return stats
+
+
+@app.get("/dashboard/summary")
+def getDashboardSummary(limit:int=500):
+    summary,err=fetch_dashboard_summary(limit=limit)
+    if err is not None:
+        raise HTTPException(status_code=503,detail=err)
+    return summary
+
+
+@app.get("/dashboard/history")
+def getDashboardHistory(limit:int=50,offset:int=0):
+    history,err=fetch_generation_history(limit=limit,offset=offset)
+    if err is not None:
+        raise HTTPException(status_code=503,detail=err)
+    return {"history":history,"limit":limit,"offset":offset}
+
+
+@app.get("/dashboard/history/{jobId}")
+def getDashboardHistoryDetails(jobId:str):
+    details,err=fetch_generation_job(jobId)
+    if err is not None:
+        raise HTTPException(status_code=503,detail=err)
+    if details is None:
+        raise HTTPException(status_code=404,detail=f"No history row found for jobId:{jobId}")
+    return {"details":details}
+
+
+@app.get("/dashboard/database_status")
+def getDashboardDatabaseStatus():
+    return get_database_status()
+
+
+@app.get("/dashboard/schema_sql")
+def getDashboardSchemaSQL():
+    return {"sql":get_schema_sql()}
 
 #persona endpoints
 @app.get("/persona_hub")
