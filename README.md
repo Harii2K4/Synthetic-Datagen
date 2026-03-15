@@ -53,7 +53,8 @@ GET /dashboard/schema_sql
 3. Validate DB connection status from backend:
 
 ```text
-GET /dashboard/database_status
+curl http://localhost:8000/dashboard database_status
+<!-- GET /dashboard/database_status -->
 ```
 
 If Supabase is not configured, dataset generation still works, but dashboard history and retry persistence are unavailable.

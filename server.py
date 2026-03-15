@@ -23,7 +23,7 @@ from utils.database import (
     fetch_generation_history,
     fetch_generation_job,
     get_database_status,
-    get_schema_sql,
+    # get_schema_sql,
     save_generation_run,
 )
 from utils.exceptions import TeacherModelNotFoundError,GenerationModelNotFoundError
@@ -281,9 +281,9 @@ def getDashboardDatabaseStatus():
     return get_database_status()
 
 
-@app.get("/dashboard/schema_sql")
-def getDashboardSchemaSQL():
-    return {"sql":get_schema_sql()}
+# @app.get("/dashboard/schema_sql")
+# def getDashboardSchemaSQL():
+#     return {"sql":get_schema_sql()}
 
 #persona endpoints
 @app.get("/persona_hub")

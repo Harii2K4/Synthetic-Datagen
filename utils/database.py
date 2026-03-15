@@ -333,59 +333,59 @@ def fetch_dashboard_summary(limit: int = 500) -> Tuple[Dict[str, Any], Optional[
         return {}, message
 
 
-def get_schema_sql() -> str:
-    """Return the SQL schema required for Supabase integration."""
-    return f"""
-create table if not exists public.{REQUESTS_TABLE} (
-    id bigserial primary key,
-    job_id text unique not null,
-    retried_from_job_id text null,
-    dataset_name text not null default '',
-    persona_config jsonb not null default '[]'::jsonb,
-    dataset_size integer not null default 0,
-    generation_model jsonb not null default '{{}}'::jsonb,
-    teacher_model jsonb not null default '{{}}'::jsonb,
-    request_payload jsonb not null,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
+# def get_schema_sql() -> str:
+#     """Return the SQL schema required for Supabase integration."""
+#     return f"""
+# create table if not exists public.{REQUESTS_TABLE} (
+#     id bigserial primary key,
+#     job_id text unique not null,
+#     retried_from_job_id text null,
+#     dataset_name text not null default '',
+#     persona_config jsonb not null default '[]'::jsonb,
+#     dataset_size integer not null default 0,
+#     generation_model jsonb not null default '{{}}'::jsonb,
+#     teacher_model jsonb not null default '{{}}'::jsonb,
+#     request_payload jsonb not null,
+#     created_at timestamptz not null default now(),
+#     updated_at timestamptz not null default now()
+# );
 
-create table if not exists public.{RESULTS_TABLE} (
-  id bigserial primary key,
-  job_id text unique not null,
-  retried_from_job_id text null,
-  dataset_name text not null default '',
-  status text not null check (status in ('success','partial','failure')),
-  total_splits integer not null default 0,
-  successful_splits integer not null default 0,
-  failed_splits integer not null default 0,
-  total_rows_requested integer not null default 0,
-  rows_generated integer not null default 0,
-  rows_failed integer not null default 0,
-  dataset_save_location text not null default '',
-  retryable boolean not null default false,
-  metrics_payload jsonb not null,
-  errors_payload jsonb not null default '[]'::jsonb,
-  created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now(),
-    constraint fk_{RESULTS_TABLE}_job_id
-        foreign key (job_id)
-        references public.{REQUESTS_TABLE}(job_id)
-        on delete cascade
-);
+# create table if not exists public.{RESULTS_TABLE} (
+#   id bigserial primary key,
+#   job_id text unique not null,
+#   retried_from_job_id text null,
+#   dataset_name text not null default '',
+#   status text not null check (status in ('success','partial','failure')),
+#   total_splits integer not null default 0,
+#   successful_splits integer not null default 0,
+#   failed_splits integer not null default 0,
+#   total_rows_requested integer not null default 0,
+#   rows_generated integer not null default 0,
+#   rows_failed integer not null default 0,
+#   dataset_save_location text not null default '',
+#   retryable boolean not null default false,
+#   metrics_payload jsonb not null,
+#   errors_payload jsonb not null default '[]'::jsonb,
+#   created_at timestamptz not null default now(),
+#     updated_at timestamptz not null default now(),
+#     constraint fk_{RESULTS_TABLE}_job_id
+#         foreign key (job_id)
+#         references public.{REQUESTS_TABLE}(job_id)
+#         on delete cascade
+# );
 
-create index if not exists idx_{REQUESTS_TABLE}_created_at
-    on public.{REQUESTS_TABLE}(created_at desc);
+# create index if not exists idx_{REQUESTS_TABLE}_created_at
+#     on public.{REQUESTS_TABLE}(created_at desc);
 
-create index if not exists idx_{REQUESTS_TABLE}_dataset_name
-    on public.{REQUESTS_TABLE}(dataset_name);
+# create index if not exists idx_{REQUESTS_TABLE}_dataset_name
+#     on public.{REQUESTS_TABLE}(dataset_name);
 
-create index if not exists idx_{RESULTS_TABLE}_created_at
-    on public.{RESULTS_TABLE}(created_at desc);
+# create index if not exists idx_{RESULTS_TABLE}_created_at
+#     on public.{RESULTS_TABLE}(created_at desc);
 
-create index if not exists idx_{RESULTS_TABLE}_status
-    on public.{RESULTS_TABLE}(status);
+# create index if not exists idx_{RESULTS_TABLE}_status
+#     on public.{RESULTS_TABLE}(status);
 
-create index if not exists idx_{RESULTS_TABLE}_retryable
-    on public.{RESULTS_TABLE}(retryable);
-""".strip()
+# create index if not exists idx_{RESULTS_TABLE}_retryable
+#     on public.{RESULTS_TABLE}(retryable);
+# """.strip()
