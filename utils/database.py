@@ -3,6 +3,11 @@ file: database.py
 description: Supabase integration utilities for generation history and dashboard metrics.
 """
 from __future__ import annotations
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 import os
 from datetime import datetime, timezone
@@ -74,7 +79,7 @@ def get_database_status() -> Dict[str, Any]:
         "tables": {
             "requests": REQUESTS_TABLE,
             "results": RESULTS_TABLE,
-            "legacy": LEGACY_JOBS_TABLE,
+            # "legacy": LEGACY_JOBS_TABLE,
         },
         "error": err,
     }
@@ -333,6 +338,7 @@ def fetch_dashboard_summary(limit: int = 500) -> Tuple[Dict[str, Any], Optional[
         return {}, message
 
 
+# );
 # def get_schema_sql() -> str:
 #     """Return the SQL schema required for Supabase integration."""
 #     return f"""
@@ -348,8 +354,7 @@ def fetch_dashboard_summary(limit: int = 500) -> Tuple[Dict[str, Any], Optional[
 #     request_payload jsonb not null,
 #     created_at timestamptz not null default now(),
 #     updated_at timestamptz not null default now()
-# );
-
+#
 # create table if not exists public.{RESULTS_TABLE} (
 #   id bigserial primary key,
 #   job_id text unique not null,
@@ -373,19 +378,19 @@ def fetch_dashboard_summary(limit: int = 500) -> Tuple[Dict[str, Any], Optional[
 #         references public.{REQUESTS_TABLE}(job_id)
 #         on delete cascade
 # );
-
+#
 # create index if not exists idx_{REQUESTS_TABLE}_created_at
 #     on public.{REQUESTS_TABLE}(created_at desc);
-
+#
 # create index if not exists idx_{REQUESTS_TABLE}_dataset_name
 #     on public.{REQUESTS_TABLE}(dataset_name);
-
+#
 # create index if not exists idx_{RESULTS_TABLE}_created_at
 #     on public.{RESULTS_TABLE}(created_at desc);
-
+#
 # create index if not exists idx_{RESULTS_TABLE}_status
 #     on public.{RESULTS_TABLE}(status);
-
+#
 # create index if not exists idx_{RESULTS_TABLE}_retryable
 #     on public.{RESULTS_TABLE}(retryable);
 # """.strip()
