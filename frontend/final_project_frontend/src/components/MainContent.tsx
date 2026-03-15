@@ -1,4 +1,5 @@
 import type { NavigationTab } from '../data/navigation'
+import { DashboardPage } from '../pages/DashboardPage'
 import { GenerateDatasetsPage } from '../pages/GenerateDatasetsPage'
 
 type MainContentProps = {
@@ -6,6 +7,10 @@ type MainContentProps = {
 }
 
 function MainContent({ activeTab }: MainContentProps) {
+  if (activeTab.id === 'dashboard') {
+    return <DashboardPage />
+  }
+
   if (activeTab.id === 'generate-datasets') {
     return <GenerateDatasetsPage />
   }

@@ -1,5 +1,8 @@
 import type { PersonaOption } from '../types/generation'
 import type {
+  DashboardHistoryDetailsPayload,
+  DashboardHistoryResponsePayload,
+  DashboardSummaryPayload,
   DatasetGenerationMetricsPayload,
   DatasetGenerationRequestPayload,
 } from '../types/datasetRequest'
@@ -273,6 +276,51 @@ async function generateDataset(
   return (await response.json()) as DatasetGenerationMetricsPayload
 }
 
+async function retryDatasetGeneration(jobId: string): Promise<DatasetGenerationMetricsPayload> {
+  const response = await fetch(`${API_BASE_URL}/dataset/retry/${encodeURIComponent(jobId)}`, {
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+
+  return (await response.json()) as DatasetGenerationMetricsPayload
+}
+
+async function fetchDashboardSummary(limit = 500): Promise<DashboardSummaryPayload> {
+  const response = await fetch(`${API_BASE_URL}/dashboard/summary?limit=${encodeURIComponent(String(limit))}`)
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+  return (await response.json()) as DashboardSummaryPayload
+}
+
+async function fetchDashboardHistory(
+  limit = 50,
+  offset = 0,
+): Promise<DashboardHistoryResponsePayload> {
+  const response = await fetch(
+    `${API_BASE_URL}/dashboard/history?limit=${encodeURIComponent(String(limit))}&offset=${encodeURIComponent(String(offset))}`,
+  )
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+  return (await response.json()) as DashboardHistoryResponsePayload
+}
+
+async function fetchDashboardHistoryDetails(jobId: string): Promise<DashboardHistoryDetailsPayload> {
+  const response = await fetch(`${API_BASE_URL}/dashboard/history/${encodeURIComponent(jobId)}`)
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+  const payload = (await response.json()) as { details?: DashboardHistoryDetailsPayload }
+  if (!payload.details) {
+    throw new Error('History details payload missing from API response.')
+  }
+  return payload.details
+}
+
 export {
   fetchPersonaSplits,
   fetchPersonaRowCount,
@@ -280,4 +328,8 @@ export {
   fetchPersonaSplitPreview,
   fetchDatasetPreview,
   generateDataset,
+  retryDatasetGeneration,
+  fetchDashboardSummary,
+  fetchDashboardHistory,
+  fetchDashboardHistoryDetails,
 }

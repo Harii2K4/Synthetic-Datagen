@@ -33,6 +33,32 @@ fastapi dev server.py
 
 Test the API endpoints using the interactive docs at: `http://localhost:8000/docs`
 
+### 3.1 Supabase Setup (Dashboard + Retry History)
+
+To store generation stats/history in Supabase and enable retry-from-history:
+
+1. Add these environment variables to `.env`:
+
+```bash
+SUPABASE_URL=<your_supabase_project_url>
+SUPABASE_KEY=<your_supabase_service_role_or_backend_key>
+```
+
+2. Create the required table in Supabase SQL editor using the schema from backend endpoint:
+
+```text
+GET /dashboard/schema_sql
+```
+
+3. Validate DB connection status from backend:
+
+```text
+curl http://localhost:8000/dashboard database_status
+<!-- GET /dashboard/database_status -->
+```
+
+If Supabase is not configured, dataset generation still works, but dashboard history and retry persistence are unavailable.
+
 ### 4. Run Frontend
 
 Navigate to the frontend directory and start the React app:

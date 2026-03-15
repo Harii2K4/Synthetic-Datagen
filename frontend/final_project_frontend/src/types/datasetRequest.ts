@@ -98,3 +98,41 @@ export type DatasetGenerationMetricsPayload = {
   datasetSaveLocation: string
   errors: SplitErrorPayload[]
 }
+
+export type DashboardSummaryPayload = {
+  totalJobs: number
+  successJobs: number
+  partialJobs: number
+  failedJobs: number
+  retryableJobs: number
+  totalRowsRequested: number
+  totalRowsGenerated: number
+  totalRowsFailed: number
+}
+
+export type DashboardHistoryItemPayload = {
+  job_id: string
+  dataset_name: string
+  status: DatasetGenerationStatus
+  total_rows_requested: number
+  rows_generated: number
+  rows_failed: number
+  retryable: boolean
+  dataset_save_location: string
+  created_at: string
+  retried_from_job_id?: string | null
+}
+
+export type DashboardHistoryResponsePayload = {
+  history: DashboardHistoryItemPayload[]
+  limit: number
+  offset: number
+}
+
+export type DashboardHistoryDetailsPayload = {
+  job_id: string
+  request_payload?: DatasetGenerationRequestPayload
+  metrics_payload?: DatasetGenerationMetricsPayload
+  retryable?: boolean
+  status?: DatasetGenerationStatus
+}
