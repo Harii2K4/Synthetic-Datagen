@@ -1,5 +1,5 @@
 import type { NavigationTab } from '../data/navigation'
-import { DashboardPage } from '../pages/DashboardPage'
+
 import { GenerateDatasetsPage } from '../pages/GenerateDatasetsPage'
 
 type MainContentProps = {
