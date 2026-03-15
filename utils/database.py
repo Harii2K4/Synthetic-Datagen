@@ -24,9 +24,6 @@ load_dotenv()
 
 REQUESTS_TABLE = "dataset_requests"
 RESULTS_TABLE = "dataset_results"
-LEGACY_JOBS_TABLE = "generation_jobs"
-# Backward compatible alias used in some status payloads.
-JOBS_TABLE = RESULTS_TABLE
 
 _client: Any = None
 _client_init_attempted = False
@@ -75,11 +72,10 @@ def get_database_status() -> Dict[str, Any]:
     _, err = _init_client()
     return {
         "configured": err is None,
-        "table": JOBS_TABLE,
+        "table": RESULTS_TABLE,
         "tables": {
             "requests": REQUESTS_TABLE,
             "results": RESULTS_TABLE,
-            # "legacy": LEGACY_JOBS_TABLE,
         },
         "error": err,
     }
@@ -103,31 +99,6 @@ def _safe_select_rows(
     except Exception as e:
         log.warning(f"Read skipped for table '{table}': {e}")
         return []
-
-
-def _merge_history_rows(
-    primary_rows: List[Dict[str, Any]],
-    legacy_rows: List[Dict[str, Any]],
-    *,
-    offset: int,
-    limit: int,
-) -> List[Dict[str, Any]]:
-    """Merge primary and legacy history rows, dedupe by job_id, sort by created_at desc."""
-    dedup: Dict[str, Dict[str, Any]] = {}
-
-    # Primary rows win when job_id exists in both tables.
-    for row in legacy_rows:
-        job_id = str(row.get("job_id", "")).strip()
-        if job_id:
-            dedup[job_id] = row
-    for row in primary_rows:
-        job_id = str(row.get("job_id", "")).strip()
-        if job_id:
-            dedup[job_id] = row
-
-    merged = list(dedup.values())
-    merged.sort(key=lambda item: str(item.get("created_at", "")), reverse=True)
-    return merged[offset:offset + limit]
 
 
 def _is_retryable(stats: Dict[str, Any]) -> bool:
@@ -203,20 +174,13 @@ def fetch_generation_history(limit: int = 50, offset: int = 0) -> Tuple[List[Dic
     fetch_count = safe_offset + safe_limit
 
     try:
-        primary_rows = _safe_select_rows(
+        rows = _safe_select_rows(
             client=client,
             table=RESULTS_TABLE,
             select_expr="job_id,dataset_name,status,total_rows_requested,rows_generated,rows_failed,retryable,dataset_save_location,created_at,retried_from_job_id",
             limit=fetch_count,
         )
-        legacy_rows = _safe_select_rows(
-            client=client,
-            table=LEGACY_JOBS_TABLE,
-            select_expr="job_id,dataset_name,status,total_rows_requested,rows_generated,rows_failed,retryable,dataset_save_location,created_at,retried_from_job_id",
-            limit=fetch_count,
-        )
-        rows = _merge_history_rows(primary_rows, legacy_rows, offset=safe_offset, limit=safe_limit)
-        return rows, None
+        return rows[safe_offset:safe_offset + safe_limit], None
     except Exception as e:
         message = f"Failed to fetch generation history from Supabase: {e}"
         log.error(message)
@@ -260,22 +224,6 @@ def fetch_generation_job(job_id: str) -> Tuple[Optional[Dict[str, Any]], Optiona
             }
         return payload, None
     except Exception as e:
-        log.warning(f"Primary table lookup failed for job {job_id}: {e}")
-
-    # Legacy fallback: older combined-table schema.
-    try:
-        response = (
-            client.table(LEGACY_JOBS_TABLE)
-            .select("job_id,request_payload,metrics_payload,retryable,status")
-            .eq("job_id", job_id)
-            .limit(1)
-            .execute()
-        )
-        rows = response.data or []
-        if not rows:
-            return None, None
-        return rows[0], None
-    except Exception as e:
         message = f"Failed to fetch generation job from Supabase: {e}"
         log.error(message)
         return None, message
@@ -289,23 +237,15 @@ def fetch_dashboard_summary(limit: int = 500) -> Tuple[Dict[str, Any], Optional[
     safe_limit = max(1, min(limit, 2000))
 
     try:
-        primary_rows = _safe_select_rows(
+        rows = _safe_select_rows(
             client=client,
             table=RESULTS_TABLE,
             select_expr="job_id,status,total_rows_requested,rows_generated,rows_failed,retryable,created_at",
             limit=safe_limit,
         )
-        legacy_rows = _safe_select_rows(
-            client=client,
-            table=LEGACY_JOBS_TABLE,
-            select_expr="job_id,status,total_rows_requested,rows_generated,rows_failed,retryable,created_at",
-            limit=safe_limit,
-        )
-
-        merged_rows = _merge_history_rows(primary_rows, legacy_rows, offset=0, limit=safe_limit)
 
         summary = {
-            "totalJobs": len(merged_rows),
+            "totalJobs": len(rows),
             "successJobs": 0,
             "partialJobs": 0,
             "failedJobs": 0,
@@ -315,7 +255,7 @@ def fetch_dashboard_summary(limit: int = 500) -> Tuple[Dict[str, Any], Optional[
             "totalRowsFailed": 0,
         }
 
-        for row in merged_rows:
+        for row in rows:
             status = row.get("status")
             if status == "success":
                 summary["successJobs"] += 1
