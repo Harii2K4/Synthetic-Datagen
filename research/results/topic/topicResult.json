@@ -1,0 +1,326 @@
+{
+  "metricName": "topic",
+  "topicUniverse": [
+    "Prealgebra",
+    "Algebra",
+    "Intermediate Algebra",
+    "Precalculus",
+    "Geometry",
+    "Differential Geometry",
+    "Topology",
+    "Number Theory",
+    "Counting & Probability",
+    "Combinatorics",
+    "Graph Theory",
+    "Discrete Mathematics",
+    "Linear Algebra",
+    "Calculus",
+    "Differential Equations",
+    "Real Analysis",
+    "Complex Analysis",
+    "Abstract Algebra",
+    "Functional Analysis",
+    "Optimization",
+    "Probability",
+    "Statistics",
+    "Stochastic Processes",
+    "Logic & Set Theory",
+    "Mathematical Physics"
+  ],
+  "baselineMetrics": {
+    "totalSamples": 50,
+    "uniqueTopicsCount": 8,
+    "observedTopics": [
+      "Abstract Algebra",
+      "Differential Geometry",
+      "Algebra",
+      "Number Theory",
+      "Lie Theory",
+      "Calculus",
+      "Complex Analysis",
+      "Differential Equations"
+    ],
+    "dominantTopicName": "Abstract Algebra",
+    "dominantTopicCount": 28,
+    "dominantTopicPercentage": 56.0,
+    "topicCountMap": {
+      "Abstract Algebra": 28,
+      "Differential Geometry": 7,
+      "Algebra": 7,
+      "Number Theory": 4,
+      "Lie Theory": 1,
+      "Calculus": 1,
+      "Complex Analysis": 1,
+      "Differential Equations": 1
+    },
+    "topicPercentageMap": {
+      "Abstract Algebra": 56.0,
+      "Differential Geometry": 14.0,
+      "Algebra": 14.0,
+      "Number Theory": 8.0,
+      "Lie Theory": 2.0,
+      "Calculus": 2.0,
+      "Complex Analysis": 2.0,
+      "Differential Equations": 2.0
+    },
+    "topicDistribution": [
+      {
+        "topicName": "Abstract Algebra",
+        "count": 28,
+        "percentage": 56.0
+      },
+      {
+        "topicName": "Differential Geometry",
+        "count": 7,
+        "percentage": 14.0
+      },
+      {
+        "topicName": "Algebra",
+        "count": 7,
+        "percentage": 14.0
+      },
+      {
+        "topicName": "Number Theory",
+        "count": 4,
+        "percentage": 8.0
+      },
+      {
+        "topicName": "Lie Theory",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Calculus",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Complex Analysis",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Differential Equations",
+        "count": 1,
+        "percentage": 2.0
+      }
+    ],
+    "topicCoverage": {
+      "coveredTopicsCount": 7,
+      "totalTopicsCount": 25,
+      "coveragePercentage": 28.0,
+      "coveredTopics": [
+        "Abstract Algebra",
+        "Differential Geometry",
+        "Algebra",
+        "Number Theory",
+        "Calculus",
+        "Complex Analysis",
+        "Differential Equations"
+      ],
+      "missingTopics": [
+        "Prealgebra",
+        "Intermediate Algebra",
+        "Precalculus",
+        "Geometry",
+        "Topology",
+        "Counting & Probability",
+        "Combinatorics",
+        "Graph Theory",
+        "Discrete Mathematics",
+        "Linear Algebra",
+        "Real Analysis",
+        "Functional Analysis",
+        "Optimization",
+        "Probability",
+        "Statistics",
+        "Stochastic Processes",
+        "Logic & Set Theory",
+        "Mathematical Physics"
+      ],
+      "unexpectedTopics": [
+        "Lie Theory"
+      ]
+    }
+  },
+  "personaMetrics": {
+    "totalSamples": 50,
+    "uniqueTopicsCount": 13,
+    "observedTopics": [
+      "Optimization",
+      "Calculus",
+      "Probability",
+      "Statistics",
+      "Linear Algebra",
+      "Combinatorics",
+      "Stochastic Processes",
+      "Differential Equations",
+      "Algebra",
+      "Number Theory",
+      "Discrete Mathematics",
+      "Topology",
+      "Graph Theory"
+    ],
+    "dominantTopicName": "Optimization",
+    "dominantTopicCount": 14,
+    "dominantTopicPercentage": 28.0,
+    "topicCountMap": {
+      "Optimization": 14,
+      "Calculus": 6,
+      "Probability": 6,
+      "Statistics": 5,
+      "Linear Algebra": 5,
+      "Combinatorics": 4,
+      "Stochastic Processes": 3,
+      "Differential Equations": 2,
+      "Algebra": 1,
+      "Number Theory": 1,
+      "Discrete Mathematics": 1,
+      "Topology": 1,
+      "Graph Theory": 1
+    },
+    "topicPercentageMap": {
+      "Optimization": 28.0,
+      "Calculus": 12.0,
+      "Probability": 12.0,
+      "Statistics": 10.0,
+      "Linear Algebra": 10.0,
+      "Combinatorics": 8.0,
+      "Stochastic Processes": 6.0,
+      "Differential Equations": 4.0,
+      "Algebra": 2.0,
+      "Number Theory": 2.0,
+      "Discrete Mathematics": 2.0,
+      "Topology": 2.0,
+      "Graph Theory": 2.0
+    },
+    "topicDistribution": [
+      {
+        "topicName": "Optimization",
+        "count": 14,
+        "percentage": 28.0
+      },
+      {
+        "topicName": "Calculus",
+        "count": 6,
+        "percentage": 12.0
+      },
+      {
+        "topicName": "Probability",
+        "count": 6,
+        "percentage": 12.0
+      },
+      {
+        "topicName": "Statistics",
+        "count": 5,
+        "percentage": 10.0
+      },
+      {
+        "topicName": "Linear Algebra",
+        "count": 5,
+        "percentage": 10.0
+      },
+      {
+        "topicName": "Combinatorics",
+        "count": 4,
+        "percentage": 8.0
+      },
+      {
+        "topicName": "Stochastic Processes",
+        "count": 3,
+        "percentage": 6.0
+      },
+      {
+        "topicName": "Differential Equations",
+        "count": 2,
+        "percentage": 4.0
+      },
+      {
+        "topicName": "Algebra",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Number Theory",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Discrete Mathematics",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Topology",
+        "count": 1,
+        "percentage": 2.0
+      },
+      {
+        "topicName": "Graph Theory",
+        "count": 1,
+        "percentage": 2.0
+      }
+    ],
+    "topicCoverage": {
+      "coveredTopicsCount": 13,
+      "totalTopicsCount": 25,
+      "coveragePercentage": 52.0,
+      "coveredTopics": [
+        "Optimization",
+        "Calculus",
+        "Probability",
+        "Statistics",
+        "Linear Algebra",
+        "Combinatorics",
+        "Stochastic Processes",
+        "Differential Equations",
+        "Algebra",
+        "Number Theory",
+        "Discrete Mathematics",
+        "Topology",
+        "Graph Theory"
+      ],
+      "missingTopics": [
+        "Prealgebra",
+        "Intermediate Algebra",
+        "Precalculus",
+        "Geometry",
+        "Differential Geometry",
+        "Counting & Probability",
+        "Real Analysis",
+        "Complex Analysis",
+        "Abstract Algebra",
+        "Functional Analysis",
+        "Logic & Set Theory",
+        "Mathematical Physics"
+      ],
+      "unexpectedTopics": []
+    }
+  },
+  "comparison": {
+    "sharedTopicsCount": 4,
+    "sharedTopics": [
+      "Algebra",
+      "Calculus",
+      "Differential Equations",
+      "Number Theory"
+    ],
+    "baselineOnlyTopics": [
+      "Abstract Algebra",
+      "Complex Analysis",
+      "Differential Geometry"
+    ],
+    "personaOnlyTopics": [
+      "Combinatorics",
+      "Discrete Mathematics",
+      "Graph Theory",
+      "Linear Algebra",
+      "Optimization",
+      "Probability",
+      "Statistics",
+      "Stochastic Processes",
+      "Topology"
+    ],
+    "coverageGapPercentagePoints": 24.0
+  }
+}
