@@ -1,7 +1,8 @@
-import  os
-import  requests
+import os
 
-providerWebsites= {
+import requests
+
+providerWebsites = {
     "openai": "openai.com",
     "anthropic": "anthropic.com",
     "google": "google.com",
@@ -45,10 +46,11 @@ providerWebsites= {
     "bytedance-seed": "bytedance.com",
     "kwaipilot": "streamlake.ai",
     "openrouter": "openrouter.ai",
-    "huggingface":"huggingface.com"
+    "huggingface": "huggingface.com",
 }
 
-LOGO_DEV_PUBLIC_KEY = '<YOUR_PUBLIC_KEY>'
+LOGO_DEV_PUBLIC_KEY = "<YOUR_PUBLIC_KEY>"
+
 
 def getCompanyLogo(domain, size=256):
     url = f"https://img.logo.dev/{domain}?token={LOGO_DEV_PUBLIC_KEY}&size={size}&format=png"
@@ -61,7 +63,11 @@ def getCompanyLogo(domain, size=256):
         return None
 
 
-def saveLogo(provider_name, domain, folder="./frontend/final_project_frontend/src/assets/provider_logos"):
+def saveLogo(
+    provider_name,
+    domain,
+    folder="./frontend/final_project_frontend/src/assets/provider_logos",
+):
     os.makedirs(folder, exist_ok=True)
 
     image_bytes = getCompanyLogo(domain)
@@ -74,6 +80,7 @@ def saveLogo(provider_name, domain, folder="./frontend/final_project_frontend/sr
         print(f"Saved: {file_path}")
     else:
         print(f"Skipping {provider_name}")
+
 
 def main():
     for provider_name, domain in providerWebsites.items():

@@ -256,3 +256,112 @@ class datasetGenerationResponse(BaseModel):
         return cls(jobId=jobId,meterics=metrics)
 
 
+
+class TopicDistributionItem(BaseModel):
+    topicName: str
+    count: int = Field(ge=0)
+    percentage: float = Field(ge=0)
+
+
+class TopicCoverageSummary(BaseModel):
+    coveredTopicsCount: int = Field(ge=0)
+    totalTopicsCount: int = Field(ge=0)
+    coveragePercentage: float = Field(ge=0)
+    coveredTopics: List[str] = Field(default_factory=list)
+    missingTopics: List[str] = Field(default_factory=list)
+    unexpectedTopics: List[str] = Field(default_factory=list)
+
+
+class TopicDatasetMetrics(BaseModel):
+    totalSamples: int = Field(ge=0)
+    uniqueTopicsCount: int = Field(ge=0)
+    observedTopics: List[str] = Field(default_factory=list)
+    dominantTopicName: Optional[str] = None
+    dominantTopicCount: int = Field(ge=0)
+    dominantTopicPercentage: float = Field(ge=0)
+    topicCountMap: Dict[str, int] = Field(default_factory=dict)
+    topicPercentageMap: Dict[str, float] = Field(default_factory=dict)
+    topicDistribution: List[TopicDistributionItem] = Field(default_factory=list)
+    topicCoverage: TopicCoverageSummary
+
+
+class TopicComparisonSummary(BaseModel):
+    sharedTopicsCount: int = Field(ge=0)
+    sharedTopics: List[str] = Field(default_factory=list)
+    baselineOnlyTopics: List[str] = Field(default_factory=list)
+    personaOnlyTopics: List[str] = Field(default_factory=list)
+    coverageGapPercentagePoints: float
+
+
+class TopicAnalysisResult(BaseModel):
+    metricName: str = "topic"
+    topicUniverse: List[str] = Field(default_factory=list)
+    baselineMetrics: TopicDatasetMetrics
+    personaMetrics: TopicDatasetMetrics
+    comparison: TopicComparisonSummary
+
+
+class SimilarityPerQuestionMetrics(BaseModel):
+    questionIndex: int = Field(ge=0)
+    topicName: Optional[str] = None
+    meanSimilarityToOthers: Optional[float] = None
+    medianSimilarityToOthers: Optional[float] = None
+    maxSimilarityToOthers: Optional[float] = None
+    nearestNeighborIndex: Optional[int] = None
+    nearestNeighborSimilarity: Optional[float] = None
+
+
+class SimilarityTopicMetrics(BaseModel):
+    topicName: str
+    sampleCount: int = Field(ge=0)
+    pairCount: int = Field(ge=0)
+    meanPairSimilarity: Optional[float] = None
+    medianPairSimilarity: Optional[float] = None
+    stdPairSimilarity: Optional[float] = None
+    minPairSimilarity: Optional[float] = None
+    maxPairSimilarity: Optional[float] = None
+    p10PairSimilarity: Optional[float] = None
+    p25PairSimilarity: Optional[float] = None
+    p75PairSimilarity: Optional[float] = None
+    p90PairSimilarity: Optional[float] = None
+    meanNearestNeighborSimilarity: Optional[float] = None
+    medianNearestNeighborSimilarity: Optional[float] = None
+    maxNearestNeighborSimilarity: Optional[float] = None
+    diversityScore: Optional[float] = None
+    nnDiversityScore: Optional[float] = None
+
+
+class SimilarityDatasetMetrics(BaseModel):
+    totalSamples: int = Field(ge=0)
+    pairCount: int = Field(ge=0)
+    meanPairSimilarity: Optional[float] = None
+    medianPairSimilarity: Optional[float] = None
+    stdPairSimilarity: Optional[float] = None
+    minPairSimilarity: Optional[float] = None
+    maxPairSimilarity: Optional[float] = None
+    p10PairSimilarity: Optional[float] = None
+    p25PairSimilarity: Optional[float] = None
+    p75PairSimilarity: Optional[float] = None
+    p90PairSimilarity: Optional[float] = None
+    meanNearestNeighborSimilarity: Optional[float] = None
+    medianNearestNeighborSimilarity: Optional[float] = None
+    maxNearestNeighborSimilarity: Optional[float] = None
+    diversityScore: Optional[float] = None
+    nnDiversityScore: Optional[float] = None
+    perQuestionMetrics: List[SimilarityPerQuestionMetrics] = Field(default_factory=list)
+    topicMetrics: List[SimilarityTopicMetrics] = Field(default_factory=list)
+
+
+class SimilarityComparisonSummary(BaseModel):
+    meanPairSimilarityGap: Optional[float] = None
+    medianPairSimilarityGap: Optional[float] = None
+    diversityScoreGap: Optional[float] = None
+    meanNearestNeighborSimilarityGap: Optional[float] = None
+    nnDiversityScoreGap: Optional[float] = None
+
+
+class SimilarityAnalysisResult(BaseModel):
+    metricName: str = "semantic_similarity"
+    baselineMetrics: SimilarityDatasetMetrics
+    personaMetrics: SimilarityDatasetMetrics
+    comparison: SimilarityComparisonSummary

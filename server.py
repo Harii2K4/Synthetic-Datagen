@@ -42,7 +42,7 @@ app.add_middleware(
 @app.get("/")
 def readRoot():
     """Root endpoint to check if server is running.
-    
+
     Returns:
         str: Confirmation message that server is working
     """
@@ -52,7 +52,7 @@ def readRoot():
 @app.get("/dataset")
 def listDatasets():
     """List all available CSV datasets in the dataset folder.
-    
+
     Returns:
         dict: Dictionary containing list of dataset filenames
     """
@@ -66,15 +66,15 @@ def listDatasets():
 @app.get("/dataset/{datasetName:path}")
 def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
     """View a specific dataset with row range limits.
-    
+
     Args:
         datasetName: Name of the dataset file to view
         lowerLimit: Starting row index (inclusive)
         upperLimit: Ending row index (exclusive)
-    
+
     Returns:
         JSONResponse: Dataset rows within specified range and count of rows returned
-    
+
     Raises:
         HTTPException: If dataset folder not found, file not found, or invalid file format
     """
@@ -111,13 +111,13 @@ def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
 @app.post("/dataset",response_model=datasetGenerationMetrics)
 async def datasetGeneration(request:datasetGenerationRequest):
     """Generate a new dataset based on persona configuration.
-    
+
     Args:
         request: Dataset generation request containing configuration and job ID
-    
+
     Returns:
         datasetGenerationMetrics: Statistics about the generated dataset including status
-    
+
     Raises:
         HTTPException: If generation or teacher model not found, or invalid configuration
     """
@@ -158,7 +158,7 @@ async def datasetGeneration(request:datasetGenerationRequest):
 @app.get("/persona_hub")
 def getPersonList():
     """List all available persona split files in the persona hub.
-    
+
     Returns:
         dict: Dictionary containing list of persona split filenames
     """
@@ -177,7 +177,7 @@ def viewPersonaSplit(personaSplit:personaSplits,
                      method:Literal["range","filter","hybrid"]='range',
                      filter:Optional[Literal["user","system"]]='system'):
     """View a specific persona split with various selection methods.
-    
+
     Args:
         personaSplit: Name of the persona split to view
         noOfRows: Number of rows to return
@@ -185,10 +185,10 @@ def viewPersonaSplit(personaSplit:personaSplits,
         upperLimit: Ending row index for range method
         method: Selection method ('range', 'filter', or 'hybrid')
         filter: Filter type ('user' or 'system') for filter method
-    
+
     Returns:
         JSONResponse: Persona data, rows returned, and rows requested
-    
+
     Raises:
         HTTPException: If persona folder not found, file not found, or invalid parameters
     """
@@ -247,14 +247,14 @@ def viewPersonaSplit(personaSplit:personaSplits,
 @app.post("/persona_hub/{personaSplit}")
 def addPersonaToSplit(personaSplit:personaSplits,persona:str):
     """Add a new persona to a specific persona split file.
-    
+
     Args:
         personaSplit: Name of the persona split to add to
         persona: Persona text to add
-    
+
     Returns:
         dict: Success message confirming persona was added
-    
+
     Raises:
         HTTPException: If persona folder not found
     """
@@ -276,14 +276,14 @@ def addPersonaToSplit(personaSplit:personaSplits,persona:str):
 @app.get("/csv")
 def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
     """Get the number of rows in a CSV file (dataset or persona).
-    
+
     Args:
         fileName: Name of the CSV file
         dataType: Type of data ('dataset' or 'persona')
-    
+
     Returns:
         dict: Number of rows in the specified file
-    
+
     Raises:
         HTTPException: If folder not found, file not found, or invalid file format
     """
