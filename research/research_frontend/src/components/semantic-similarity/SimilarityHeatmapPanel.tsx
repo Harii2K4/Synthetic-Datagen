@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { LatexText } from "../LatexText";
+import { QuestionModal } from "./QuestionModal";
 import type { DatasetKind, SemanticSimilarityData } from "./types";
 import { formatMetricValue, getDatasetLabel, getHeatmapColor } from "./utils";
 
@@ -24,6 +25,12 @@ export function SimilarityHeatmapPanel({ data }: SimilarityHeatmapPanelProps) {
   const [selectedCell, setSelectedCell] = useState<SelectedCell>(() =>
     buildDefaultSelectedCell(data.matrices.baseline),
   );
+  const [modalQuestion, setModalQuestion] = useState<{
+    title: string;
+    text: string;
+  } | null>(null);
+
+  const closeModal = useCallback(() => setModalQuestion(null), []);
 
   const activeMatrix = data.matrices[activeDataset];
   const activeQuestions = data.datasets[activeDataset].questions;
@@ -133,22 +140,51 @@ export function SimilarityHeatmapPanel({ data }: SimilarityHeatmapPanelProps) {
         </div>
 
         <div className="similarity-question-pair">
-          <article className="similarity-question-card">
+          <article
+            className="similarity-question-card similarity-question-card-clickable"
+            onClick={() =>
+              setModalQuestion({
+                title: selectedRowQuestion?.topicName ?? "Unknown",
+                text: selectedRowQuestion?.questionText ?? "",
+              })
+            }
+          >
             <h3>{selectedRowQuestion?.topicName ?? "Unknown"}</h3>
             <LatexText
               className="similarity-question-copy similarity-question-preview similarity-question-preview-clamp"
               text={selectedRowQuestion?.questionText ?? ""}
             />
+            <span className="question-expand-hint">
+              Click to view full question
+            </span>
           </article>
-          <article className="similarity-question-card">
+          <article
+            className="similarity-question-card similarity-question-card-clickable"
+            onClick={() =>
+              setModalQuestion({
+                title: selectedColumnQuestion?.topicName ?? "Unknown",
+                text: selectedColumnQuestion?.questionText ?? "",
+              })
+            }
+          >
             <h3>{selectedColumnQuestion?.topicName ?? "Unknown"}</h3>
             <LatexText
               className="similarity-question-copy similarity-question-preview similarity-question-preview-clamp"
               text={selectedColumnQuestion?.questionText ?? ""}
             />
+            <span className="question-expand-hint">
+              Click to view full question
+            </span>
           </article>
         </div>
       </aside>
+
+      <QuestionModal
+        isOpen={modalQuestion !== null}
+        onClose={closeModal}
+        title={modalQuestion?.title ?? ""}
+        questionText={modalQuestion?.text ?? ""}
+      />
     </section>
   );
 }

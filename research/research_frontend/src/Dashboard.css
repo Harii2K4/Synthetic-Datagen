@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:wght@400;600&display=swap");
 
 :root {
   --paper: #f6f0e5;
@@ -14,24 +14,32 @@
   --persona: #0d7d6f;
   --combined: #b86a13;
   --shadow: 0 30px 80px rgba(47, 24, 13, 0.1);
-  --mono: 'IBM Plex Mono', Consolas, monospace;
-  --body: 'Source Serif 4', Georgia, serif;
-  --display: 'Bricolage Grotesque', sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+  --body: "Source Serif 4", Georgia, serif;
+  --display: "Bricolage Grotesque", sans-serif;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(circle at top left, rgba(153, 47, 36, 0.08), transparent 28%),
-    radial-gradient(circle at top right, rgba(13, 125, 111, 0.08), transparent 30%),
+    radial-gradient(
+      circle at top left,
+      rgba(153, 47, 36, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(13, 125, 111, 0.08),
+      transparent 30%
+    ),
     linear-gradient(180deg, #faf6ef 0%, #f2e9db 100%);
   color: var(--ink);
   font-family: var(--body);
 }
 
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -42,23 +50,23 @@ body::before {
   mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
 }
 
- #root {
-   width: min(1500px, calc(100% - 32px));
-   max-width: 1500px;
-   margin: 0 auto;
-   min-height: 100svh;
-   padding: 24px 0 40px;
- }
+#root {
+  width: min(1500px, calc(100% - 32px));
+  max-width: 1500px;
+  margin: 0 auto;
+  min-height: 100svh;
+  padding: 24px 0 40px;
+}
 
- * {
-   box-sizing: border-box;
- }
+* {
+  box-sizing: border-box;
+}
 
- button,
- select,
- input {
-   font: inherit;
- }
+button,
+select,
+input {
+  font: inherit;
+}
 
 .app-shell {
   display: flex;
@@ -77,11 +85,15 @@ body::before {
 }
 
 .panel::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(125deg, rgba(255, 255, 255, 0.4), transparent 45%);
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.4),
+    transparent 45%
+  );
 }
 
 .masthead,
@@ -90,7 +102,9 @@ body::before {
 .placeholder-panel,
 .comparison-panel,
 .metric-panel,
-.question-column {
+.question-column,
+.similarity-detail-card,
+.question-score-list-panel {
   padding: 24px;
 }
 
@@ -189,7 +203,11 @@ p {
 .question-list-item {
   cursor: pointer;
   border: 1px solid transparent;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .tab-button {
@@ -437,9 +455,15 @@ p {
   border-radius: inherit;
 }
 
-.metric-fill-baseline { background: linear-gradient(90deg, var(--baseline), #8b81ee); }
-.metric-fill-persona { background: linear-gradient(90deg, var(--persona), #3dbfae); }
-.metric-fill-combined { background: linear-gradient(90deg, var(--combined), #efab54); }
+.metric-fill-baseline {
+  background: linear-gradient(90deg, var(--baseline), #8b81ee);
+}
+.metric-fill-persona {
+  background: linear-gradient(90deg, var(--persona), #3dbfae);
+}
+.metric-fill-combined {
+  background: linear-gradient(90deg, var(--combined), #efab54);
+}
 
 .comparison-groups {
   display: grid;

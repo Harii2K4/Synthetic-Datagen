@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { LatexText } from "../LatexText";
+import { ComparisonModal } from "./ComparisonModal";
 import type { DatasetKind, SemanticSimilarityData } from "./types";
 import {
   buildQuestionMetricRows,
@@ -28,7 +29,9 @@ export function SimilarityQuestionPanel({
   const [sortMode, setSortMode] = useState<QuestionSortMode>(
     "nearestNeighborSimilarity",
   );
-  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
+  const [modalQuestionIndex, setModalQuestionIndex] = useState<number | null>(
+    null,
+  );
 
   const activeDatasetQuestions = data.datasets[activeDataset];
   const activeDatasetMetrics =
@@ -82,12 +85,12 @@ export function SimilarityQuestionPanel({
     topicFilter,
   ]);
 
-  const activeRow =
-    filteredRows.find(
-      ({ metric }) => metric.questionIndex === selectedQuestionIndex,
-    ) ??
-    filteredRows[0] ??
-    null;
+  const modalRow =
+    modalQuestionIndex !== null
+      ? (filteredRows.find(
+          ({ metric }) => metric.questionIndex === modalQuestionIndex,
+        ) ?? null)
+      : null;
 
   return (
     <section className="question-insight-layout">
@@ -109,7 +112,7 @@ export function SimilarityQuestionPanel({
                 value={activeDataset}
                 onChange={(event) => {
                   setActiveDataset(event.target.value as DatasetKind);
-                  setSelectedQuestionIndex(0);
+                  setModalQuestionIndex(null);
                 }}
               >
                 <option value="baseline">Baseline</option>
@@ -166,15 +169,15 @@ export function SimilarityQuestionPanel({
         </div>
       </section>
 
-      <section className="question-insight-grid">
+      <section className="question-insight-grid question-insight-grid-full">
         <section className="panel question-score-list-panel">
-          <div className="question-score-list">
+          <div className="question-score-list question-score-list-full">
             {filteredRows.map(({ metric, question }) => (
               <button
                 key={metric.questionIndex}
                 type="button"
-                className={`question-score-item ${activeRow?.metric.questionIndex === metric.questionIndex ? "is-active" : ""}`}
-                onClick={() => setSelectedQuestionIndex(metric.questionIndex)}
+                className="question-score-item"
+                onClick={() => setModalQuestionIndex(metric.questionIndex)}
               >
                 <div className="question-score-item-topline">
                   <strong>#{metric.questionIndex + 1}</strong>
@@ -196,119 +199,17 @@ export function SimilarityQuestionPanel({
             ))}
           </div>
         </section>
-
-        <section className="panel similarity-detail-card question-detail-panel">
-          {activeRow ? (
-            <>
-              <p className="eyebrow">Question Detail</p>
-              <h2>{activeRow.metric.topicName ?? "Unknown"}</h2>
-              <div className="stat-pills">
-                <span className="pill">
-                  #{activeRow.metric.questionIndex + 1}
-                </span>
-                <span className="pill">
-                  Mean{" "}
-                  {formatMetricValue(
-                    activeRow.metric.meanSimilarityToOthers,
-                    3,
-                  )}
-                </span>
-                <span className="pill">
-                  NN{" "}
-                  {formatMetricValue(
-                    activeRow.metric.nearestNeighborSimilarity,
-                    3,
-                  )}
-                </span>
-              </div>
-
-              <div className="question-metric-grid">
-                <article className="question-metric-card">
-                  <span>Question index</span>
-                  <strong>#{activeRow.metric.questionIndex + 1}</strong>
-                </article>
-                <article className="question-metric-card">
-                  <span>Topic</span>
-                  <strong>{activeRow.metric.topicName ?? "Unknown"}</strong>
-                </article>
-                <article className="question-metric-card">
-                  <span>Mean similarity to others</span>
-                  <strong>
-                    {formatMetricValue(
-                      activeRow.metric.meanSimilarityToOthers,
-                      3,
-                    )}
-                  </strong>
-                </article>
-                <article className="question-metric-card">
-                  <span>Median similarity to others</span>
-                  <strong>
-                    {formatMetricValue(
-                      activeRow.metric.medianSimilarityToOthers,
-                      3,
-                    )}
-                  </strong>
-                </article>
-                <article className="question-metric-card">
-                  <span>Max similarity to others</span>
-                  <strong>
-                    {formatMetricValue(
-                      activeRow.metric.maxSimilarityToOthers,
-                      3,
-                    )}
-                  </strong>
-                </article>
-                <article className="question-metric-card">
-                  <span>Nearest neighbor index</span>
-                  <strong>
-                    {activeRow.metric.nearestNeighborIndex !== null
-                      ? `#${activeRow.metric.nearestNeighborIndex + 1}`
-                      : "—"}
-                  </strong>
-                </article>
-                <article className="question-metric-card question-metric-card-accent">
-                  <span>Nearest neighbor similarity</span>
-                  <strong>
-                    {formatMetricValue(
-                      activeRow.metric.nearestNeighborSimilarity,
-                      3,
-                    )}
-                  </strong>
-                </article>
-              </div>
-
-              <article className="similarity-question-card full-question-card">
-                <h3>Selected question</h3>
-                <LatexText
-                  className="similarity-question-copy"
-                  text={activeRow.question?.questionText ?? ""}
-                />
-              </article>
-
-              <article className="similarity-question-card full-question-card partner-card">
-                <h3>
-                  Nearest neighbor
-                  {activeRow.metric.nearestNeighborIndex !== null
-                    ? ` · #${activeRow.metric.nearestNeighborIndex + 1}`
-                    : ""}
-                </h3>
-                <LatexText
-                  className="similarity-question-copy"
-                  text={
-                    activeRow.nearestNeighborQuestion?.questionText ??
-                    "Not available"
-                  }
-                />
-              </article>
-            </>
-          ) : (
-            <div className="empty-state compact-empty">
-              <strong>No questions match the current filters.</strong>
-              <span>Try clearing the topic or search filter.</span>
-            </div>
-          )}
-        </section>
       </section>
+
+      {modalRow && (
+        <ComparisonModal
+          isOpen={modalQuestionIndex !== null}
+          onClose={() => setModalQuestionIndex(null)}
+          metric={modalRow.metric}
+          question={modalRow.question}
+          nearestNeighborQuestion={modalRow.nearestNeighborQuestion}
+        />
+      )}
     </section>
   );
 }
