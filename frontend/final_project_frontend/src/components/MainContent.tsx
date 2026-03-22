@@ -2,6 +2,8 @@ import type { NavigationTab } from "../data/navigation";
 
 import { DashboardPage } from "../pages/DashboardPage";
 import { GenerateDatasetsPage } from "../pages/GenerateDatasetsPage";
+import { PersonaHubPage } from "../pages/PersonaHubPage";
+import { ViewDatasetPage } from "../pages/ViewDatasetPage";
 
 type MainContentProps = {
   activeTab: NavigationTab;
@@ -27,6 +29,28 @@ function MainContent({ activeTab, onTabSelect }: MainContentProps) {
         className="rounded-3xl border border-white/15 bg-black/35 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:p-6 lg:p-8"
       >
         <GenerateDatasetsPage />
+      </section>
+    );
+  }
+
+  if (activeTab.id === "persona-hub") {
+    return (
+      <section
+        aria-live="polite"
+        className="rounded-3xl border border-white/15 bg-black/35 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:p-6 lg:p-8"
+      >
+        <PersonaHubPage />
+      </section>
+    );
+  }
+
+  if (activeTab.id === "view-dataset") {
+    return (
+      <section
+        aria-live="polite"
+        className="rounded-3xl border border-white/15 bg-black/35 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:p-6 lg:p-8"
+      >
+        <ViewDatasetPage />
       </section>
     );
   }

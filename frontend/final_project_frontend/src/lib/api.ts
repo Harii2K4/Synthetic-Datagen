@@ -16,6 +16,26 @@ import { CSV_PREVIEW_ROW_INDEX_FIELD } from '../types/csvPreview'
 const DEFAULT_SPLITS = ['math', 'instruction', 'knowledge', 'reasoning', 'tool', 'npc', 'general']
 const API_BASE_URL = 'http://localhost:8000'
 
+async function fetchDatasetList(): Promise<string[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dataset`)
+    if (!response.ok) {
+      throw new Error(`dataset list request failed: ${response.status}`)
+    }
+
+    const payload = (await response.json()) as { datasetList?: unknown }
+    if (!Array.isArray(payload.datasetList)) {
+      return []
+    }
+
+    return payload.datasetList
+      .filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
+      .map((name) => name.trim())
+  } catch {
+    return []
+  }
+}
+
 function toSplitId(fileName: string): string {
   const withoutSuffix = fileName.replace('.csv', '')
   if (withoutSuffix === 'persona') {
@@ -322,6 +342,7 @@ async function fetchDashboardHistoryDetails(jobId: string): Promise<DashboardHis
 }
 
 export {
+  fetchDatasetList,
   fetchPersonaSplits,
   fetchPersonaRowCount,
   fetchDatasetRowCount,

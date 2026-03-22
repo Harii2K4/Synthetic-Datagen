@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { GalaxyBackground } from '../components/GalaxyBackground'
 import { MainContent } from '../components/MainContent'
 import { Sidebar } from '../components/Sidebar'
 import { navigationTabs } from '../data/navigation'
 
 type HomePageProps = {
   onBackToLanding: () => void
+  initialTabId?: string
 }
 
 const ACTIVE_TAB_STORAGE_KEY = 'home_active_tab'
@@ -28,8 +30,11 @@ function isTextFieldTarget(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable
 }
 
-function HomePage({ onBackToLanding }: HomePageProps) {
+function HomePage({ onBackToLanding, initialTabId }: HomePageProps) {
   const [activeTabId, setActiveTabId] = useState(() => {
+    if (initialTabId && navigationTabs.some((tab) => tab.id === initialTabId)) {
+      return initialTabId
+    }
     const savedTabId = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)
     return navigationTabs.some((tab) => tab.id === savedTabId) ? savedTabId! : navigationTabs[0].id
   })
@@ -52,6 +57,12 @@ function HomePage({ onBackToLanding }: HomePageProps) {
   useEffect(() => {
     localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab.id)
   }, [activeTab.id])
+
+  useEffect(() => {
+    if (initialTabId && navigationTabs.some((tab) => tab.id === initialTabId)) {
+      setActiveTabId(initialTabId)
+    }
+  }, [initialTabId])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -92,10 +103,7 @@ function HomePage({ onBackToLanding }: HomePageProps) {
       className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white"
       style={{ fontFamily: '"Space Grotesk", "Avenir Next", "Segoe UI", sans-serif' }}
     >
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 right-[-10%] h-[40rem] w-[40rem] rounded-full bg-white/[0.04] blur-[140px]" />
-        <div className="absolute bottom-[-10rem] left-[-10%] h-[28rem] w-[28rem] rounded-full bg-white/[0.03] blur-[120px]" />
-      </div>
+      <GalaxyBackground starCount={90} />
 
       <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
       <Sidebar

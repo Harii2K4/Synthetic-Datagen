@@ -21,6 +21,24 @@ function AppContent() {
         path="/home"
         element={<HomePage onBackToLanding={() => navigate("/")} />}
       />
+      <Route
+        path="/persona_hub"
+        element={
+          <HomePage
+            onBackToLanding={() => navigate("/")}
+            initialTabId="persona-hub"
+          />
+        }
+      />
+      <Route
+        path="/view_dataset"
+        element={
+          <HomePage
+            onBackToLanding={() => navigate("/")}
+            initialTabId="view-dataset"
+          />
+        }
+      />
     </Routes>
   );
 }
