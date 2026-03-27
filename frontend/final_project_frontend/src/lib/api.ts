@@ -1,5 +1,8 @@
 import type { PersonaOption } from '../types/generation'
 import type {
+  DashboardHistoryDetailsPayload,
+  DashboardHistoryResponsePayload,
+  DashboardSummaryPayload,
   DatasetGenerationMetricsPayload,
   DatasetGenerationRequestPayload,
 } from '../types/datasetRequest'
@@ -12,6 +15,26 @@ import { CSV_PREVIEW_ROW_INDEX_FIELD } from '../types/csvPreview'
 
 const DEFAULT_SPLITS = ['math', 'instruction', 'knowledge', 'reasoning', 'tool', 'npc', 'general']
 const API_BASE_URL = 'http://localhost:8000'
+
+async function fetchDatasetList(): Promise<string[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dataset`)
+    if (!response.ok) {
+      throw new Error(`dataset list request failed: ${response.status}`)
+    }
+
+    const payload = (await response.json()) as { datasetList?: unknown }
+    if (!Array.isArray(payload.datasetList)) {
+      return []
+    }
+
+    return payload.datasetList
+      .filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
+      .map((name) => name.trim())
+  } catch {
+    return []
+  }
+}
 
 function toSplitId(fileName: string): string {
   const withoutSuffix = fileName.replace('.csv', '')
@@ -273,11 +296,61 @@ async function generateDataset(
   return (await response.json()) as DatasetGenerationMetricsPayload
 }
 
+async function retryDatasetGeneration(jobId: string): Promise<DatasetGenerationMetricsPayload> {
+  const response = await fetch(`${API_BASE_URL}/dataset/retry/${encodeURIComponent(jobId)}`, {
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+
+  return (await response.json()) as DatasetGenerationMetricsPayload
+}
+
+async function fetchDashboardSummary(limit = 500): Promise<DashboardSummaryPayload> {
+  const response = await fetch(`${API_BASE_URL}/dashboard/summary?limit=${encodeURIComponent(String(limit))}`)
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+  return (await response.json()) as DashboardSummaryPayload
+}
+
+async function fetchDashboardHistory(
+  limit = 50,
+  offset = 0,
+): Promise<DashboardHistoryResponsePayload> {
+  const response = await fetch(
+    `${API_BASE_URL}/dashboard/history?limit=${encodeURIComponent(String(limit))}&offset=${encodeURIComponent(String(offset))}`,
+  )
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+  return (await response.json()) as DashboardHistoryResponsePayload
+}
+
+async function fetchDashboardHistoryDetails(jobId: string): Promise<DashboardHistoryDetailsPayload> {
+  const response = await fetch(`${API_BASE_URL}/dashboard/history/${encodeURIComponent(jobId)}`)
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
+  }
+  const payload = (await response.json()) as { details?: DashboardHistoryDetailsPayload }
+  if (!payload.details) {
+    throw new Error('History details payload missing from API response.')
+  }
+  return payload.details
+}
+
 export {
+  fetchDatasetList,
   fetchPersonaSplits,
   fetchPersonaRowCount,
   fetchDatasetRowCount,
   fetchPersonaSplitPreview,
   fetchDatasetPreview,
   generateDataset,
+  retryDatasetGeneration,
+  fetchDashboardSummary,
+  fetchDashboardHistory,
+  fetchDashboardHistoryDetails,
 }

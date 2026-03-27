@@ -1,16 +1,54 @@
-import { useState } from 'react'
-import { HomePage } from './pages/HomePage'
-import { LandingPage } from './pages/LandingPage'
-import './App.css'
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
+import "./App.css";
+import { HomePage } from "./pages/HomePage";
+import { LandingPage } from "./pages/LandingPage";
 
-function App() {
-  const [isHomeVisible, setIsHomeVisible] = useState(false)
+function AppContent() {
+  const navigate = useNavigate();
 
-  return isHomeVisible ? (
-    <HomePage onBackToLanding={() => setIsHomeVisible(false)} />
-  ) : (
-    <LandingPage onEnterHome={() => setIsHomeVisible(true)} />
-  )
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={<LandingPage onEnterHome={() => navigate("/home")} />}
+      />
+      <Route
+        path="/home"
+        element={<HomePage onBackToLanding={() => navigate("/")} />}
+      />
+      <Route
+        path="/persona_hub"
+        element={
+          <HomePage
+            onBackToLanding={() => navigate("/")}
+            initialTabId="persona-hub"
+          />
+        }
+      />
+      <Route
+        path="/view_dataset"
+        element={
+          <HomePage
+            onBackToLanding={() => navigate("/")}
+            initialTabId="view-dataset"
+          />
+        }
+      />
+    </Routes>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+export default App;

@@ -129,13 +129,20 @@ class personaSplitsChoices(BaseModel):
             Dict[str,Any]
 
         """
-        return {
-                "split":self.split,
-                "selectionMethod":self.selectionMethod,
-                "selectionList":self.selectionList,
-                "seed":self.seed,
-                "size":self.size,
-            }
+        splitConfig:Dict[str,Any]={
+            "split":self.split,
+            "selectionMethod":self.selectionMethod,
+            "seed":self.seed,
+            "size":self.size,
+        }
+
+        # Frontend sends lower/upper limits in selectionList for ranged mode.
+        if self.selectionMethod=="ranged":
+            splitConfig["rangeList"]=self.selectionList
+        else:
+            splitConfig["selectionList"]=self.selectionList
+
+        return splitConfig
 
 class splitErrors(BaseModel):
     """
