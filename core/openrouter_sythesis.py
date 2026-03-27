@@ -28,9 +28,7 @@ DATASET_FOLDER = "./data/datasets/"
 log = Logger(__name__)
 
 
-def getDomainTemplate(
-    domain: Domain,
-) -> str:
+def getDomainTemplate(domain: Domain) -> str:
     """
     The function is used to get the respective domain for the domain
     Each domain has its own template for generation Model
