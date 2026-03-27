@@ -6,6 +6,9 @@ data/datasets/test_datasets/
 data/datasets/research_datasets/
 frontend/final_project_frontend/prompt.md
 generate_research.py
+presentation_content.txt
+
+research/*
 #frontend
 frontend/final_project_frontend/src/assets/provider_logos/
 frontend/final_project_frontend/src/data/openrouter_models_list.json
