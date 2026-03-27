@@ -1,105 +1,112 @@
-import { useEffect, useMemo, useState } from 'react'
-import { CsvPreviewTable } from '../components/csv-preview/CsvPreviewTable'
-import { fetchDatasetList, fetchDatasetRowCount } from '../lib/api'
-import { createDatasetCsvDataSource } from '../lib/csvPreviewSources'
+import { useEffect, useMemo, useState } from "react";
+import { CsvPreviewTable } from "../components/csv-preview/CsvPreviewTable";
+import { fetchDatasetList, fetchDatasetRowCount } from "../lib/api";
+import { createDatasetCsvDataSource } from "../lib/csvPreviewSources";
 
-const DEFAULT_WINDOW_SIZE = 100
+const DEFAULT_WINDOW_SIZE = 100;
 
 function toSafeNonNegativeInteger(value: string, fallback: number): number {
-  const parsed = Number(value)
+  const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    return fallback
+    return fallback;
   }
-  return Math.max(0, Math.trunc(parsed))
+  return Math.max(0, Math.trunc(parsed));
 }
 
 function ViewDatasetPage() {
-  const [datasets, setDatasets] = useState<string[]>([])
-  const [selectedDataset, setSelectedDataset] = useState('')
-  const [lowerLimitText, setLowerLimitText] = useState('0')
-  const [upperLimitText, setUpperLimitText] = useState(String(DEFAULT_WINDOW_SIZE))
-  const [datasetRowCount, setDatasetRowCount] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [datasets, setDatasets] = useState<string[]>([]);
+  const [selectedDataset, setSelectedDataset] = useState("");
+  const [lowerLimitText, setLowerLimitText] = useState("0");
+  const [upperLimitText, setUpperLimitText] = useState(
+    String(DEFAULT_WINDOW_SIZE),
+  );
+  const [datasetRowCount, setDatasetRowCount] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    let active = true
+    let active = true;
 
     const loadDatasets = async () => {
-      setIsLoading(true)
-      setError('')
-      const list = await fetchDatasetList()
+      setIsLoading(true);
+      setError("");
+      const list = await fetchDatasetList();
 
       if (!active) {
-        return
+        return;
       }
 
-      setDatasets(list)
+      setDatasets(list);
       if (list.length > 0) {
         setSelectedDataset((current) =>
           current && list.includes(current) ? current : list[0],
-        )
+        );
       } else {
-        setSelectedDataset('')
-        setError('No datasets found in data/datasets.')
+        setSelectedDataset("");
+        setError("No datasets found in data/datasets.");
       }
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    void loadDatasets()
+    void loadDatasets();
 
     return () => {
-      active = false
-    }
-  }, [])
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedDataset) {
-      setDatasetRowCount(null)
-      return
+      setDatasetRowCount(null);
+      return;
     }
 
-    let active = true
+    let active = true;
     void fetchDatasetRowCount(selectedDataset)
       .then((rows) => {
         if (active) {
-          setDatasetRowCount(rows)
+          setDatasetRowCount(rows);
         }
       })
       .catch(() => {
         if (active) {
-          setDatasetRowCount(null)
+          setDatasetRowCount(null);
         }
-      })
+      });
 
     return () => {
-      active = false
-    }
-  }, [selectedDataset])
+      active = false;
+    };
+  }, [selectedDataset]);
 
   const lowerLimit = useMemo(
     () => toSafeNonNegativeInteger(lowerLimitText, 0),
     [lowerLimitText],
-  )
+  );
   const upperLimit = useMemo(() => {
-    const candidate = toSafeNonNegativeInteger(upperLimitText, lowerLimit + DEFAULT_WINDOW_SIZE)
-    return Math.max(lowerLimit + 1, candidate)
-  }, [lowerLimit, upperLimitText])
+    const candidate = toSafeNonNegativeInteger(
+      upperLimitText,
+      lowerLimit + DEFAULT_WINDOW_SIZE,
+    );
+    return Math.max(lowerLimit + 1, candidate);
+  }, [lowerLimit, upperLimitText]);
 
   const previewSource = useMemo(
-    () => (selectedDataset ? createDatasetCsvDataSource(selectedDataset) : null),
+    () =>
+      selectedDataset ? createDatasetCsvDataSource(selectedDataset) : null,
     [selectedDataset],
-  )
+  );
 
   return (
     <section className="generate-page">
-      <div className="split-header-row">
+      <div className="page-header">
         <h2>View Dataset</h2>
         <button
           type="button"
+          className="header-action-btn"
           onClick={() => {
-            setLowerLimitText('0')
-            setUpperLimitText(String(DEFAULT_WINDOW_SIZE))
+            setLowerLimitText("0");
+            setUpperLimitText(String(DEFAULT_WINDOW_SIZE));
           }}
           disabled={!selectedDataset}
         >
@@ -155,7 +162,7 @@ function ViewDatasetPage() {
 
         <p className="muted-text">
           {datasetRowCount === null
-            ? 'Dataset row count unavailable.'
+            ? "Dataset row count unavailable."
             : `Rows available: ${datasetRowCount}`}
         </p>
       </section>
@@ -176,7 +183,7 @@ function ViewDatasetPage() {
         )}
       </section>
     </section>
-  )
+  );
 }
 
-export { ViewDatasetPage }
+export { ViewDatasetPage };

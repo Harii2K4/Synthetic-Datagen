@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from "react";
 import {
-  fetchDashboardHistoryDetails,
   fetchDashboardHistory,
+  fetchDashboardHistoryDetails,
   fetchDashboardSummary,
   retryDatasetGeneration,
-} from '../lib/api'
+} from "../lib/api";
 import type {
   DashboardHistoryDetailsPayload,
   DashboardHistoryItemPayload,
   DashboardSummaryPayload,
-} from '../types/datasetRequest'
+} from "../types/datasetRequest";
 
 const DEFAULT_SUMMARY: DashboardSummaryPayload = {
   totalJobs: 0,
@@ -20,136 +20,167 @@ const DEFAULT_SUMMARY: DashboardSummaryPayload = {
   totalRowsRequested: 0,
   totalRowsGenerated: 0,
   totalRowsFailed: 0,
-}
+};
 
 function formatDate(isoValue: string): string {
   if (!isoValue) {
-    return 'N/A'
+    return "N/A";
   }
-  const date = new Date(isoValue)
+  const date = new Date(isoValue);
   if (Number.isNaN(date.getTime())) {
-    return isoValue
+    return isoValue;
   }
-  return date.toLocaleString()
+  return date.toLocaleString();
 }
 
 function DashboardPage() {
-  const [summary, setSummary] = useState<DashboardSummaryPayload>(DEFAULT_SUMMARY)
-  const [history, setHistory] = useState<DashboardHistoryItemPayload[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [retryingJobId, setRetryingJobId] = useState<string | null>(null)
-  const [detailsLoadingJobId, setDetailsLoadingJobId] = useState<string | null>(null)
-  const [detailsModal, setDetailsModal] = useState<DashboardHistoryDetailsPayload | null>(null)
+  const [summary, setSummary] =
+    useState<DashboardSummaryPayload>(DEFAULT_SUMMARY);
+  const [history, setHistory] = useState<DashboardHistoryItemPayload[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [retryingJobId, setRetryingJobId] = useState<string | null>(null);
+  const [detailsLoadingJobId, setDetailsLoadingJobId] = useState<string | null>(
+    null,
+  );
+  const [detailsModal, setDetailsModal] =
+    useState<DashboardHistoryDetailsPayload | null>(null);
 
   const refresh = async () => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
     try {
       const [summaryPayload, historyPayload] = await Promise.all([
         fetchDashboardSummary(500),
         fetchDashboardHistory(2000, 0),
-      ])
-      setSummary(summaryPayload)
-      setHistory(historyPayload.history)
+      ]);
+      setSummary(summaryPayload);
+      setHistory(historyPayload.history);
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Failed to load dashboard data.'
-      setError(message)
+      const message =
+        e instanceof Error ? e.message : "Failed to load dashboard data.";
+      setError(message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    void refresh()
-  }, [])
+    void refresh();
+  }, []);
 
   const successRate = useMemo(() => {
     if (summary.totalRowsRequested <= 0) {
-      return '0.00%'
+      return "0.00%";
     }
-    const value = (summary.totalRowsGenerated / summary.totalRowsRequested) * 100
-    return `${value.toFixed(2)}%`
-  }, [summary.totalRowsGenerated, summary.totalRowsRequested])
+    const value =
+      (summary.totalRowsGenerated / summary.totalRowsRequested) * 100;
+    return `${value.toFixed(2)}%`;
+  }, [summary.totalRowsGenerated, summary.totalRowsRequested]);
 
   const onRetry = async (jobId: string) => {
-    setRetryingJobId(jobId)
-    setError('')
+    setRetryingJobId(jobId);
+    setError("");
     try {
-      await retryDatasetGeneration(jobId)
-      await refresh()
+      await retryDatasetGeneration(jobId);
+      await refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Retry failed.'
-      setError(message)
+      const message = e instanceof Error ? e.message : "Retry failed.";
+      setError(message);
     } finally {
-      setRetryingJobId(null)
+      setRetryingJobId(null);
     }
-  }
+  };
 
   const onViewDetails = async (jobId: string) => {
-    setDetailsLoadingJobId(jobId)
-    setError('')
+    setDetailsLoadingJobId(jobId);
+    setError("");
     try {
-      const details = await fetchDashboardHistoryDetails(jobId)
-      setDetailsModal(details)
+      const details = await fetchDashboardHistoryDetails(jobId);
+      setDetailsModal(details);
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Failed to load row details.'
-      setError(message)
+      const message =
+        e instanceof Error ? e.message : "Failed to load row details.";
+      setError(message);
     } finally {
-      setDetailsLoadingJobId(null)
+      setDetailsLoadingJobId(null);
     }
-  }
+  };
 
   return (
     <section className="generate-page">
-      <div className="split-header-row">
+      <div className="page-header">
         <h2>Dashboard</h2>
-        <button type="button" onClick={() => void refresh()} disabled={loading}>
-          {loading ? 'Refreshing...' : 'Refresh'}
+        <button
+          type="button"
+          className="header-action-btn"
+          onClick={() => void refresh()}
+          disabled={loading}
+        >
+          {loading ? "Refreshing..." : "Refresh"}
         </button>
       </div>
 
       {error ? <p className="validation-error">{error}</p> : null}
 
-      <section className="generate-section">
-        <h3>Summary Metrics</h3>
-        <div className="summary-grid">
-          <div className="summary-stat-card">
-            <p className="muted-text">Total Jobs</p>
-            <strong>{summary.totalJobs}</strong>
-          </div>
-          <div className="summary-stat-card">
-            <p className="muted-text">Success / Partial / Failed</p>
-            <strong>
-              {summary.successJobs} / {summary.partialJobs} / {summary.failedJobs}
-            </strong>
-          </div>
-          <div className="summary-stat-card">
-            <p className="muted-text">Retryable Jobs</p>
-            <strong>{summary.retryableJobs}</strong>
-          </div>
-          <div className="summary-stat-card">
-            <p className="muted-text">Rows Generated / Requested</p>
-            <strong>
-              {summary.totalRowsGenerated} / {summary.totalRowsRequested}
-            </strong>
-          </div>
-          <div className="summary-stat-card">
-            <p className="muted-text">Rows Failed</p>
-            <strong>{summary.totalRowsFailed}</strong>
-          </div>
-          <div className="summary-stat-card">
-            <p className="muted-text">Generation Success Rate</p>
-            <strong>{successRate}</strong>
-          </div>
+      {/* ── Stat Cards Row ── */}
+      <div className="stat-grid">
+        <div className="stat-card stat-card--accent">
+          <span className="stat-value">{summary.totalJobs}</span>
+          <span className="stat-label">Total Jobs</span>
         </div>
-      </section>
+        <div className="stat-card">
+          <span className="stat-value">{successRate}</span>
+          <span className="stat-label">Success Rate</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">
+            {summary.totalRowsGenerated}
+            <span className="stat-dim">/{summary.totalRowsRequested}</span>
+          </span>
+          <span className="stat-label">Rows Generated</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">{summary.retryableJobs}</span>
+          <span className="stat-label">Retryable</span>
+        </div>
+      </div>
 
+      {/* ── Secondary Stats ── */}
+      <div className="stat-secondary-row">
+        <div className="stat-pill">
+          <span className="stat-pill-label">Success</span>
+          <span className="stat-pill-value">{summary.successJobs}</span>
+        </div>
+        <div className="stat-pill">
+          <span className="stat-pill-label">Partial</span>
+          <span className="stat-pill-value">{summary.partialJobs}</span>
+        </div>
+        <div className="stat-pill">
+          <span className="stat-pill-label">Failed</span>
+          <span className="stat-pill-value stat-pill-value--warn">
+            {summary.failedJobs}
+          </span>
+        </div>
+        <div className="stat-pill">
+          <span className="stat-pill-label">Rows Failed</span>
+          <span className="stat-pill-value stat-pill-value--warn">
+            {summary.totalRowsFailed}
+          </span>
+        </div>
+      </div>
+
+      {/* ── History Table ── */}
       <section className="generate-section">
         <h3>Generation History</h3>
-        <p className="muted-text">Showing all available history entries. Use View Details for full DB record.</p>
+        <p className="muted-text">
+          Showing all available history entries. Use View Details for full DB
+          record.
+        </p>
         {loading ? <p className="muted-text">Loading history...</p> : null}
-        {!loading && history.length === 0 ? <p className="muted-text">No generation runs found.</p> : null}
+        {!loading && history.length === 0 ? (
+          <p className="muted-text">No generation runs found.</p>
+        ) : null}
 
         {!loading && history.length > 0 ? (
           <div className="history-table-shell">
@@ -168,23 +199,32 @@ function DashboardPage() {
               </thead>
               <tbody>
                 {history.map((item) => {
-                  const rowsInfo = `${item.rows_generated}/${item.total_rows_requested}`
-                  const retryDisabled = !item.retryable || retryingJobId !== null
+                  const rowsInfo = `${item.rows_generated}/${item.total_rows_requested}`;
+                  const retryDisabled =
+                    !item.retryable || retryingJobId !== null;
                   return (
                     <tr key={item.job_id}>
                       <td>{formatDate(item.created_at)}</td>
                       <td>{item.job_id}</td>
-                      <td>{item.dataset_name || 'N/A'}</td>
-                      <td>{item.status}</td>
+                      <td>{item.dataset_name || "N/A"}</td>
+                      <td>
+                        <span
+                          className={`status-badge status-badge--${item.status}`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
                       <td>{rowsInfo}</td>
-                      <td>{item.dataset_save_location || 'N/A'}</td>
+                      <td>{item.dataset_save_location || "N/A"}</td>
                       <td>
                         <button
                           type="button"
                           onClick={() => void onViewDetails(item.job_id)}
                           disabled={detailsLoadingJobId !== null}
                         >
-                          {detailsLoadingJobId === item.job_id ? 'Loading...' : 'View Details'}
+                          {detailsLoadingJobId === item.job_id
+                            ? "Loading..."
+                            : "View Details"}
                         </button>
                       </td>
                       <td>
@@ -193,11 +233,13 @@ function DashboardPage() {
                           disabled={retryDisabled}
                           onClick={() => void onRetry(item.job_id)}
                         >
-                          {retryingJobId === item.job_id ? 'Retrying...' : 'Retry'}
+                          {retryingJobId === item.job_id
+                            ? "Retrying..."
+                            : "Retry"}
                         </button>
                       </td>
                     </tr>
-                  )
+                  );
                 })}
               </tbody>
             </table>
@@ -227,7 +269,7 @@ function DashboardPage() {
               </div>
               <div className="details-card">
                 <p className="field-label">Status</p>
-                <p>{detailsModal.status ?? 'N/A'}</p>
+                <p>{detailsModal.status ?? "N/A"}</p>
               </div>
               <div className="details-card">
                 <p className="field-label">Retryable</p>
@@ -237,18 +279,22 @@ function DashboardPage() {
 
             <section className="generate-section">
               <h4>Request Payload</h4>
-              <pre className="json-panel">{JSON.stringify(detailsModal.request_payload ?? {}, null, 2)}</pre>
+              <pre className="json-panel">
+                {JSON.stringify(detailsModal.request_payload ?? {}, null, 2)}
+              </pre>
             </section>
 
             <section className="generate-section">
               <h4>Metrics Payload</h4>
-              <pre className="json-panel">{JSON.stringify(detailsModal.metrics_payload ?? {}, null, 2)}</pre>
+              <pre className="json-panel">
+                {JSON.stringify(detailsModal.metrics_payload ?? {}, null, 2)}
+              </pre>
             </section>
           </div>
         </div>
       ) : null}
     </section>
-  )
+  );
 }
 
-export { DashboardPage }
+export { DashboardPage };
