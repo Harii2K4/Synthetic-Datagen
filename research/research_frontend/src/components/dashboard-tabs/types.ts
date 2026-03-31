@@ -12,6 +12,89 @@ export type QuestionRecord = {
   topic: string;
 };
 
+export type DatasetSummaryMetrics = {
+  sampleCount: number;
+  embeddingDimension: number;
+  meanPairwiseCosineSimilarity: number;
+  p90PairwiseSimilarity: number;
+  meanNearestNeighborSimilarity: number;
+  topicEntropy: number;
+  uniqueTopicCount: number;
+  distinct2: number;
+};
+
+export type DatasetSummaryMetricRow = DatasetSummaryMetrics & {
+  datasetId: string;
+  datasetLabel: string;
+};
+
+export type DatasetSummaryTopicDistributionItem = {
+  topic: string;
+  count: number;
+  percentage: number;
+};
+
+export type DatasetSummaryRecord = {
+  datasetId: string;
+  datasetLabel: string;
+  sourceFile: string;
+  metrics: DatasetSummaryMetrics;
+  topicDistribution: DatasetSummaryTopicDistributionItem[];
+};
+
+export type DatasetMetricsSummaryResult = {
+  generatedAt: string;
+  datasetCount: number;
+  metricsTable: DatasetSummaryMetricRow[];
+  datasets: DatasetSummaryRecord[];
+  plots?: Record<string, string>;
+};
+
+export type SummaryArtifactOption = {
+  id: string;
+  label: string;
+  result: DatasetMetricsSummaryResult;
+};
+
+export type LlmJudgeDatasetStats = {
+  pointsTotal: number;
+  averageRank: number;
+  firstPlaceCount: number;
+  secondPlaceCount: number;
+  thirdPlaceCount: number;
+};
+
+export type LlmJudgeModelStats = {
+  validRoundCount: number;
+  invalidResponseCount: number;
+  datasetStats: Record<string, LlmJudgeDatasetStats>;
+};
+
+export type LlmJudgeRunMetadata = {
+  timestamp: string;
+  roundsRequested: number;
+  roundsCompleted: number;
+  datasets: string[];
+  models: string[];
+  sampling?: string;
+  randomSeed?: number | null;
+  scoring?: {
+    borda?: Record<string, number>;
+    rankMetric?: string;
+  };
+};
+
+export type LlmJudgeSummaryResult = {
+  runMetadata: LlmJudgeRunMetadata;
+  perModel: Record<string, LlmJudgeModelStats>;
+};
+
+export type LlmJudgeArtifactOption = {
+  id: string;
+  label: string;
+  result: LlmJudgeSummaryResult;
+};
+
 export type TopicDistributionItem = {
   topicName: string;
   count: number;
@@ -120,4 +203,20 @@ export type MetricsTabContentProps = {
   personaPanel: ReactNode;
   combinedPanel: ReactNode;
   topicRows: TopicMatrixRow[];
+};
+
+export type SummaryTabContentProps = {
+  selectedSummaryId: string;
+  onSelectedSummaryChange: (value: string) => void;
+  summaryArtifacts: Array<{ id: string; label: string }>;
+  activeSummary: DatasetMetricsSummaryResult | null;
+  selectedSummaryLabel?: string;
+};
+
+export type LlmJudgeTabContentProps = {
+  selectedJudgeId: string;
+  onSelectedJudgeChange: (value: string) => void;
+  judgeArtifacts: Array<{ id: string; label: string }>;
+  activeJudge: LlmJudgeSummaryResult | null;
+  selectedJudgeLabel?: string;
 };

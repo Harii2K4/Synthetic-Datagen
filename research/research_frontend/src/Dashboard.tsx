@@ -1,20 +1,28 @@
 import { useMemo, useState } from "react";
 import "./Dashboard.css";
 import { LatexText } from "./components/LatexText";
+import { LlmJudgeTabContent } from "./components/dashboard-tabs/LlmJudgeTabContent";
+import { MetricsTabContent } from "./components/dashboard-tabs/MetricsTabContent";
+import { QuestionsTabContent } from "./components/dashboard-tabs/QuestionsTabContent";
+import { SummaryTabContent } from "./components/dashboard-tabs/SummaryTabContent";
 import {
   ALL_TOPIC_ANALYSES_ID,
   ALL_TOPICS_FILTER,
   DASHBOARD_TABS,
   DATASET_MODULES,
   DEFAULT_ENABLED_PANELS,
+  LLM_JUDGE_MODULES,
   METRIC_PANEL_LABELS,
+  SUMMARY_METRIC_MODULES,
   TOPIC_METRIC_MODULES,
 } from "./components/dashboard-tabs/constants";
-import { MetricsTabContent } from "./components/dashboard-tabs/MetricsTabContent";
-import { QuestionsTabContent } from "./components/dashboard-tabs/QuestionsTabContent";
 import type {
+  DatasetMetricsSummaryResult,
+  LlmJudgeArtifactOption,
+  LlmJudgeSummaryResult,
   MetricPanelId,
   QuestionRecord,
+  SummaryArtifactOption,
   TabId,
   TopicAnalysisOption,
   TopicAnalysisResult,
@@ -137,6 +145,52 @@ function buildTopicAnalyses() {
         label: formatTitle(fileName),
         result: normalizeTopicAnalysis(result),
       };
+    });
+}
+
+function normalizeSummaryArtifact(result: DatasetMetricsSummaryResult) {
+  return {
+    ...result,
+    metricsTable: result.metricsTable ?? [],
+    datasets: result.datasets ?? [],
+  };
+}
+
+function buildSummaryArtifacts() {
+  return Object.entries(SUMMARY_METRIC_MODULES)
+    .sort(([leftPath], [rightPath]) => rightPath.localeCompare(leftPath))
+    .map(([filePath, result]) => {
+      const fileName = getFileName(filePath);
+      return {
+        id: fileName,
+        label: fileName,
+        result: normalizeSummaryArtifact(result),
+      } satisfies SummaryArtifactOption;
+    });
+}
+
+function normalizeLlmJudgeArtifact(result: LlmJudgeSummaryResult) {
+  return {
+    ...result,
+    runMetadata: {
+      ...result.runMetadata,
+      datasets: result.runMetadata?.datasets ?? [],
+      models: result.runMetadata?.models ?? Object.keys(result.perModel ?? {}),
+    },
+    perModel: result.perModel ?? {},
+  };
+}
+
+function buildLlmJudgeArtifacts() {
+  return Object.entries(LLM_JUDGE_MODULES)
+    .sort(([leftPath], [rightPath]) => rightPath.localeCompare(leftPath))
+    .map(([filePath, result]) => {
+      const fileName = getFileName(filePath);
+      return {
+        id: fileName,
+        label: fileName,
+        result: normalizeLlmJudgeArtifact(result),
+      } satisfies LlmJudgeArtifactOption;
     });
 }
 
@@ -517,22 +571,11 @@ function MetricsPanel({
   );
 }
 
-function PlaceholderTab({ index }: { index: number }) {
-  return (
-    <section className="panel placeholder-panel">
-      <p className="eyebrow">Coming Soon</p>
-      <h2>Tab {index} is reserved for the next research view.</h2>
-      <p>
-        The dashboard scaffolding is already in place, so this tab can be
-        connected to a new result artifact whenever you are ready.
-      </p>
-    </section>
-  );
-}
-
 function Dashboard() {
   const datasets = useMemo(() => buildQuestionDatasets(), []);
   const topicAnalyses = useMemo(() => buildTopicAnalyses(), []);
+  const summaryArtifacts = useMemo(() => buildSummaryArtifacts(), []);
+  const judgeArtifacts = useMemo(() => buildLlmJudgeArtifacts(), []);
   const allQuestions = useMemo(
     () => datasets.flatMap((dataset) => dataset.questions),
     [datasets],
@@ -571,6 +614,12 @@ function Dashboard() {
   const [rightQuestionId, setRightQuestionId] = useState("");
   const [selectedAnalysisId, setSelectedAnalysisId] = useState(
     ALL_TOPIC_ANALYSES_ID,
+  );
+  const [selectedSummaryId, setSelectedSummaryId] = useState(
+    summaryArtifacts[0]?.id ?? "",
+  );
+  const [selectedJudgeId, setSelectedJudgeId] = useState(
+    judgeArtifacts[0]?.id ?? "",
   );
   const [showEmptyTopics, setShowEmptyTopics] = useState(false);
   const [enabledPanels, setEnabledPanels] = useState<
@@ -633,6 +682,22 @@ function Dashboard() {
     () => mergeTopicAnalyses(selectedAnalyses),
     [selectedAnalyses],
   );
+  const activeSummary = useMemo(
+    () =>
+      summaryArtifacts.find((artifact) => artifact.id === selectedSummaryId)
+        ?.result ??
+      summaryArtifacts[0]?.result ??
+      null,
+    [selectedSummaryId, summaryArtifacts],
+  );
+  const activeJudge = useMemo(
+    () =>
+      judgeArtifacts.find((artifact) => artifact.id === selectedJudgeId)
+        ?.result ??
+      judgeArtifacts[0]?.result ??
+      null,
+    [judgeArtifacts, selectedJudgeId],
+  );
   const combinedMetrics = useMemo(
     () =>
       activeAnalysisResult ? buildCombinedMetrics(activeAnalysisResult) : null,
@@ -665,7 +730,10 @@ function Dashboard() {
             The first tab compares generated math questions across datasets with
             LaTeX rendering. The second tab reads the topic analysis artifacts
             and lets you switch between individual result files or a combined
-            overview of everything available.
+            overview of everything available. The fourth tab presents
+            paper-style summary metrics with per-dataset topic distributions,
+            and the fifth tab reports judge-model ranking outcomes in a compact
+            research table.
           </p>
         </div>
         <div className="masthead-stats">
@@ -680,6 +748,10 @@ function Dashboard() {
           <div>
             <strong>{topicAnalyses.length}</strong>
             <span>topic analyses</span>
+          </div>
+          <div>
+            <strong>{summaryArtifacts.length}</strong>
+            <span>summary artifacts</span>
           </div>
         </div>
       </section>
@@ -791,8 +863,31 @@ function Dashboard() {
       ) : null}
 
       {activeTab === "tab-3" ? <SemanticSimilarityTab /> : null}
-      {activeTab === "tab-4" ? <PlaceholderTab index={4} /> : null}
-      {activeTab === "tab-5" ? <PlaceholderTab index={5} /> : null}
+      {activeTab === "tab-4" ? (
+        <SummaryTabContent
+          selectedSummaryId={selectedSummaryId}
+          onSelectedSummaryChange={setSelectedSummaryId}
+          summaryArtifacts={summaryArtifacts}
+          activeSummary={activeSummary}
+          selectedSummaryLabel={
+            summaryArtifacts.find(
+              (artifact) => artifact.id === selectedSummaryId,
+            )?.label ?? summaryArtifacts[0]?.label
+          }
+        />
+      ) : null}
+      {activeTab === "tab-5" ? (
+        <LlmJudgeTabContent
+          selectedJudgeId={selectedJudgeId}
+          onSelectedJudgeChange={setSelectedJudgeId}
+          judgeArtifacts={judgeArtifacts}
+          activeJudge={activeJudge}
+          selectedJudgeLabel={
+            judgeArtifacts.find((artifact) => artifact.id === selectedJudgeId)
+              ?.label ?? judgeArtifacts[0]?.label
+          }
+        />
+      ) : null}
     </main>
   );
 }
