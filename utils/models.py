@@ -3,8 +3,8 @@ file:models.py
 description: Used to define the pydantic models used for type checking
 """
 
-from pydantic import BaseModel,Field,model_validator
-from typing import List ,Literal,Optional,Self,Dict,Any
+from pydantic import BaseModel, Field, model_validator
+from typing import List, Literal, Optional, Self, Dict, Any
 
 from langchain_openrouter import ChatOpenRouter
 
@@ -40,26 +40,38 @@ class ModelConfig(BaseModel):
         route:Optional[str]
     """
 
-    modelId:str
-    temperature:float=0
-    reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='none',description="for choosing reasoning effort affects tokens out")
-    reasoningSummary:Literal['auto', 'concise', 'detailed']=Field(default='auto',description="for choosing reasoning summary length affects tokens out")
-    providerPriority:Optional[List[str]]=Field(default=None,description="used for specifying order of providers to use")
-    route:Optional[str]=Field(default=None,description="used to route the model if providers list is wrong or unavailable")
+    modelId: str
+    temperature: float = 0
+    reasoningEffort: Literal["xhigh", "high", "medium", "low", "minimal", "none"] = (
+        Field(
+            default="none",
+            description="for choosing reasoning effort affects tokens out",
+        )
+    )
+    reasoningSummary: Literal["auto", "concise", "detailed"] = Field(
+        default="auto",
+        description="for choosing reasoning summary length affects tokens out",
+    )
+    providerPriority: Optional[List[str]] = Field(
+        default=None, description="used for specifying order of providers to use"
+    )
+    route: Optional[str] = Field(
+        default=None,
+        description="used to route the model if providers list is wrong or unavailable",
+    )
 
-
-
-    @model_validator(mode="after")  #runs after the model is initialized so the self are no longer dict but model arguements
-    def checkConstraints(self)->Self:
+    @model_validator(
+        mode="after"
+    )  # runs after the model is initialized so the self are no longer dict but model arguements
+    def checkConstraints(self) -> Self:
         """checks if the temperature is valid between 0.0 and 2 and clips it if not"""
-        if self.temperature <0:
-            self.temperature=0
-        if self.temperature >2:
-            self.temperature=2
+        if self.temperature < 0:
+            self.temperature = 0
+        if self.temperature > 2:
+            self.temperature = 2
         return self
 
-
-    def createModelInstance(self)->ChatOpenRouter:
+    def createModelInstance(self) -> ChatOpenRouter:
         """
          create the chatopenrouter instance based on the model configuration
 
@@ -67,18 +79,20 @@ class ModelConfig(BaseModel):
             ChatOpenRouter
 
         """
-        #create the model configuration
-        modelConfig={
-                "model":self.modelId,
-                "temperature":self.temperature,
-                "reasoning":{"effort":self.reasoningEffort,"summary":self.reasoningSummary},
-                "openrouter_provider":{"order":self.providerPriority},
-                "route":self.route
-                }
+        # create the model configuration
+        modelConfig = {
+            "model": self.modelId,
+            "temperature": self.temperature,
+            "reasoning": {
+                "effort": self.reasoningEffort,
+                "summary": self.reasoningSummary,
+            },
+            "openrouter_provider": {"order": self.providerPriority},
+            "route": self.route,
+        }
 
-        model=ChatOpenRouter(**modelConfig)
+        model = ChatOpenRouter(**modelConfig)
         return model
-
 
 
 class generationModelConfig(ModelConfig):
@@ -88,7 +102,14 @@ class generationModelConfig(ModelConfig):
     Attributes:
         reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=none
     """
-    reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='none',description="for choosing reasoning effort affects tokens out")
+
+    reasoningEffort: Literal["xhigh", "high", "medium", "low", "minimal", "none"] = (
+        Field(
+            default="none",
+            description="for choosing reasoning effort affects tokens out",
+        )
+    )
+
 
 class teacherModelConfig(ModelConfig):
     """
@@ -97,7 +118,14 @@ class teacherModelConfig(ModelConfig):
     Attributes:
         reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=medium
     """
-    reasoningEffort:Literal['xhigh', 'high', 'medium', 'low', 'minimal', 'none']=Field(default='medium',description="for choosing reasoning effort affects tokens out")
+
+    reasoningEffort: Literal["xhigh", "high", "medium", "low", "minimal", "none"] = (
+        Field(
+            default="medium",
+            description="for choosing reasoning effort affects tokens out",
+        )
+    )
+
 
 class personaSplitsChoices(BaseModel):
     """
@@ -113,15 +141,22 @@ class personaSplitsChoices(BaseModel):
         teacherModel:Optional[teacherModelConfig]=None
         size:int
     """
-    split:personaSplits=Field(default="general",description="the csv file to use for personas")
-    selectionMethod:Literal["random","sequence","selected","ranged"]=Field(default="sequence",description="the method to choose the personas")
-    selectionList:Optional[List[int]]=Field(default=None,description="the list of indexes to use for selecting personas")
-    seed:int=42
-    generationModel:Optional[generationModelConfig]=None
-    teacherModel:Optional[teacherModelConfig]=None
-    size:int
 
-    def returnSplitConfig(self)->Dict[str,Any]:
+    split: personaSplits = Field(
+        default="general", description="the csv file to use for personas"
+    )
+    selectionMethod: Literal["random", "sequence", "selected", "ranged"] = Field(
+        default="sequence", description="the method to choose the personas"
+    )
+    selectionList: Optional[List[int]] = Field(
+        default=None, description="the list of indexes to use for selecting personas"
+    )
+    seed: int = 42
+    generationModel: Optional[generationModelConfig] = None
+    teacherModel: Optional[teacherModelConfig] = None
+    size: int
+
+    def returnSplitConfig(self) -> Dict[str, Any]:
         """
         returns the config for the split used to pass into createPersonaList.
 
@@ -129,20 +164,21 @@ class personaSplitsChoices(BaseModel):
             Dict[str,Any]
 
         """
-        splitConfig:Dict[str,Any]={
-            "split":self.split,
-            "selectionMethod":self.selectionMethod,
-            "seed":self.seed,
-            "size":self.size,
+        splitConfig: Dict[str, Any] = {
+            "split": self.split,
+            "selectionMethod": self.selectionMethod,
+            "seed": self.seed,
+            "size": self.size,
         }
 
         # Frontend sends lower/upper limits in selectionList for ranged mode.
-        if self.selectionMethod=="ranged":
-            splitConfig["rangeList"]=self.selectionList
+        if self.selectionMethod == "ranged":
+            splitConfig["rangeList"] = self.selectionList
         else:
-            splitConfig["selectionList"]=self.selectionList
+            splitConfig["selectionList"] = self.selectionList
 
         return splitConfig
+
 
 class splitErrors(BaseModel):
     """
@@ -156,15 +192,23 @@ class splitErrors(BaseModel):
         message:str
         retryable:bool
     """
-    split:personaSplits
-    stage:Literal["persona_read", "question_generation", "answer_generation","validation", "unknown"]
-    errorType:str
-    message:str
-    retryable:bool=False
 
-#if failedSplits == totalSplits ,then total failure
-#if successfulSplits == totalSplits ,then total success
-#If 0 < rowsGenerated < totalRowsRequestedor or if 0 < successfulSplits < totalSplits.
+    split: personaSplits
+    stage: Literal[
+        "persona_read",
+        "question_generation",
+        "answer_generation",
+        "validation",
+        "unknown",
+    ]
+    errorType: str
+    message: str
+    retryable: bool = False
+
+
+# if failedSplits == totalSplits ,then total failure
+# if successfulSplits == totalSplits ,then total success
+# If 0 < rowsGenerated < totalRowsRequestedor or if 0 < successfulSplits < totalSplits.
 class datasetGenerationMetrics(BaseModel):
     """
     The dataset generation metrics is used to store the metrics for the dataset generation
@@ -182,19 +226,20 @@ class datasetGenerationMetrics(BaseModel):
         datasetSaveLocation:str
         errors:List[splitErrors]
     """
-    jobId:str
-    totalSplits:int=Field(ge=0)
-    successfulSplits:int=Field(ge=0)
-    failedSplits:int=Field(ge=0)
-    totalRowsRequested:int=Field(ge=0)
-    rowsGenerated:int=Field(ge=0)
-    rowsFailed:int=Field(ge=0)
-    status:Literal["success","partial","failure"]
-    datasetSaveLocation:str
-    errors:List[splitErrors]=Field(default_factory=list)
+
+    jobId: str
+    totalSplits: int = Field(ge=0)
+    successfulSplits: int = Field(ge=0)
+    failedSplits: int = Field(ge=0)
+    totalRowsRequested: int = Field(ge=0)
+    rowsGenerated: int = Field(ge=0)
+    rowsFailed: int = Field(ge=0)
+    status: Literal["success", "partial", "failure"]
+    datasetSaveLocation: str
+    errors: List[splitErrors] = Field(default_factory=list)
 
     @classmethod
-    def mock(cls,jobid: str = "test-job-123") :
+    def mock(cls, jobid: str = "test-job-123"):
         """Return a mocked instance of datasetGenerationMetrics."""
         return cls(
             jobId=jobid,
@@ -209,6 +254,7 @@ class datasetGenerationMetrics(BaseModel):
             errors=[],
         )
 
+
 class datasetGenerationConfig(BaseModel):
     """
     The dataset generation config is used to store parameters to pass to generateDataset
@@ -220,11 +266,17 @@ class datasetGenerationConfig(BaseModel):
         teacherModel:teacherModelConfig
         datasetName:str
     """
-    personaConfig:List[Dict[Domain,personaSplitsChoices]]
-    datasetSize:int
-    generationModel:generationModelConfig=Field(default=generationModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"))
-    teacherModel:teacherModelConfig=Field(default=teacherModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free"))
-    datasetName:str="default_gen"
+
+    personaConfig: List[Dict[Domain, personaSplitsChoices]]
+    datasetSize: int
+    generationModel: generationModelConfig = Field(
+        default=generationModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free")
+    )
+    teacherModel: teacherModelConfig = Field(
+        default=teacherModelConfig(modelId="nvidia/nemotron-3-nano-30b-a3b:free")
+    )
+    datasetName: str = "default_gen"
+
 
 class datasetGenerationRequest(BaseModel):
     """
@@ -234,8 +286,10 @@ class datasetGenerationRequest(BaseModel):
         jobId:str
         config:datasetGenerationConfig
     """
-    jobId:str
-    config:datasetGenerationConfig
+
+    jobId: str
+    config: datasetGenerationConfig
+
 
 class datasetGenerationResponse(BaseModel):
     """
@@ -245,11 +299,12 @@ class datasetGenerationResponse(BaseModel):
         jobId:str
         meterics:datasetGenerationMetrics
     """
-    jobId:str
-    meterics:datasetGenerationMetrics
+
+    jobId: str
+    meterics: datasetGenerationMetrics
 
     @classmethod
-    def mock(cls,jobId:str):
+    def mock(cls, jobId: str):
         """
         Return a mocked instance of datasetGenerationResponse
 
@@ -259,9 +314,8 @@ class datasetGenerationResponse(BaseModel):
         Returns:
             datasetGenerationResponse
         """
-        metrics=datasetGenerationMetrics.mock(jobid=jobId)
-        return cls(jobId=jobId,meterics=metrics)
-
+        metrics = datasetGenerationMetrics.mock(jobid=jobId)
+        return cls(jobId=jobId, meterics=metrics)
 
 
 class TopicDistributionItem(BaseModel):

@@ -2,31 +2,35 @@
 file:server.py
 description:File contain the endpoints for the fast api server
 """
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
-import os,json
+
 import asyncio
-from uuid import uuid4
+import json
+import os
 from typing import Literal, Optional
-#load env variables
+from uuid import uuid4
+
+import pandas as pd
+
+# load env variables
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from core.openrouter_sythesis import PERSONA_FOLDER
+
 load_dotenv()
 
 from core.generate import generateDataset
-from utils.csv_selection import filteredSelection,rangedSelection
+from utils.csv_selection import filteredSelection, rangedSelection
 from utils.database import (
     fetch_dashboard_summary,
     fetch_generation_history,
     fetch_generation_job,
     get_database_status,
-    # get_schema_sql,
     save_generation_run,
 )
-from utils.exceptions import TeacherModelNotFoundError,GenerationModelNotFoundError
+from utils.exceptions import GenerationModelNotFoundError, TeacherModelNotFoundError
 from utils.logger import Logger
 from utils.models import (
     datasetGenerationConfig,
@@ -34,14 +38,15 @@ from utils.models import (
     datasetGenerationRequest,
     personaSplits,
 )
-log=Logger(__name__)
 
-#Global variables
-DATASET_FOLDER="./data/datasets/"
-PERSONA_FOLDER="./data/persona_hub/"
-PROJECT_ROOT=os.path.abspath(".")
-#create the app
-app =FastAPI()
+# Set up logging
+log = Logger(__name__)
+
+# Global variables
+DATASET_FOLDER = "./data/datasets/"
+PROJECT_ROOT = os.path.abspath(".")
+# create the app
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,10 +63,10 @@ app.add_middleware(
 
 
 def _persist_generation_result(
-    request_payload:dict,
-    stats:dict,
-    retried_from_job_id:Optional[str]=None,
-)->None:
+    request_payload: dict,
+    stats: dict,
+    retried_from_job_id: Optional[str] = None,
+) -> None:
     """Persist generation result to Supabase without breaking request flow on DB errors."""
     ok, err = save_generation_run(
         job_id=stats.get("jobId", request_payload.get("jobId", "")),
@@ -73,18 +78,19 @@ def _persist_generation_result(
         log.warning(f"Supabase persistence skipped/failed: {err}")
 
 
-def _apply_generation_status(stats:dict,job_id:str)->dict:
-    if stats['failedSplits'] == stats['totalSplits']:
-        stats['status']='failure'
-    elif stats['successfulSplits'] == stats['totalSplits']:
-        stats['status']='success'
+def _apply_generation_status(stats: dict, job_id: str) -> dict:
+    if stats["failedSplits"] == stats["totalSplits"]:
+        stats["status"] = "failure"
+    elif stats["successfulSplits"] == stats["totalSplits"]:
+        stats["status"] = "success"
     else:
-        stats['status']='partial'
-    stats['jobId']=job_id
+        stats["status"] = "partial"
+    stats["jobId"] = job_id
     return stats
 
-#NOTE:always create the fixed routes first
-#create the endpoints
+
+# NOTE:always create the fixed routes first
+# create the endpoints
 @app.get("/")
 def readRoot():
     """Root endpoint to check if server is running.
@@ -94,7 +100,8 @@ def readRoot():
     """
     return "hello server is working boy"
 
-#dataset related endpoints
+
+# dataset related endpoints
 @app.get("/dataset")
 def listDatasets():
     """List all available CSV datasets in the dataset folder.
@@ -102,15 +109,15 @@ def listDatasets():
     Returns:
         dict: Dictionary containing list of dataset filenames
     """
-    datasets=[]
+    datasets = []
     for file in os.listdir(DATASET_FOLDER):
-        if file.endswith('.csv'):
+        if file.endswith(".csv"):
             datasets.append(file)
-    return {"datasetList":datasets}
+    return {"datasetList": datasets}
 
 
 @app.get("/dataset/{datasetName:path}")
-def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
+def viewDataset(datasetName: str, lowerLimit: int, upperLimit: int):
     """View a specific dataset with row range limits.
 
     Args:
@@ -125,37 +132,48 @@ def viewDataset(datasetName:str,lowerLimit:int,upperLimit:int):
         HTTPException: If dataset folder not found, file not found, or invalid file format
     """
     log.info(f"Dataset Name {datasetName}")
-    #if datasets folder doesnt exists in disk
-    if  not os.path.exists(DATASET_FOLDER):
-        log.error(f"Dataset folder not found create it or run setup.py:{DATASET_FOLDER}")
-        raise HTTPException(status_code=404,detail=f"Dataset folder not found at {DATASET_FOLDER}")
+    # if datasets folder doesnt exists in disk
+    if not os.path.exists(DATASET_FOLDER):
+        log.error(
+            f"Dataset folder not found create it or run setup.py:{DATASET_FOLDER}"
+        )
+        raise HTTPException(
+            status_code=404, detail=f"Dataset folder not found at {DATASET_FOLDER}"
+        )
 
-    fileLocation=DATASET_FOLDER+datasetName
+    fileLocation = DATASET_FOLDER + datasetName
 
-    #TODO:change this to load only the required rows
+    # TODO:change this to load only the required rows
     try:
-        df=pd.read_csv(fileLocation)
+        df = pd.read_csv(fileLocation)
     except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        raise HTTPException(status_code=404,detail=f"Invalid dataset file '{datasetName}': {e}") from e
-    except FileNotFoundError :
-        raise HTTPException(status_code=404,detail=f"Dataset not found at {fileLocation}")
-    #validate the row ranges
-    if lowerLimit<0:
+        raise HTTPException(
+            status_code=404, detail=f"Invalid dataset file '{datasetName}': {e}"
+        ) from e
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404, detail=f"Dataset not found at {fileLocation}"
+        )
+    # validate the row ranges
+    if lowerLimit < 0:
         log.warning(f"lowerLimit is negative setting to zero:{lowerLimit}")
-        lowerLimit=0
-    if upperLimit>df.shape[0]:
+        lowerLimit = 0
+    if upperLimit > df.shape[0]:
         log.warning(f"upperLimit is out of index setting to last index:{upperLimit}")
-        upperLimit=df.shape[0]
+        upperLimit = df.shape[0]
 
-    df:pd.DataFrame=df.iloc[lowerLimit:upperLimit]
-    responseDf=str(df.to_json(orient="records"))
-    rowsReturned=len(json.loads(responseDf))
+    df: pd.DataFrame = df.iloc[lowerLimit:upperLimit]
+    responseDf = str(df.to_json(orient="records"))
+    rowsReturned = len(json.loads(responseDf))
 
-    log.info(f"Successfully sent requested rows {lowerLimit}:{upperLimit} for {datasetName}")
-    return JSONResponse({"dataset":responseDf,"rowsReturned":rowsReturned})
+    log.info(
+        f"Successfully sent requested rows {lowerLimit}:{upperLimit} for {datasetName}"
+    )
+    return JSONResponse({"dataset": responseDf, "rowsReturned": rowsReturned})
 
-@app.post("/dataset",response_model=datasetGenerationMetrics)
-async def datasetGeneration(request:datasetGenerationRequest):
+
+@app.post("/dataset", response_model=datasetGenerationMetrics)
+async def datasetGeneration(request: datasetGenerationRequest):
     """Generate a new dataset based on persona configuration.
 
     Args:
@@ -167,34 +185,34 @@ async def datasetGeneration(request:datasetGenerationRequest):
     Raises:
         HTTPException: If generation or teacher model not found, or invalid configuration
     """
-    #check if api key is present .env if not sleep for 5 checks and return mocked dataset
+    # check if api key is present .env if not sleep for 5 checks and return mocked dataset
 
     if not os.getenv("OPENROUTER_API_KEY"):
-        #TODO Get the mocked dataset for viewing with mocked stats
+        # TODO Get the mocked dataset for viewing with mocked stats
         log.info("No api key found in .env mocking the data")
         await asyncio.sleep(5)
-        stats=datasetGenerationMetrics.mock(jobid=request.jobId)
+        stats = datasetGenerationMetrics.mock(jobid=request.jobId)
         _persist_generation_result(
             request_payload=request.model_dump(),
             stats=stats.model_dump(),
         )
         return stats
 
-    try :
+    try:
         log.info(f"generating dataset for jobID:{request.jobId}")
-        stats=generateDataset(
+        stats = generateDataset(
             personaConfig=request.config.personaConfig,
             datasetSize=request.config.datasetSize,
             generationModel=request.config.generationModel,
             teacherModel=request.config.teacherModel,
             datasetName=request.config.datasetName,
         )
-    except (GenerationModelNotFoundError,TeacherModelNotFoundError) as e:
-        raise HTTPException(status_code=422,detail=str(e))
-    except (ValueError) as e:
-        raise HTTPException(status_code=400,detail=str(e))
+    except (GenerationModelNotFoundError, TeacherModelNotFoundError) as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    stats=_apply_generation_status(stats=stats,job_id=request.jobId)
+    stats = _apply_generation_status(stats=stats, job_id=request.jobId)
     _persist_generation_result(
         request_payload=request.model_dump(),
         stats=stats,
@@ -202,49 +220,58 @@ async def datasetGeneration(request:datasetGenerationRequest):
     return stats
 
 
-@app.post("/dataset/retry/{jobId}",response_model=datasetGenerationMetrics)
-async def retryDatasetGeneration(jobId:str):
+@app.post("/dataset/retry/{jobId}", response_model=datasetGenerationMetrics)
+async def retryDatasetGeneration(jobId: str):
     """Retry generation for a previously saved job config from Supabase."""
     if os.getenv("OPENROUTER_API_KEY") is None:
-        raise HTTPException(status_code=400,detail="OPENROUTER_API_KEY missing. Add credits/key and retry.")
+        raise HTTPException(
+            status_code=400,
+            detail="OPENROUTER_API_KEY missing. Add credits/key and retry.",
+        )
 
-    jobRow,dbErr=fetch_generation_job(jobId)
+    jobRow, dbErr = fetch_generation_job(jobId)
     if dbErr is not None:
-        raise HTTPException(status_code=503,detail=dbErr)
+        raise HTTPException(status_code=503, detail=dbErr)
     if jobRow is None:
-        raise HTTPException(status_code=404,detail=f"No job found for jobId:{jobId}")
+        raise HTTPException(status_code=404, detail=f"No job found for jobId:{jobId}")
 
-    requestPayload=jobRow.get("request_payload")
-    if not isinstance(requestPayload,dict):
-        raise HTTPException(status_code=422,detail=f"Invalid request payload saved for jobId:{jobId}")
+    requestPayload = jobRow.get("request_payload")
+    if not isinstance(requestPayload, dict):
+        raise HTTPException(
+            status_code=422, detail=f"Invalid request payload saved for jobId:{jobId}"
+        )
 
-    configPayload=requestPayload.get("config")
-    if not isinstance(configPayload,dict):
-        raise HTTPException(status_code=422,detail=f"Missing config in saved payload for jobId:{jobId}")
+    configPayload = requestPayload.get("config")
+    if not isinstance(configPayload, dict):
+        raise HTTPException(
+            status_code=422, detail=f"Missing config in saved payload for jobId:{jobId}"
+        )
 
     try:
-        config=datasetGenerationConfig.model_validate(configPayload)
+        config = datasetGenerationConfig.model_validate(configPayload)
     except Exception as e:
-        raise HTTPException(status_code=422,detail=f"Saved config validation failed: {e}")
+        raise HTTPException(
+            status_code=422, detail=f"Saved config validation failed: {e}"
+        )
 
-    retryJobId=f"{jobId}-retry-{uuid4().hex[:8]}"
+    retryJobId = f"{jobId}-retry-{uuid4().hex[:8]}"
     try:
-        stats=generateDataset(
+        stats = generateDataset(
             personaConfig=config.personaConfig,
             datasetSize=config.datasetSize,
             generationModel=config.generationModel,
             teacherModel=config.teacherModel,
             datasetName=config.datasetName,
         )
-    except (GenerationModelNotFoundError,TeacherModelNotFoundError) as e:
-        raise HTTPException(status_code=422,detail=str(e))
+    except (GenerationModelNotFoundError, TeacherModelNotFoundError) as e:
+        raise HTTPException(status_code=422, detail=str(e))
     except ValueError as e:
-        raise HTTPException(status_code=400,detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
-    stats=_apply_generation_status(stats=stats,job_id=retryJobId)
-    retryPayload={
-        "jobId":retryJobId,
-        "config":config.model_dump(),
+    stats = _apply_generation_status(stats=stats, job_id=retryJobId)
+    retryPayload = {
+        "jobId": retryJobId,
+        "config": config.model_dump(),
     }
     _persist_generation_result(
         request_payload=retryPayload,
@@ -256,29 +283,31 @@ async def retryDatasetGeneration(jobId:str):
 
 
 @app.get("/dashboard/summary")
-def getDashboardSummary(limit:int=500):
-    summary,err=fetch_dashboard_summary(limit=limit)
+def getDashboardSummary(limit: int = 500):
+    summary, err = fetch_dashboard_summary(limit=limit)
     if err is not None:
-        raise HTTPException(status_code=503,detail=err)
+        raise HTTPException(status_code=503, detail=err)
     return summary
 
 
 @app.get("/dashboard/history")
-def getDashboardHistory(limit:int=50,offset:int=0):
-    history,err=fetch_generation_history(limit=limit,offset=offset)
+def getDashboardHistory(limit: int = 50, offset: int = 0):
+    history, err = fetch_generation_history(limit=limit, offset=offset)
     if err is not None:
-        raise HTTPException(status_code=503,detail=err)
-    return {"history":history,"limit":limit,"offset":offset}
+        raise HTTPException(status_code=503, detail=err)
+    return {"history": history, "limit": limit, "offset": offset}
 
 
 @app.get("/dashboard/history/{jobId}")
-def getDashboardHistoryDetails(jobId:str):
-    details,err=fetch_generation_job(jobId)
+def getDashboardHistoryDetails(jobId: str):
+    details, err = fetch_generation_job(jobId)
     if err is not None:
-        raise HTTPException(status_code=503,detail=err)
+        raise HTTPException(status_code=503, detail=err)
     if details is None:
-        raise HTTPException(status_code=404,detail=f"No history row found for jobId:{jobId}")
-    return {"details":details}
+        raise HTTPException(
+            status_code=404, detail=f"No history row found for jobId:{jobId}"
+        )
+    return {"details": details}
 
 
 @app.get("/dashboard/database_status")
@@ -290,7 +319,8 @@ def getDashboardDatabaseStatus():
 # def getDashboardSchemaSQL():
 #     return {"sql":get_schema_sql()}
 
-#persona endpoints
+
+# persona endpoints
 @app.get("/persona_hub")
 def getPersonList():
     """List all available persona split files in the persona hub.
@@ -298,20 +328,22 @@ def getPersonList():
     Returns:
         dict: Dictionary containing list of persona split filenames
     """
-    personaSplits=[]
+    personaSplits = []
     for file in os.listdir(PERSONA_FOLDER):
-        if file.endswith('.csv'):
+        if file.endswith(".csv"):
             personaSplits.append(file)
-    return {"personaSplits":personaSplits}
+    return {"personaSplits": personaSplits}
 
 
 @app.get("/persona_hub/{personaSplit}")
-def viewPersonaSplit(personaSplit:personaSplits,
-                     noOfRows:int,
-                     lowerLimit:Optional[int]=None,
-                     upperLimit:Optional[int]=None,
-                     method:Literal["range","filter","hybrid"]='range',
-                     filter:Optional[Literal["user","system"]]='system'):
+def viewPersonaSplit(
+    personaSplit: personaSplits,
+    noOfRows: int,
+    lowerLimit: Optional[int] = None,
+    upperLimit: Optional[int] = None,
+    method: Literal["range", "filter", "hybrid"] = "range",
+    filter: Optional[Literal["user", "system"]] = "system",
+):
     """View a specific persona split with various selection methods.
 
     Args:
@@ -330,58 +362,73 @@ def viewPersonaSplit(personaSplit:personaSplits,
     """
 
     if personaSplit == "general":
-        fileLocation=PERSONA_FOLDER+"persona.csv"
+        fileLocation = PERSONA_FOLDER + "persona.csv"
     else:
-        fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
+        fileLocation = PERSONA_FOLDER + f"persona_{personaSplit}.csv"
 
-
-    #if datasets folder doesnt exists in disk
-    if  not os.path.exists(PERSONA_FOLDER):
-        log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
-        raise HTTPException(status_code=404,detail=f"personaSplit folder not found at {PERSONA_FOLDER}")
+    # if datasets folder doesnt exists in disk
+    if not os.path.exists(PERSONA_FOLDER):
+        log.error(
+            f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}"
+        )
+        raise HTTPException(
+            status_code=404, detail=f"personaSplit folder not found at {PERSONA_FOLDER}"
+        )
     try:
-        #TODO:change this to load only the required rows
-        df=pd.read_csv(fileLocation)
+        # TODO:change this to load only the required rows
+        df = pd.read_csv(fileLocation)
     except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        raise HTTPException(status_code=404,detail=f"Invalid personaSplit file '{personaSplit}': {e}") from e
-    except FileNotFoundError :
-        raise HTTPException(status_code=404,detail=f"personaSplit not found at {fileLocation}")
-    if method=="filter":
+        raise HTTPException(
+            status_code=404, detail=f"Invalid personaSplit file '{personaSplit}': {e}"
+        ) from e
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404, detail=f"personaSplit not found at {fileLocation}"
+        )
+    if method == "filter":
         if filter is None:
-            raise HTTPException(status_code=422,detail=f"Filter type is not provided please choose system or user:{method}")
+            raise HTTPException(
+                status_code=422,
+                detail=f"Filter type is not provided please choose system or user:{method}",
+            )
         try:
-            df,requestedRows=filteredSelection(df,filter,noOfRows)
+            df, requestedRows = filteredSelection(df, filter, noOfRows)
         except Exception as e:
-            raise HTTPException(status_code=422,
-                                detail=str(e))
-    elif method=="range":
+            raise HTTPException(status_code=422, detail=str(e))
+    elif method == "range":
         try:
-            df,requestedRows=rangedSelection(df,lowerLimit,upperLimit)
+            df, requestedRows = rangedSelection(df, lowerLimit, upperLimit)
         except Exception as e:
-            raise HTTPException(status_code=422,
-                                detail=str(e))
+            raise HTTPException(status_code=422, detail=str(e))
     else:
         if filter is None:
-            raise HTTPException(status_code=422,detail=f"Filter type is not provided please choose system or user:{method}")
+            raise HTTPException(
+                status_code=422,
+                detail=f"Filter type is not provided please choose system or user:{method}",
+            )
         try:
-            df,_=rangedSelection(df,lowerLimit,upperLimit)
-            df,requestedRows=filteredSelection(df,filter,noOfRows)
+            df, _ = rangedSelection(df, lowerLimit, upperLimit)
+            df, requestedRows = filteredSelection(df, filter, noOfRows)
         except Exception as e:
-            raise HTTPException(status_code=422,
-                                detail=str(e))
+            raise HTTPException(status_code=422, detail=str(e))
+
+    responseDf = str(df.to_json(orient="records"))
+    rowsReturned = len(json.loads(responseDf))
+    log.info(
+        f"Successfully sent requested rows {lowerLimit}:{upperLimit} for {personaSplit}"
+    )
+    return JSONResponse(
+        {
+            "dataset": responseDf,
+            "rowsReturned": rowsReturned,
+            "rowsRequested": requestedRows,
+        }
+    )
 
 
-    responseDf=str(df.to_json(orient="records"))
-    rowsReturned=len(json.loads(responseDf))
-    log.info(f"Successfully sent requested rows {lowerLimit}:{upperLimit} for {personaSplit}")
-    return JSONResponse({"dataset":responseDf,
-                         "rowsReturned":rowsReturned,
-                         "rowsRequested":requestedRows})
-
-
-#TODO: persona updating
+# TODO: persona updating
 @app.post("/persona_hub/{personaSplit}")
-def addPersonaToSplit(personaSplit:personaSplits,persona:str):
+def addPersonaToSplit(personaSplit: personaSplits, persona: str):
     """Add a new persona to a specific persona split file.
 
     Args:
@@ -394,23 +441,27 @@ def addPersonaToSplit(personaSplit:personaSplits,persona:str):
     Raises:
         HTTPException: If persona folder not found
     """
-    fileLocation=PERSONA_FOLDER+f"persona_{personaSplit}.csv"
-    if  not os.path.exists(PERSONA_FOLDER):
-        log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
-        raise HTTPException(status_code=404,detail=f"personaSplit folder not found at {PERSONA_FOLDER}")
+    fileLocation = PERSONA_FOLDER + f"persona_{personaSplit}.csv"
+    if not os.path.exists(PERSONA_FOLDER):
+        log.error(
+            f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}"
+        )
+        raise HTTPException(
+            status_code=404, detail=f"personaSplit folder not found at {PERSONA_FOLDER}"
+        )
 
-    #row to add to the file
-    personaInput=persona+","+"user"
-    with open(fileLocation,"a")as f:
+    # row to add to the file
+    personaInput = persona + "," + "user"
+    with open(fileLocation, "a") as f:
         log.info(f"writing persona in to split:{personaSplit}")
         f.write(personaInput)
     log.info(f"Successfully written persona into split:{personaSplit}")
-    return {"message":f"Successfully written persona into split:{personaSplit}"}
+    return {"message": f"Successfully written persona into split:{personaSplit}"}
 
 
-#general csv endpoints
+# general csv endpoints
 @app.get("/csv")
-def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
+def getNumberOfRows(fileName: str, dataType: Literal["dataset", "persona"]):
     """Get the number of rows in a CSV file (dataset or persona).
 
     Args:
@@ -423,31 +474,37 @@ def getNumberOfRows(fileName:str,dataType:Literal["dataset","persona"]):
     Raises:
         HTTPException: If folder not found, file not found, or invalid file format
     """
-    if dataType=="dataset":
-        if  not os.path.exists(DATASET_FOLDER):
+    if dataType == "dataset":
+        if not os.path.exists(DATASET_FOLDER):
             log.error(f"dataset folder not found create it:{DATASET_FOLDER}")
-            raise HTTPException(status_code=404,detail=f"dataset folder not found at {DATASET_FOLDER}")
-        fileLocation=DATASET_FOLDER+fileName
+            raise HTTPException(
+                status_code=404, detail=f"dataset folder not found at {DATASET_FOLDER}"
+            )
+        fileLocation = DATASET_FOLDER + fileName
 
     else:
-        if  not os.path.exists(PERSONA_FOLDER):
-            log.error(f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}")
-            raise HTTPException(status_code=404,detail=f"personaSplit folder not found at {PERSONA_FOLDER}")
+        if not os.path.exists(PERSONA_FOLDER):
+            log.error(
+                f"personaSplit folder not found create it or run setup.py:{PERSONA_FOLDER}"
+            )
+            raise HTTPException(
+                status_code=404,
+                detail=f"personaSplit folder not found at {PERSONA_FOLDER}",
+            )
         if fileName == "general":
-            fileLocation=PERSONA_FOLDER+"persona.csv"
+            fileLocation = PERSONA_FOLDER + "persona.csv"
         else:
-            fileLocation=PERSONA_FOLDER+f"persona_{fileName}.csv"
+            fileLocation = PERSONA_FOLDER + f"persona_{fileName}.csv"
     try:
-        df=pd.read_csv(fileLocation)
+        df = pd.read_csv(fileLocation)
         log.info(f"Successfully loaded file :{fileName}")
     except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        raise HTTPException(status_code=404,detail=f"Invalid filename '{fileName}': {e}") from e
-    except FileNotFoundError :
-        raise HTTPException(status_code=404,detail=f"File not found at {fileLocation}")
-    return{"NoOfRows":df.shape[0]}
+        raise HTTPException(
+            status_code=404, detail=f"Invalid filename '{fileName}': {e}"
+        ) from e
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"File not found at {fileLocation}")
+    return {"NoOfRows": df.shape[0]}
 
 
-
-#supabase endpoints
-
-
+# supabase endpoints
