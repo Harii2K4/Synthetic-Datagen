@@ -1,0 +1,13 @@
+2026-03-28 13:24:33,495 | INFO | core.openrouter_sythesis | Batch querying model with 5
+2026-03-28 13:24:56,201 | INFO | core.openrouter_sythesis | Recieved 5 questions
+2026-03-28 13:24:56,206 | INFO | core.openrouter_sythesis | Batch querying model with 5
+2026-03-28 13:25:57,644 | INFO | core.openrouter_sythesis | Recieved 5 questions
+2026-03-28 17:09:03,390 | INFO | core.openrouter_sythesis | Batch querying model with 50
+2026-03-28 17:09:11,675 | INFO | core.openrouter_sythesis | Recieved 50 questions
+2026-03-28 17:09:11,685 | INFO | core.openrouter_sythesis | Batch querying model with 50
+2026-03-28 17:09:19,283 | INFO | core.openrouter_sythesis | Recieved 50 questions
+2026-03-29 13:43:37,343 | INFO | core.openrouter_sythesis | Batch querying model with 50
+2026-03-29 14:39:15,950 | INFO | core.openrouter_sythesis | Batch querying model with 100
+2026-03-29 14:39:30,361 | INFO | core.openrouter_sythesis | Recieved 100 questions
+2026-03-29 14:39:30,400 | INFO | core.openrouter_sythesis | Batch querying model with 100
+2026-03-29 14:39:44,740 | INFO | core.openrouter_sythesis | Recieved 100 questions

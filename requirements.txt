@@ -5,5 +5,9 @@ dotenv
 pytest
 fastapi[standard]
 matplotlib
+numpy
+pandas
 langchain_openai
 supabase
+umap-learn
+seaborn

@@ -1,0 +1,462 @@
+{
+  "generatedAt": "2026-03-29T10:00:54.272101+00:00",
+  "datasetCount": 6,
+  "metricsTable": [
+    {
+      "datasetId": "math_baseline_temp_0.7",
+      "datasetLabel": "Math Baseline Temp 0.7",
+      "sampleCount": 100,
+      "embeddingDimension": 3072,
+      "meanPairwiseCosineSimilarity": 0.659492,
+      "p90PairwiseSimilarity": 0.834595,
+      "meanNearestNeighborSimilarity": 0.911685,
+      "topicEntropy": 1.194076,
+      "uniqueTopicCount": 6,
+      "distinct2": 0.10191
+    },
+    {
+      "datasetId": "math_baseline_temp_0",
+      "datasetLabel": "Math Baseline Temp 0",
+      "sampleCount": 100,
+      "embeddingDimension": 3072,
+      "meanPairwiseCosineSimilarity": 0.995426,
+      "p90PairwiseSimilarity": 1.0,
+      "meanNearestNeighborSimilarity": 1.0,
+      "topicEntropy": 0.0,
+      "uniqueTopicCount": 1,
+      "distinct2": 0.006812
+    },
+    {
+      "datasetId": "math_evol",
+      "datasetLabel": "Math Evol",
+      "sampleCount": 102,
+      "embeddingDimension": 3072,
+      "meanPairwiseCosineSimilarity": 0.296904,
+      "p90PairwiseSimilarity": 0.448559,
+      "meanNearestNeighborSimilarity": 0.795763,
+      "topicEntropy": 2.106569,
+      "uniqueTopicCount": 11,
+      "distinct2": 0.263897
+    },
+    {
+      "datasetId": "math_persona",
+      "datasetLabel": "Math Persona",
+      "sampleCount": 100,
+      "embeddingDimension": 3072,
+      "meanPairwiseCosineSimilarity": 0.409294,
+      "p90PairwiseSimilarity": 0.518489,
+      "meanNearestNeighborSimilarity": 0.61413,
+      "topicEntropy": 2.058058,
+      "uniqueTopicCount": 15,
+      "distinct2": 0.304519
+    },
+    {
+      "datasetId": "math_persona_general",
+      "datasetLabel": "Math Persona General",
+      "sampleCount": 100,
+      "embeddingDimension": 3072,
+      "meanPairwiseCosineSimilarity": 0.431645,
+      "p90PairwiseSimilarity": 0.536416,
+      "meanNearestNeighborSimilarity": 0.619893,
+      "topicEntropy": 2.094993,
+      "uniqueTopicCount": 16,
+      "distinct2": 0.298609
+    },
+    {
+      "datasetId": "math_self_instruct",
+      "datasetLabel": "Math Self Instruct",
+      "sampleCount": 100,
+      "embeddingDimension": 3072,
+      "meanPairwiseCosineSimilarity": 0.404145,
+      "p90PairwiseSimilarity": 0.847744,
+      "meanNearestNeighborSimilarity": 0.866936,
+      "topicEntropy": 1.346369,
+      "uniqueTopicCount": 6,
+      "distinct2": 0.20651
+    }
+  ],
+  "datasets": [
+    {
+      "datasetId": "math_baseline_temp_0.7",
+      "datasetLabel": "Math Baseline Temp 0.7",
+      "sourceFile": "/home/zora/personal/dev/final_project/research/datasets/math_baseline_temp_0.7.csv",
+      "metrics": {
+        "sampleCount": 100,
+        "embeddingDimension": 3072,
+        "meanPairwiseCosineSimilarity": 0.659492,
+        "p90PairwiseSimilarity": 0.834595,
+        "meanNearestNeighborSimilarity": 0.911685,
+        "topicEntropy": 1.194076,
+        "uniqueTopicCount": 6,
+        "distinct2": 0.10191
+      },
+      "topicDistribution": [
+        {
+          "topic": "Abstract Algebra",
+          "count": 56,
+          "percentage": 56.0
+        },
+        {
+          "topic": "Topology",
+          "count": 25,
+          "percentage": 25.0
+        },
+        {
+          "topic": "Differential Geometry",
+          "count": 11,
+          "percentage": 11.0
+        },
+        {
+          "topic": "Functional Analysis",
+          "count": 4,
+          "percentage": 4.0
+        },
+        {
+          "topic": "Geometry",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Mathematical Physics",
+          "count": 1,
+          "percentage": 1.0
+        }
+      ]
+    },
+    {
+      "datasetId": "math_baseline_temp_0",
+      "datasetLabel": "Math Baseline Temp 0",
+      "sourceFile": "/home/zora/personal/dev/final_project/research/datasets/math_baseline_temp_0.csv",
+      "metrics": {
+        "sampleCount": 100,
+        "embeddingDimension": 3072,
+        "meanPairwiseCosineSimilarity": 0.995426,
+        "p90PairwiseSimilarity": 1.0,
+        "meanNearestNeighborSimilarity": 1.0,
+        "topicEntropy": 0.0,
+        "uniqueTopicCount": 1,
+        "distinct2": 0.006812
+      },
+      "topicDistribution": [
+        {
+          "topic": "Abstract Algebra",
+          "count": 100,
+          "percentage": 100.0
+        }
+      ]
+    },
+    {
+      "datasetId": "math_evol",
+      "datasetLabel": "Math Evol",
+      "sourceFile": "/home/zora/personal/dev/final_project/research/datasets/math_evol.csv",
+      "metrics": {
+        "sampleCount": 102,
+        "embeddingDimension": 3072,
+        "meanPairwiseCosineSimilarity": 0.296904,
+        "p90PairwiseSimilarity": 0.448559,
+        "meanNearestNeighborSimilarity": 0.795763,
+        "topicEntropy": 2.106569,
+        "uniqueTopicCount": 11,
+        "distinct2": 0.263897
+      },
+      "topicDistribution": [
+        {
+          "topic": "Geometry",
+          "count": 26,
+          "percentage": 25.490196
+        },
+        {
+          "topic": "Number Theory",
+          "count": 15,
+          "percentage": 14.705882
+        },
+        {
+          "topic": "Counting & Probability",
+          "count": 14,
+          "percentage": 13.72549
+        },
+        {
+          "topic": "Prealgebra",
+          "count": 10,
+          "percentage": 9.803922
+        },
+        {
+          "topic": "Precalculus",
+          "count": 10,
+          "percentage": 9.803922
+        },
+        {
+          "topic": "Probability",
+          "count": 9,
+          "percentage": 8.823529
+        },
+        {
+          "topic": "Intermediate Algebra",
+          "count": 8,
+          "percentage": 7.843137
+        },
+        {
+          "topic": "Algebra",
+          "count": 6,
+          "percentage": 5.882353
+        },
+        {
+          "topic": "Optimization",
+          "count": 2,
+          "percentage": 1.960784
+        },
+        {
+          "topic": "Combinatorics",
+          "count": 1,
+          "percentage": 0.980392
+        },
+        {
+          "topic": "Graph Theory",
+          "count": 1,
+          "percentage": 0.980392
+        }
+      ]
+    },
+    {
+      "datasetId": "math_persona",
+      "datasetLabel": "Math Persona",
+      "sourceFile": "/home/zora/personal/dev/final_project/research/datasets/math_persona.csv",
+      "metrics": {
+        "sampleCount": 100,
+        "embeddingDimension": 3072,
+        "meanPairwiseCosineSimilarity": 0.409294,
+        "p90PairwiseSimilarity": 0.518489,
+        "meanNearestNeighborSimilarity": 0.61413,
+        "topicEntropy": 2.058058,
+        "uniqueTopicCount": 15,
+        "distinct2": 0.304519
+      },
+      "topicDistribution": [
+        {
+          "topic": "Optimization",
+          "count": 40,
+          "percentage": 40.0
+        },
+        {
+          "topic": "Stochastic Processes",
+          "count": 15,
+          "percentage": 15.0
+        },
+        {
+          "topic": "Statistics",
+          "count": 10,
+          "percentage": 10.0
+        },
+        {
+          "topic": "Differential Equations",
+          "count": 7,
+          "percentage": 7.0
+        },
+        {
+          "topic": "Graph Theory",
+          "count": 5,
+          "percentage": 5.0
+        },
+        {
+          "topic": "Calculus",
+          "count": 4,
+          "percentage": 4.0
+        },
+        {
+          "topic": "Combinatorics",
+          "count": 4,
+          "percentage": 4.0
+        },
+        {
+          "topic": "Linear Algebra",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Mathematical Physics",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Intermediate Algebra",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Number Theory",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Probability",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Algebra",
+          "count": 1,
+          "percentage": 1.0
+        },
+        {
+          "topic": "Counting & Probability",
+          "count": 1,
+          "percentage": 1.0
+        },
+        {
+          "topic": "Real Analysis",
+          "count": 1,
+          "percentage": 1.0
+        }
+      ]
+    },
+    {
+      "datasetId": "math_persona_general",
+      "datasetLabel": "Math Persona General",
+      "sourceFile": "/home/zora/personal/dev/final_project/research/datasets/math_persona_general.csv",
+      "metrics": {
+        "sampleCount": 100,
+        "embeddingDimension": 3072,
+        "meanPairwiseCosineSimilarity": 0.431645,
+        "p90PairwiseSimilarity": 0.536416,
+        "meanNearestNeighborSimilarity": 0.619893,
+        "topicEntropy": 2.094993,
+        "uniqueTopicCount": 16,
+        "distinct2": 0.298609
+      },
+      "topicDistribution": [
+        {
+          "topic": "Optimization",
+          "count": 42,
+          "percentage": 42.0
+        },
+        {
+          "topic": "Statistics",
+          "count": 10,
+          "percentage": 10.0
+        },
+        {
+          "topic": "Stochastic Processes",
+          "count": 9,
+          "percentage": 9.0
+        },
+        {
+          "topic": "Probability",
+          "count": 8,
+          "percentage": 8.0
+        },
+        {
+          "topic": "Differential Equations",
+          "count": 7,
+          "percentage": 7.0
+        },
+        {
+          "topic": "Graph Theory",
+          "count": 4,
+          "percentage": 4.0
+        },
+        {
+          "topic": "Discrete Mathematics",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Geometry",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Linear Algebra",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Differential Geometry",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Functional Analysis",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Mathematical Physics",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Number Theory",
+          "count": 2,
+          "percentage": 2.0
+        },
+        {
+          "topic": "Algebra",
+          "count": 1,
+          "percentage": 1.0
+        },
+        {
+          "topic": "Calculus",
+          "count": 1,
+          "percentage": 1.0
+        },
+        {
+          "topic": "Combinatorics",
+          "count": 1,
+          "percentage": 1.0
+        }
+      ]
+    },
+    {
+      "datasetId": "math_self_instruct",
+      "datasetLabel": "Math Self Instruct",
+      "sourceFile": "/home/zora/personal/dev/final_project/research/datasets/math_self_instruct.csv",
+      "metrics": {
+        "sampleCount": 100,
+        "embeddingDimension": 3072,
+        "meanPairwiseCosineSimilarity": 0.404145,
+        "p90PairwiseSimilarity": 0.847744,
+        "meanNearestNeighborSimilarity": 0.866936,
+        "topicEntropy": 1.346369,
+        "uniqueTopicCount": 6,
+        "distinct2": 0.20651
+      },
+      "topicDistribution": [
+        {
+          "topic": "Linear Algebra",
+          "count": 45,
+          "percentage": 45.0
+        },
+        {
+          "topic": "Counting & Probability",
+          "count": 28,
+          "percentage": 28.0
+        },
+        {
+          "topic": "Geometry",
+          "count": 16,
+          "percentage": 16.0
+        },
+        {
+          "topic": "Number Theory",
+          "count": 7,
+          "percentage": 7.0
+        },
+        {
+          "topic": "Calculus",
+          "count": 3,
+          "percentage": 3.0
+        },
+        {
+          "topic": "Optimization",
+          "count": 1,
+          "percentage": 1.0
+        }
+      ]
+    }
+  ],
+  "plots": {
+    "umapScatter": "/home/zora/personal/dev/final_project/research/results/graphs/umap_scatter.png",
+    "similarityHistogram": "/home/zora/personal/dev/final_project/research/results/graphs/similarity_histogram.png",
+    "topicDistribution": "/home/zora/personal/dev/final_project/research/results/graphs/topic_distribution.png"
+  }
+}

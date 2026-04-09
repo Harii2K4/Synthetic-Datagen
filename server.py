@@ -315,11 +315,6 @@ def getDashboardDatabaseStatus():
     return get_database_status()
 
 
-# @app.get("/dashboard/schema_sql")
-# def getDashboardSchemaSQL():
-#     return {"sql":get_schema_sql()}
-
-
 # persona endpoints
 @app.get("/persona_hub")
 def getPersonList():
@@ -507,4 +502,3 @@ def getNumberOfRows(fileName: str, dataType: Literal["dataset", "persona"]):
     return {"NoOfRows": df.shape[0]}
 
 
-# supabase endpoints

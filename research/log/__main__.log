@@ -1,0 +1,212 @@
+2026-03-28 13:09:51,935 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:11:59,056 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:11:59,769 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 13:19:18,746 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:19:19,554 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 13:19:19,566 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0.7
+2026-03-28 13:19:19,586 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:19:20,259 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 13:19:20,260 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0
+2026-03-28 13:24:02,942 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:24:17,042 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 13:24:17,048 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0.7
+2026-03-28 13:24:17,063 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:24:33,490 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 13:24:33,491 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0
+2026-03-28 13:24:56,202 | INFO | __main__ | creating the dataset using persona
+2026-03-28 13:24:56,204 | INFO | __main__ | saved the dataset using persona
+2026-03-28 13:25:57,645 | INFO | __main__ | creating the dataset using persona
+2026-03-28 13:25:57,647 | INFO | __main__ | saved the dataset using persona
+2026-03-28 13:25:57,662 | INFO | __main__ | generating instructions for math_self_instruct
+2026-03-28 13:26:05,173 | INFO | __main__ | Batch querying model with 5 prompts
+2026-03-28 13:26:13,411 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 13:26:13,415 | INFO | __main__ | saved the dataset using self-instruct math_self_instruct
+2026-03-28 15:19:46,591 | INFO | __main__ | generating depth level 1 from 10 problems
+2026-03-28 15:21:27,501 | INFO | __main__ | generating depth level 1 from 10 problems
+2026-03-28 15:23:19,376 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 15:23:47,706 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 15:23:55,954 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 15:27:09,180 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 15:27:15,003 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 15:27:20,104 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 15:28:34,928 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 15:28:44,637 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 15:45:02,539 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 15:45:04,637 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 15:45:08,834 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 15:45:08,834 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 1 problems
+2026-03-28 15:49:53,349 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 15:49:59,257 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 15:50:01,745 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 15:50:01,745 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 1 problems
+2026-03-28 15:50:03,340 | INFO | __main__ | generating depth level 2(from level 1 breath) from 1 problems
+2026-03-28 15:50:11,019 | INFO | __main__ | generating depth(from level 1 breath) level 2 from 1 problems
+2026-03-28 15:50:16,858 | INFO | __main__ | generating depth(from level 1 in-depth) level 2 from 1 problems
+2026-03-28 16:02:42,362 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 16:02:59,646 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 16:03:02,383 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 16:03:02,384 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 1 problems
+2026-03-28 16:03:30,684 | INFO | __main__ | generating depth level 2(from level 1 breath) from 1 problems
+2026-03-28 16:03:34,565 | INFO | __main__ | generating depth(from level 1 breath) level 2 from 1 problems
+2026-03-28 16:03:57,598 | INFO | __main__ | generating depth(from level 1 in-depth) level 2 from 1 problems
+2026-03-28 16:08:28,712 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 16:08:33,252 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 16:08:35,103 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 16:08:35,104 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 1 problems
+2026-03-28 16:08:37,768 | INFO | __main__ | generating depth level 2(from level 1 breath) from 1 problems
+2026-03-28 16:08:40,591 | INFO | __main__ | generating depth(from level 1 breath) level 2 from 1 problems
+2026-03-28 16:08:48,630 | INFO | __main__ | generating depth(from level 1 in-depth) level 2 from 1 problems
+2026-03-28 16:10:48,881 | INFO | __main__ | generating depth level 1 from 1 problems
+2026-03-28 16:10:51,382 | INFO | __main__ | generating breath level 1 from 1 problems
+2026-03-28 16:11:03,173 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 16:11:03,173 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 1 problems
+2026-03-28 16:11:20,747 | INFO | __main__ | generating depth level 2(from level 1 breath) from 1 problems
+2026-03-28 16:11:30,963 | INFO | __main__ | generating depth(from level 1 breath) level 2 from 1 problems
+2026-03-28 16:11:33,273 | INFO | __main__ | generating depth(from level 1 in-depth) level 2 from 1 problems
+2026-03-28 17:08:57,080 | INFO | __main__ | Batch querying model with 50 prompts for math_baseline_temp_0.7
+2026-03-28 17:09:01,030 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 17:09:01,053 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0.7
+2026-03-28 17:09:01,078 | INFO | __main__ | Batch querying model with 50 prompts for math_baseline_temp_0
+2026-03-28 17:09:03,371 | INFO | __main__ | creating the dataset using baseline
+2026-03-28 17:09:03,381 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0
+2026-03-28 17:09:11,676 | INFO | __main__ | creating the dataset using persona for math_persona
+2026-03-28 17:09:11,682 | INFO | __main__ | saved the dataset using persona math_persona
+2026-03-28 17:09:19,283 | INFO | __main__ | creating the dataset using persona for math_persona_general
+2026-03-28 17:09:19,288 | INFO | __main__ | saved the dataset using persona math_persona_general
+2026-03-28 17:09:19,302 | INFO | __main__ | generating instructions for math_self_instruct
+2026-03-28 17:09:20,089 | INFO | __main__ | Batch querying model with 5 prompts for generating instructions
+2026-03-28 17:09:21,483 | INFO | __main__ | creating the dataset using self-instruct 5
+2026-03-28 17:09:21,488 | INFO | __main__ | saved the dataset using self-instruct math_self_instruct
+2026-03-28 17:14:30,294 | INFO | __main__ | generating instructions for math_self_instruct
+2026-03-28 17:14:32,572 | INFO | __main__ | Batch querying model with 50 prompts for generating instructions
+2026-03-28 17:15:38,914 | INFO | __main__ | generating instructions for math_self_instruct
+2026-03-28 17:15:41,245 | INFO | __main__ | Batch querying model with 50 prompts for generating instructions
+2026-03-28 17:15:43,269 | INFO | __main__ | creating the dataset using self-instruct 50
+2026-03-28 17:15:43,278 | INFO | __main__ | saved the dataset using self-instruct math_self_instruct
+2026-03-28 17:16:56,136 | INFO | __main__ | generating depth level 1 from 10 problems
+2026-03-28 17:17:04,434 | INFO | __main__ | generating breath level 1 from 10 problems
+2026-03-28 17:17:13,994 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 17:17:13,994 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 10 problems
+2026-03-28 17:17:28,907 | INFO | __main__ | generating depth level 2(from level 1 breath) from 10 problems
+2026-03-28 17:19:40,713 | INFO | __main__ | generating depth level 1 from 10 problems
+2026-03-28 17:19:42,951 | INFO | __main__ | generating breath level 1 from 10 problems
+2026-03-28 17:19:43,919 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-28 17:19:43,919 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 10 problems
+2026-03-28 17:19:47,472 | INFO | __main__ | generating depth level 2(from level 1 breath) from 10 problems
+2026-03-28 17:19:48,362 | INFO | __main__ | generating depth(from level 1 breath) level 2 from 10 problems
+2026-03-28 17:19:51,041 | INFO | __main__ | generating depth(from level 1 in-depth) level 2 from 10 problems
+2026-03-29 13:42:43,710 | INFO | __main__ | Batch querying model with 5 prompts for math_baseline_temp_0.7
+2026-03-29 13:43:24,313 | INFO | __main__ | creating the dataset using baseline
+2026-03-29 13:43:24,335 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0.7
+2026-03-29 13:43:24,369 | INFO | __main__ | Batch querying model with 5 prompts for math_baseline_temp_0
+2026-03-29 13:43:37,329 | INFO | __main__ | creating the dataset using baseline
+2026-03-29 13:43:37,331 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0
+2026-03-29 14:39:01,161 | INFO | __main__ | Batch querying model with 100 prompts for math_baseline_temp_0.7
+2026-03-29 14:39:08,376 | INFO | __main__ | creating the dataset using baseline
+2026-03-29 14:39:08,386 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0.7
+2026-03-29 14:39:08,409 | INFO | __main__ | Batch querying model with 100 prompts for math_baseline_temp_0
+2026-03-29 14:39:15,941 | INFO | __main__ | creating the dataset using baseline
+2026-03-29 14:39:15,947 | INFO | __main__ | saved the dataset using baseline math_baseline_temp_0
+2026-03-29 14:39:30,387 | INFO | __main__ | creating the dataset using persona for math_persona
+2026-03-29 14:39:30,397 | INFO | __main__ | saved the dataset using persona math_persona
+2026-03-29 14:39:44,757 | INFO | __main__ | creating the dataset using persona for math_persona_general
+2026-03-29 14:39:44,763 | INFO | __main__ | saved the dataset using persona math_persona_general
+2026-03-29 14:39:44,777 | INFO | __main__ | generating instructions for math_self_instruct
+2026-03-29 14:39:49,352 | INFO | __main__ | Batch querying model with 100 prompts for generating instructions
+2026-03-29 14:39:54,531 | INFO | __main__ | creating the dataset using self-instruct 100
+2026-03-29 14:39:54,535 | INFO | __main__ | saved the dataset using self-instruct math_self_instruct
+2026-03-29 14:40:50,336 | INFO | __main__ | generating depth level 1 from 17 problems
+2026-03-29 14:40:56,082 | INFO | __main__ | generating breath level 1 from 17 problems
+2026-03-29 14:40:57,767 | INFO | __main__ | [Evol-Instruct] Running Level-2 in-depth evolution...
+2026-03-29 14:40:57,768 | INFO | __main__ | generating depth level 2(from level 1 in-depth) from 17 problems
+2026-03-29 14:40:59,839 | INFO | __main__ | generating depth level 2(from level 1 breath) from 17 problems
+2026-03-29 14:41:01,112 | INFO | __main__ | generating depth(from level 1 breath) level 2 from 17 problems
+2026-03-29 14:41:03,929 | INFO | __main__ | generating depth(from level 1 in-depth) level 2 from 17 problems
+2026-03-29 16:25:46,587 | INFO | __main__ | Evaluating dataset math_baseline_temp_0.7 with model gpt-5.4-mini for 100 questions
+2026-03-29 16:26:26,399 | INFO | __main__ | Evaluating dataset math_baseline_temp_0.7 with model claude-haiku-4.5 for 100 questions
+2026-03-29 16:29:19,757 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 3: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,757 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 4: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,758 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 6: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,758 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 12: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,758 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 15: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,758 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 19: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,758 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 23: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,759 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 27: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,759 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 28: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,759 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 32: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,759 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 35: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,759 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 44: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,760 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 45: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,760 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 46: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,760 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 49: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,760 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 53: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,760 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 60: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,760 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 61: Extra data: line 4 column 1 (char 19)
+2026-03-29 16:29:19,761 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 68: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,761 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 69: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,761 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 71: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,761 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 74: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,761 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 76: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,761 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 78: Extra data: line 4 column 1 (char 19)
+2026-03-29 16:29:19,762 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 79: Extra data: line 4 column 1 (char 19)
+2026-03-29 16:29:19,762 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 85: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,762 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 86: Extra data: line 4 column 1 (char 19)
+2026-03-29 16:29:19,762 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 90: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,762 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 91: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,762 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 93: Extra data: line 4 column 1 (char 19)
+2026-03-29 16:29:19,763 | WARNING | __main__ | Could not parse judge response for dataset math_baseline_temp_0.7 model claude-haiku-4.5 row 94: Extra data: line 4 column 1 (char 17)
+2026-03-29 16:29:19,771 | INFO | __main__ | Evaluating dataset math_baseline_temp_0.7 with model gemini-3-flash-preview for 100 questions
+2026-03-29 16:29:44,712 | INFO | __main__ | Evaluating dataset math_baseline_temp_0.7 with model minimax-m2.5 for 100 questions
+2026-03-29 17:05:13,900 | INFO | __main__ | Evaluating 2 ranking rounds with model arcee-ai
+2026-03-29 17:05:21,412 | INFO | __main__ | Evaluating 2 ranking rounds with model nvidia
+2026-03-29 17:10:46,246 | INFO | __main__ | Evaluating 2 ranking rounds with model gpt-5.4-mini
+2026-03-29 17:11:00,445 | INFO | __main__ | Evaluating 2 ranking rounds with model gemini-3-flash-preview
+2026-03-29 17:11:03,669 | INFO | __main__ | Evaluating 2 ranking rounds with model minimax-m2.5
+2026-03-29 17:11:47,507 | WARNING | __main__ | Could not parse ranking response for model minimax-m2.5 round 2: Could not find JSON object in model response: 
+2026-03-29 17:11:47,508 | INFO | __main__ | Evaluating 2 ranking rounds with model kimi-k2.5
+2026-03-29 17:15:00,891 | INFO | __main__ | Evaluating 2 ranking rounds with model groq-4-fast
+2026-03-29 17:18:52,861 | INFO | __main__ | Evaluating 2 ranking rounds with model deepseek-3.1
+2026-03-29 17:21:58,074 | INFO | __main__ | Evaluating 2 ranking rounds with model claude-haiku-4.5
+2026-03-29 17:24:20,515 | INFO | __main__ | Evaluating 50 ranking rounds with model gpt-5.4-mini
+2026-03-29 17:24:56,590 | INFO | __main__ | Evaluating 50 ranking rounds with model gemini-3-flash-preview
+2026-03-29 17:25:11,302 | INFO | __main__ | Evaluating 50 ranking rounds with model claude-haiku-4.5
+2026-03-29 17:25:56,340 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 1: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,342 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 10: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,342 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 11: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,344 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 19: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,345 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 23: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-03-29 17:25:56,346 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 27: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-03-29 17:25:56,347 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 29: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,347 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 32: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,348 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 33: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-03-29 17:25:56,348 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 35: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,351 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 46: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:25:56,351 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 49: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-03-29 17:25:56,359 | INFO | __main__ | Evaluating 50 ranking rounds with model groq-4
+2026-03-29 17:34:28,944 | INFO | __main__ | Evaluating 50 ranking rounds with model gpt-5.4-mini
+2026-03-29 17:35:02,740 | INFO | __main__ | Evaluating 50 ranking rounds with model gemini-3-flash-preview
+2026-03-29 17:35:15,239 | INFO | __main__ | Evaluating 50 ranking rounds with model claude-haiku-4.5
+2026-03-29 17:36:07,576 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 6: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-03-29 17:36:07,576 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 16: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-03-29 17:36:07,577 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 17: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,577 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 24: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,577 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 26: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,577 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 28: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,577 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 37: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,578 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 43: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,578 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 47: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,578 | WARNING | __main__ | Could not parse ranking response for model claude-haiku-4.5 round 49: Extra data: line 4 column 1 (char 71)
+2026-03-29 17:36:07,579 | INFO | __main__ | Evaluating 50 ranking rounds with model groq-4
+2026-03-29 17:37:20,700 | WARNING | __main__ | Ranking call failed for model groq-4 round 49: Response validation failed: 4 validation errors for Unmarshaller
+body.id
+  Field required [type=missing, input_value={'error': {'message': 'Ne...on lost.', 'code': 502}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+body.choices
+  Field required [type=missing, input_value={'error': {'message': 'Ne...on lost.', 'code': 502}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+body.created
+  Field required [type=missing, input_value={'error': {'message': 'Ne...on lost.', 'code': 502}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+body.model
+  Field required [type=missing, input_value={'error': {'message': 'Ne...on lost.', 'code': 502}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing

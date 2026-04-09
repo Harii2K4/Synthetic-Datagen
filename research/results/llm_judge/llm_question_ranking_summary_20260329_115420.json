@@ -1,0 +1,134 @@
+{
+  "runMetadata": {
+    "timestamp": "2026-03-29T11:57:13.531419+00:00",
+    "roundsRequested": 50,
+    "roundsCompleted": 50,
+    "datasets": ["math_evol", "math_persona", "math_persona_general"],
+    "models": [
+      "gpt-5.4-mini",
+      "gemini-3-flash-preview",
+      "claude-haiku-4.5",
+      "groq-4"
+    ],
+    "sampling": "without_replacement_until_exhausted",
+    "randomSeed": null,
+    "scoring": {
+      "borda": {
+        "1": 3,
+        "2": 2,
+        "3": 1
+      },
+      "rankMetric": "lower_is_better"
+    }
+  },
+  "perModel": {
+    "gpt-5.4-mini": {
+      "validRoundCount": 50,
+      "invalidResponseCount": 0,
+      "datasetStats": {
+        "math_evol": {
+          "pointsTotal": 90,
+          "averageRank": 2.2,
+          "firstPlaceCount": 9,
+          "secondPlaceCount": 22,
+          "thirdPlaceCount": 19
+        },
+        "math_persona": {
+          "pointsTotal": 133,
+          "averageRank": 1.34,
+          "firstPlaceCount": 36,
+          "secondPlaceCount": 11,
+          "thirdPlaceCount": 3
+        },
+        "math_persona_general": {
+          "pointsTotal": 77,
+          "averageRank": 2.46,
+          "firstPlaceCount": 5,
+          "secondPlaceCount": 17,
+          "thirdPlaceCount": 28
+        }
+      }
+    },
+    "gemini-3-flash-preview": {
+      "validRoundCount": 50,
+      "invalidResponseCount": 0,
+      "datasetStats": {
+        "math_evol": {
+          "pointsTotal": 80,
+          "averageRank": 2.4,
+          "firstPlaceCount": 12,
+          "secondPlaceCount": 6,
+          "thirdPlaceCount": 32
+        },
+        "math_persona": {
+          "pointsTotal": 115,
+          "averageRank": 1.7,
+          "firstPlaceCount": 23,
+          "secondPlaceCount": 19,
+          "thirdPlaceCount": 8
+        },
+        "math_persona_general": {
+          "pointsTotal": 105,
+          "averageRank": 1.9,
+          "firstPlaceCount": 15,
+          "secondPlaceCount": 25,
+          "thirdPlaceCount": 10
+        }
+      }
+    },
+    "claude-haiku-4.5": {
+      "validRoundCount": 38,
+      "invalidResponseCount": 12,
+      "datasetStats": {
+        "math_evol": {
+          "pointsTotal": 108,
+          "averageRank": 1.1579,
+          "firstPlaceCount": 35,
+          "secondPlaceCount": 0,
+          "thirdPlaceCount": 3
+        },
+        "math_persona": {
+          "pointsTotal": 69,
+          "averageRank": 2.1842,
+          "firstPlaceCount": 3,
+          "secondPlaceCount": 25,
+          "thirdPlaceCount": 10
+        },
+        "math_persona_general": {
+          "pointsTotal": 51,
+          "averageRank": 2.6579,
+          "firstPlaceCount": 0,
+          "secondPlaceCount": 13,
+          "thirdPlaceCount": 25
+        }
+      }
+    },
+    "groq-4": {
+      "validRoundCount": 50,
+      "invalidResponseCount": 0,
+      "datasetStats": {
+        "math_evol": {
+          "pointsTotal": 102,
+          "averageRank": 1.96,
+          "firstPlaceCount": 19,
+          "secondPlaceCount": 14,
+          "thirdPlaceCount": 17
+        },
+        "math_persona": {
+          "pointsTotal": 107,
+          "averageRank": 1.86,
+          "firstPlaceCount": 22,
+          "secondPlaceCount": 13,
+          "thirdPlaceCount": 15
+        },
+        "math_persona_general": {
+          "pointsTotal": 91,
+          "averageRank": 2.18,
+          "firstPlaceCount": 9,
+          "secondPlaceCount": 23,
+          "thirdPlaceCount": 18
+        }
+      }
+    }
+  }
+}

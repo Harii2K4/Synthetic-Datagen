@@ -7,9 +7,11 @@ Constraints:
 2.Do not just mention the persona. The problem must arise from a scenario specific to their expertise, utilizing their professional terminology or typical data constraints.
 3.Structure: Provide exactly one problem, which may contain up to 2 sub-problems(a and b).
 4. Format:
-    - Your response must start with the literal string "Math problem:".
+    - The first line must be exactly "Math problem:".
+    - Starting on the next line, provide only the problem statement.
     - Do not provide the solution or any introductory conversational filler.
-    - Use LaTeX for all mathematical notation."""
+    - Use LaTeX for all mathematical notation.
+    - Do not use markdown fences or extra headings."""
 instructionTemplate="""Guess a complex instruction or request that the following persona would realistically pose to an AI:
 
 {persona}
